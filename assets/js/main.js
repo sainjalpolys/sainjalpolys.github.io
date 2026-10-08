@@ -10,6 +10,7 @@
   const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const coarsePointer = window.matchMedia('(hover: none), (pointer: coarse)').matches;
   const hasGsap = Boolean(window.gsap && window.ScrollTrigger);
   const animate = hasGsap && !reduceMotion;
 
@@ -30,6 +31,8 @@
   let lenis = null;
   if (animate) {
     gsap.registerPlugin(ScrollTrigger);
+    // Phones show and hide the address bar while scrolling; don't recalculate every trigger when they do.
+    ScrollTrigger.config({ ignoreMobileResize: true });
     if (window.Lenis) {
       lenis = new Lenis({ lerp: 0.075, wheelMultiplier: 0.85, touchMultiplier: 1.4 });
       lenis.on('scroll', ScrollTrigger.update);
@@ -162,13 +165,13 @@
       whenVisible(duo, (v) => { on = v; });
       setInterval(() => {
         if (!on || document.hidden) return;
-        for (let k = 0; k < 60; k++) {
+        for (let k = 0; k < (coarsePointer ? 30 : 60); k++) {
           const row = grid[(Math.random() * rows) | 0];
           const c = (Math.random() * cols) | 0;
           row[c] = row[c] === ' ' ? bit() : (Math.random() < 0.15 ? ' ' : (row[c] === '0' ? '1' : '0'));
         }
         draw();
-      }, 110);
+      }, coarsePointer ? 200 : 110);
     }
   }
 
@@ -198,6 +201,15 @@
     brain.addEventListener('pointermove', fromPointer);
     brain.addEventListener('pointerdown', fromPointer);
     brain.addEventListener('pointerleave', () => { pos.set(50); if (mood !== 'mid') setMood('back'); });
+  }
+
+  // Diagrams and decorative loops only run while they are on screen.
+  if (!reduceMotion) {
+    const watch = new IntersectionObserver((entries) => entries.forEach(({ target, isIntersecting }) => {
+      target.classList.toggle('is-offscreen', !isIntersecting);
+      $$('svg', target).forEach((svg) => (isIntersecting ? svg.unpauseAnimations?.() : svg.pauseAnimations?.()));
+    }), { rootMargin: '200px 0px' });
+    $$('.viz, .layers, .hero, .chapter__top').forEach((el) => watch.observe(el));
   }
 
   if (!animate) {
@@ -259,7 +271,10 @@
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
-  lenis?.stop();
+  // Desktop holds the scroll for the short intro. Touch devices never do: a locked page
+  // swallows the first swipes, and the visitor feels the site is stuck.
+  if (coarsePointer) loader.style.pointerEvents = 'none';
+  else lenis?.stop();
 
   gsap.set(heroChars, { yPercent: 118 });
   gsap.set(heroFades, { opacity: 0, y: 24 });
@@ -275,20 +290,35 @@
       img.addEventListener('load', resolve, { once: true });
       img.addEventListener('error', resolve, { once: true });
     }));
+  // Never hold the page hostage: short waits, and any touch, wheel or key skips ahead.
+  let skip;
+  const skipped = new Promise((resolve) => { skip = resolve; });
+  let hurried = false;
+  let revealTl = null;
+  const hurry = () => {
+    if (hurried) return;
+    hurried = true;
+    skip();
+    preload.timeScale(6);
+    revealTl?.timeScale(2.5);
+  };
+  ['touchstart', 'wheel', 'keydown', 'pointerdown', 'scroll'].forEach((type) => window.addEventListener(type, hurry, { once: true, passive: true }));
+
   const assetsReady = Promise.race([
     Promise.all([document.fonts ? document.fonts.ready : null, imageReady($('.hero__img'))]),
-    new Promise((resolve) => setTimeout(resolve, 4000)),
+    new Promise((resolve) => setTimeout(resolve, coarsePointer ? 1500 : 2500)),
+    skipped,
   ]);
 
   const counter = { v: 0 };
   const countEl = $('.loader__count');
   const barEl = $('.loader__bar span');
   const preload = gsap.timeline()
-    .to('.loader__name span', { yPercent: 0, duration: 1.3, ease: 'expo.out' })
-    .to('.loader__role', { opacity: 1, duration: 1, ease: 'power2.out' }, 0.25)
+    .to('.loader__name span', { yPercent: 0, duration: 1.1, ease: 'expo.out' })
+    .to('.loader__role', { opacity: 1, duration: 0.8, ease: 'power2.out' }, 0.2)
     .to(counter, {
       v: 100,
-      duration: 1.9,
+      duration: coarsePointer ? 1 : 1.4,
       ease: 'power2.inOut',
       onUpdate: () => {
         countEl.textContent = String(Math.round(counter.v)).padStart(3, '0');
@@ -297,10 +327,12 @@
     }, 0);
 
   const reveal = () => {
-    gsap.timeline({
+    revealTl = gsap.timeline({
       defaults: { ease: 'expo.out' },
-      onComplete: () => { loader.remove(); ScrollTrigger.refresh(); },
-    })
+      onComplete: () => loader.remove(),
+    });
+    if (hurried) revealTl.timeScale(2.5);
+    revealTl
       .to('.loader__inner', { yPercent: -30, opacity: 0, duration: 1, ease: 'power3.in' }, 0)
       .to('.loader__bar, .loader__count', { opacity: 0, duration: 0.6, ease: 'power2.in' }, 0)
       .to('.loader__panel--top', { yPercent: -100, duration: 1.7, ease: 'expo.inOut' }, 0.55)
@@ -310,349 +342,321 @@
       .to('.hero__rule', { scaleX: 1, duration: 1.9, ease: 'expo.inOut' }, 1.2)
       .to(heroFades, { opacity: 1, y: 0, duration: 1.6, stagger: 0.1 }, 1.5)
       .to('.nav', { opacity: 1, duration: 1.4, ease: 'power2.out' }, 1.6)
-      .call(() => { loader.style.pointerEvents = 'none'; lenis?.start(); }, null, 1.6);
+      .call(() => { loader.style.pointerEvents = 'none'; lenis?.start(); }, null, 0.55);
   };
 
   Promise.all([assetsReady, preload.then()]).then(reveal);
 
-  /* ---------- Hero: layered parallax on the way out ---------- */
+  // Everything below the hero is wired up after the first paint, while the loader is still up.
+  const setupScroll = () => {
+    /* ---------- Hero: layered parallax on the way out ---------- */
 
-  gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } })
-    .to('.hero__parallax', { yPercent: 14, scale: 1.08, ease: 'none', duration: 1 }, 0)
-    .to('.hero__dim', { opacity: 0.7, ease: 'none', duration: 1 }, 0)
-    .to('.hero__title', { yPercent: -22, ease: 'none', duration: 1 }, 0)
-    .to('.hero__content', { y: () => -window.innerHeight * 0.1, opacity: 0, ease: 'none', duration: 0.7 }, 0)
-    .to('.hero__hud', { yPercent: -40, opacity: 0, ease: 'none', duration: 0.35 }, 0);
+    gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } })
+      .to('.hero__parallax', { yPercent: 14, scale: 1.08, ease: 'none', duration: 1 }, 0)
+      .to('.hero__dim', { opacity: 0.7, ease: 'none', duration: 1 }, 0)
+      .to('.hero__title', { yPercent: -22, ease: 'none', duration: 1 }, 0)
+      .to('.hero__content', { y: () => -window.innerHeight * 0.1, opacity: 0, ease: 'none', duration: 0.7 }, 0)
+      .to('.hero__hud', { yPercent: -40, opacity: 0, ease: 'none', duration: 0.35 }, 0);
 
-  /* ---------- Reveals ---------- */
+    /* ---------- Reveals ---------- */
 
-  $$('[data-reveal-words]').forEach((el) => {
-    gsap.from(splitWords(el), {
-      yPercent: 115,
-      duration: 1.7,
-      ease: 'expo.out',
-      stagger: 0.04,
-      scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+    // One-shot reveals use IntersectionObserver: no scroll listeners, no forced layout.
+    const onEnter = (els, cb, bottomMargin = '-10%') => {
+      const io = new IntersectionObserver((entries) => {
+        const batch = entries.filter((e) => e.isIntersecting).map((e) => e.target);
+        batch.forEach((el) => io.unobserve(el));
+        if (batch.length) cb(batch);
+      }, { rootMargin: `0px 0px ${bottomMargin} 0px` });
+      els.forEach((el) => io.observe(el));
+    };
+
+    const wordsOf = new Map();
+    $$('[data-reveal-words]').forEach((el) => {
+      const words = splitWords(el);
+      gsap.set(words, { yPercent: 115 });
+      wordsOf.set(el, words);
     });
-  });
+    onEnter([...wordsOf.keys()], (batch) => batch.forEach((el) => {
+      gsap.to(wordsOf.get(el), { yPercent: 0, duration: 1.7, ease: 'expo.out', stagger: 0.04 });
+    }), '-15%');
 
-  $$('[data-scrub-words]').forEach((el) => {
-    gsap.fromTo(splitWords(el), { opacity: 0.12 }, {
-      opacity: 1,
-      ease: 'none',
-      stagger: 0.08,
-      scrollTrigger: { trigger: el, start: 'top 80%', end: 'bottom 50%', scrub: 0.8 },
+    $$('[data-scrub-words]').forEach((el) => {
+      gsap.fromTo(splitWords(el), { opacity: 0.12 }, {
+        opacity: 1,
+        ease: 'none',
+        stagger: 0.08,
+        scrollTrigger: { trigger: el, start: 'top 80%', end: 'bottom 50%', scrub: 0.8 },
+      });
     });
-  });
 
-  const fades = $$('[data-reveal]');
-  gsap.set(fades, { opacity: 0, y: 36 });
-  ScrollTrigger.batch(fades, {
-    start: 'top 90%',
-    once: true,
-    onEnter: (batch) => gsap.to(batch, { opacity: 1, y: 0, duration: 1.6, ease: 'expo.out', stagger: 0.1, overwrite: true }),
-  });
+    const fades = $$('[data-reveal]');
+    gsap.set(fades, { opacity: 0, y: 36 });
+    onEnter(fades, (batch) => gsap.to(batch, { opacity: 1, y: 0, duration: 1.6, ease: 'expo.out', stagger: 0.1, overwrite: true }), '-6%');
 
-  $$('.rule').forEach((rule) => {
-    gsap.fromTo(rule, { scaleX: 0 }, {
-      scaleX: 1,
-      duration: 1.9,
-      ease: 'expo.inOut',
-      scrollTrigger: { trigger: rule.parentElement, start: 'top 92%', once: true },
-    });
-  });
+    const rules = $$('.rule');
+    gsap.set(rules, { scaleX: 0 });
+    onEnter(rules, (batch) => gsap.to(batch, { scaleX: 1, duration: 1.9, ease: 'expo.inOut', stagger: 0.08 }), '-6%');
 
-  $$('[data-count]').forEach((el) => {
-    const end = parseFloat(el.dataset.count);
-    const value = { v: 0 };
-    el.textContent = '0';
-    gsap.to(value, {
-      v: end,
-      duration: 2.4,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: el, start: 'top 90%', once: true },
-      onUpdate: () => { el.textContent = Math.round(value.v); },
-    });
-  });
+    const counters = $$('[data-count]');
+    counters.forEach((el) => { el.textContent = '0'; });
+    onEnter(counters, (batch) => batch.forEach((el) => {
+      const value = { v: 0 };
+      gsap.to(value, { v: parseFloat(el.dataset.count), duration: 2.4, ease: 'power3.out', onUpdate: () => { el.textContent = Math.round(value.v); } });
+    }));
 
-  /* ---------- Framed images: wipe in, then drift inside the frame ---------- */
+    /* ---------- Framed images: wipe in, then drift inside the frame ---------- */
 
-  $$('[data-frame]').forEach((frame) => {
-    const img = $('img', frame);
-    gsap.fromTo(frame, { clipPath: 'inset(100% 0% 0% 0%)' }, {
-      clipPath: 'inset(0% 0% 0% 0%)',
-      duration: 2,
-      ease: 'expo.inOut',
-      scrollTrigger: { trigger: frame, start: 'top 85%', once: true },
+    const wipeIn = (els) => {
+      gsap.set(els, { clipPath: 'inset(100% 0% 0% 0%)' });
+      onEnter(els, (batch) => gsap.to(batch, { clipPath: 'inset(0% 0% 0% 0%)', duration: 2, ease: 'expo.inOut' }), '-15%');
+    };
+    wipeIn($$('[data-frame]'));
+    $$('[data-frame]').forEach((frame) => {
+      const img = $('img', frame);
+      gsap.fromTo(img, { yPercent: -7, scale: 1.12 }, {
+        yPercent: 7,
+        scale: 1,
+        ease: 'none',
+        scrollTrigger: { trigger: frame, start: 'top bottom', end: 'bottom top', scrub: true },
+      });
     });
-    gsap.fromTo(img, { yPercent: -7, scale: 1.12 }, {
-      yPercent: 7,
-      scale: 1,
-      ease: 'none',
-      scrollTrigger: { trigger: frame, start: 'top bottom', end: 'bottom top', scrub: true },
-    });
-  });
 
-  if (duo) {
-    gsap.fromTo(duo, { clipPath: 'inset(100% 0% 0% 0%)' }, {
-      clipPath: 'inset(0% 0% 0% 0%)',
-      duration: 2,
-      ease: 'expo.inOut',
-      scrollTrigger: { trigger: duo, start: 'top 85%', once: true },
-    });
-    gsap.fromTo($$('img', duo), { scale: 1.12 }, {
-      scale: 1,
-      ease: 'none',
-      scrollTrigger: { trigger: duo, start: 'top bottom', end: 'bottom top', scrub: true },
-    });
-    // One slow sweep to show it can be dragged, unless someone beat us to it.
-    ScrollTrigger.create({
-      trigger: duo,
-      start: 'top 55%',
-      once: true,
-      onEnter: () => {
+    if (duo) {
+      wipeIn([duo]);
+      gsap.fromTo($$('img', duo), { scale: 1.12 }, {
+        scale: 1,
+        ease: 'none',
+        scrollTrigger: { trigger: duo, start: 'top bottom', end: 'bottom top', scrub: true },
+      });
+      // One slow sweep to show it can be dragged, unless someone beat us to it.
+      onEnter([duo], () => {
         [[600, 26], [1700, 74], [2900, 50]].forEach(([delay, v]) => setTimeout(() => { if (!duoTouched) duoSplit.set(v); }, delay));
-      },
-    });
-  }
+      }, '-45%');
+    }
 
-  $$('[data-depth]').forEach((el) => {
-    const depth = parseFloat(el.dataset.depth) || 0;
-    gsap.fromTo(el, { yPercent: -depth }, {
-      yPercent: depth,
-      ease: 'none',
-      scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: true },
-    });
-  });
-
-  /* ---------- Image expansion ---------- */
-
-  const expand = $('.expand');
-  if (expand) {
-    // Start from the card the CSS draws (framed on the face), then open it to full bleed.
-    const startInset = () => {
-      const css = getComputedStyle(expand);
-      const v = (name) => css.getPropertyValue(name).trim();
-      return `inset(${v('--card-top')} ${v('--card-x')} ${v('--card-bottom')} ${v('--card-x')} round 18px)`;
-    };
-    const caption = $$('.expand__caption > *');
-    gsap.set(caption, { y: 40, opacity: 0 });
-    gsap.timeline({ scrollTrigger: { trigger: expand, start: 'top top', end: 'bottom bottom', scrub: 1.2, invalidateOnRefresh: true } })
-      .fromTo('.expand__frame', { clipPath: startInset }, { clipPath: 'inset(0% 0% 0% 0% round 0px)', ease: 'none', duration: 1 }, 0)
-      .fromTo('.expand__img', { scale: 1.15 }, { scale: 1, ease: 'none', duration: 1 }, 0)
-      .to('.expand__line--a', { xPercent: -40, opacity: 0, ease: 'none', duration: 0.6 }, 0)
-      .to('.expand__line--b', { xPercent: 40, opacity: 0, ease: 'none', duration: 0.6 }, 0)
-      .fromTo('.expand__shade', { opacity: 0.25 }, { opacity: 1, ease: 'none', duration: 0.35 }, 0.7)
-      .to(caption, { y: 0, opacity: 1, ease: 'power2.out', duration: 0.3, stagger: 0.06 }, 0.8)
-      .to({}, { duration: 0.2 });
-  }
-
-  /* ---------- Work chapters ---------- */
-
-  $$('.chapter__ghost').forEach((ghost) => {
-    gsap.fromTo(ghost, { xPercent: 8 }, {
-      xPercent: -28,
-      ease: 'none',
-      scrollTrigger: { trigger: ghost.parentElement, start: 'top bottom', end: 'bottom top', scrub: true },
-    });
-  });
-
-  /* ---------- Diagrams: open up, draw their lines, then come alive ---------- */
-
-  // A dotted copy of each connection carries particles in the direction of flow.
-  $$('[data-flow]').forEach((path) => {
-    const flow = path.cloneNode();
-    ['pathLength', 'data-draw', 'data-flow', 'id'].forEach((attr) => flow.removeAttribute(attr));
-    flow.setAttribute('class', 'flow');
-    path.after(flow);
-  });
-
-  $$('.viz').forEach((viz) => {
-    gsap.fromTo(viz, { clipPath: 'inset(14% 10% 14% 10%)' }, {
-      clipPath: 'inset(0% 0% 0% 0%)',
-      ease: 'none',
-      scrollTrigger: { trigger: viz, start: 'top 95%', end: 'top 40%', scrub: 1 },
-    });
-    gsap.fromTo($('.viz__zoom', viz), { scale: 1.25 }, {
-      scale: 1,
-      ease: 'none',
-      scrollTrigger: { trigger: viz, start: 'top 95%', end: 'top 30%', scrub: 1 },
-    });
-    gsap.timeline({ scrollTrigger: { trigger: viz, start: 'top 80%', end: 'center 55%', scrub: 1 } })
-      .fromTo($$('[data-draw]', viz), { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none', stagger: 0.12 })
-      .fromTo($$('[data-mover], .flow', viz), { opacity: 0 }, { opacity: 1, duration: 0.15 });
-    gsap.from($$('[data-node]', viz), {
-      scale: 0,
-      opacity: 0,
-      transformOrigin: '50% 50%',
-      duration: 1.3,
-      ease: 'expo.out',
-      stagger: 0.12,
-      scrollTrigger: { trigger: viz, start: 'top 70%', once: true },
-    });
-  });
-
-  /* ---------- Exploded stack: assembles, then highlights layer by layer ---------- */
-
-  const iso = $('[data-iso]');
-  if (iso) {
-    gsap.from($$('[data-plate]', iso), {
-      y: -70,
-      opacity: 0,
-      duration: 1.5,
-      ease: 'expo.out',
-      stagger: 0.12,
-      scrollTrigger: { trigger: iso, start: 'top 75%', once: true },
+    $$('[data-depth]').forEach((el) => {
+      const depth = parseFloat(el.dataset.depth) || 0;
+      gsap.fromTo(el, { yPercent: -depth }, {
+        yPercent: depth,
+        ease: 'none',
+        scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: true },
+      });
     });
 
-    const items = $$('.anatomy .layer[data-layer]');
-    const setActive = (n) => {
-      iso.classList.toggle('has-active', Boolean(n));
-      $$('[data-layer]', iso).forEach((el) => el.classList.toggle('is-active', el.dataset.layer === n));
-      items.forEach((el) => el.classList.toggle('is-active', el.dataset.layer === n));
-    };
-    let timer = null;
-    let step = 0;
-    let hovering = false;
-    const cycle = (on) => {
-      clearInterval(timer);
-      timer = null;
-      if (!on) { setActive(null); return; }
-      timer = setInterval(() => {
-        if (hovering) return;
-        step = (step % items.length) + 1;
-        setActive(String(step));
-      }, 2600);
-    };
-    ScrollTrigger.create({ trigger: '.anatomy', start: 'top 70%', end: 'bottom 30%', onToggle: (self) => cycle(self.isActive) });
-    [...items, ...$$('.plate', iso)].forEach((el) => {
-      el.addEventListener('pointerenter', () => { hovering = true; step = Number(el.dataset.layer); setActive(el.dataset.layer); });
-      el.addEventListener('pointerleave', () => { hovering = false; });
+    /* ---------- Image expansion ---------- */
+
+    const expand = $('.expand');
+    if (expand) {
+      // Start from the card the CSS draws (framed on the face), then open it to full bleed.
+      const startInset = () => {
+        const css = getComputedStyle(expand);
+        const v = (name) => css.getPropertyValue(name).trim();
+        return `inset(${v('--card-top')} ${v('--card-x')} ${v('--card-bottom')} ${v('--card-x')} round 18px)`;
+      };
+      const caption = $$('.expand__caption > *');
+      gsap.set(caption, { y: 40, opacity: 0 });
+      gsap.timeline({ scrollTrigger: { trigger: expand, start: 'top top', end: 'bottom bottom', scrub: 1.2, invalidateOnRefresh: true } })
+        .fromTo('.expand__frame', { clipPath: startInset }, { clipPath: 'inset(0% 0% 0% 0% round 0px)', ease: 'none', duration: 1 }, 0)
+        .fromTo('.expand__img', { scale: 1.15 }, { scale: 1, ease: 'none', duration: 1 }, 0)
+        .to('.expand__line--a', { xPercent: -40, opacity: 0, ease: 'none', duration: 0.6 }, 0)
+        .to('.expand__line--b', { xPercent: 40, opacity: 0, ease: 'none', duration: 0.6 }, 0)
+        .fromTo('.expand__shade', { opacity: 0.25 }, { opacity: 1, ease: 'none', duration: 0.35 }, 0.7)
+        .to(caption, { y: 0, opacity: 1, ease: 'power2.out', duration: 0.3, stagger: 0.06 }, 0.8)
+        .to({}, { duration: 0.2 });
+    }
+
+    /* ---------- Work chapters ---------- */
+
+    $$('.chapter__ghost').forEach((ghost) => {
+      gsap.fromTo(ghost, { xPercent: 8 }, {
+        xPercent: -28,
+        ease: 'none',
+        scrollTrigger: { trigger: ghost.parentElement, start: 'top bottom', end: 'bottom top', scrub: true },
+      });
     });
-  }
 
-  /* ---------- Ideogram icons: drawn in once, redrawn on hover ---------- */
+    /* ---------- Diagrams: open up, draw their lines, then come alive ---------- */
 
-  const strokes = new Map();
-  $$('[data-icon]').forEach((icon) => {
-    const shapes = $$('path, circle, rect, ellipse, line', icon).filter((el) => !el.classList.contains('dash'));
-    shapes.forEach((el) => el.setAttribute('pathLength', '1'));
-    icon.classList.add('is-drawable');
-    gsap.set(shapes, { strokeDashoffset: 1 });
-    gsap.set($$('.dash', icon), { opacity: 0 });
-    strokes.set(icon, shapes);
-  });
-  ScrollTrigger.batch('[data-icon]', {
-    start: 'top 90%',
-    once: true,
-    onEnter: (batch) => batch.forEach((icon, i) => {
+    // A dotted copy of each connection carries particles in the direction of flow.
+    $$('[data-flow]').forEach((path) => {
+      const flow = path.cloneNode();
+      ['pathLength', 'data-draw', 'data-flow', 'id'].forEach((attr) => flow.removeAttribute(attr));
+      flow.setAttribute('class', 'flow');
+      path.after(flow);
+    });
+
+    const vizzes = $$('.viz');
+    gsap.set(vizzes, { clipPath: 'inset(14% 10% 14% 10%)' });
+    gsap.set($$('.viz__zoom'), { scale: 1.25 });
+    onEnter(vizzes, (batch) => batch.forEach((viz) => {
+      gsap.to(viz, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.6, ease: 'expo.out' });
+      gsap.to($('.viz__zoom', viz), { scale: 1, duration: 2, ease: 'expo.out' });
+    }), '-8%');
+    vizzes.forEach((viz) => {
+      // Lines draw in step with the scroll; the rest plays once.
+      gsap.timeline({ scrollTrigger: { trigger: viz, start: 'top 80%', end: 'center 55%', scrub: 1 } })
+        .fromTo($$('[data-draw]', viz), { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none', stagger: 0.12 })
+        .fromTo($$('[data-mover], .flow', viz), { opacity: 0 }, { opacity: 1, duration: 0.15 });
+      const nodes = $$('[data-node]', viz);
+      gsap.set(nodes, { scale: 0, opacity: 0, transformOrigin: '50% 50%' });
+      onEnter([viz], () => gsap.to(nodes, { scale: 1, opacity: 1, duration: 1.3, ease: 'expo.out', stagger: 0.12 }), '-30%');
+    });
+
+    /* ---------- Exploded stack: assembles, then highlights layer by layer ---------- */
+
+    const iso = $('[data-iso]');
+    if (iso) {
+      const plates = $$('[data-plate]', iso);
+      gsap.set(plates, { y: -70, opacity: 0 });
+      onEnter([iso], () => gsap.to(plates, { y: 0, opacity: 1, duration: 1.5, ease: 'expo.out', stagger: 0.12 }), '-25%');
+
+      const items = $$('.anatomy .layer[data-layer]');
+      const setActive = (n) => {
+        iso.classList.toggle('has-active', Boolean(n));
+        $$('[data-layer]', iso).forEach((el) => el.classList.toggle('is-active', el.dataset.layer === n));
+        items.forEach((el) => el.classList.toggle('is-active', el.dataset.layer === n));
+      };
+      let timer = null;
+      let step = 0;
+      let hovering = false;
+      const cycle = (on) => {
+        clearInterval(timer);
+        timer = null;
+        if (!on) { setActive(null); return; }
+        timer = setInterval(() => {
+          if (hovering) return;
+          step = (step % items.length) + 1;
+          setActive(String(step));
+        }, 2600);
+      };
+      ScrollTrigger.create({ trigger: '.anatomy', start: 'top 70%', end: 'bottom 30%', onToggle: (self) => cycle(self.isActive) });
+      [...items, ...$$('.plate', iso)].forEach((el) => {
+        el.addEventListener('pointerenter', () => { hovering = true; step = Number(el.dataset.layer); setActive(el.dataset.layer); });
+        el.addEventListener('pointerleave', () => { hovering = false; });
+      });
+    }
+
+    /* ---------- Ideogram icons: drawn in once, redrawn on hover ---------- */
+
+    const strokes = new Map();
+    $$('[data-icon]').forEach((icon) => {
+      const shapes = $$('path, circle, rect, ellipse, line', icon).filter((el) => !el.classList.contains('dash'));
+      shapes.forEach((el) => el.setAttribute('pathLength', '1'));
+      icon.classList.add('is-drawable');
+      gsap.set(shapes, { strokeDashoffset: 1 });
+      gsap.set($$('.dash', icon), { opacity: 0 });
+      strokes.set(icon, shapes);
+    });
+    onEnter([...strokes.keys()], (batch) => batch.forEach((icon, i) => {
       gsap.to(strokes.get(icon), { strokeDashoffset: 0, duration: 1.7, ease: 'power2.inOut', stagger: 0.09, delay: i * 0.1 });
       gsap.to($$('.dash', icon), { opacity: 1, duration: 1, delay: 0.8 + i * 0.1 });
-    }),
-  });
-  if (finePointer) {
-    strokes.forEach((shapes, icon) => {
-      icon.closest('.feature, .pattern')?.addEventListener('mouseenter', () => {
-        gsap.fromTo(shapes, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut', stagger: 0.05, overwrite: true });
+    }), '-8%');
+    if (finePointer) {
+      strokes.forEach((shapes, icon) => {
+        icon.closest('.feature, .pattern')?.addEventListener('mouseenter', () => {
+          gsap.fromTo(shapes, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut', stagger: 0.05, overwrite: true });
+        });
+      });
+    }
+
+    $$('[data-band-img]').forEach((img) => {
+      gsap.fromTo(img, { yPercent: -8 }, {
+        yPercent: 8,
+        ease: 'none',
+        scrollTrigger: { trigger: img.closest('.band'), start: 'top bottom', end: 'bottom top', scrub: true },
       });
     });
-  }
 
-  $$('[data-band-img]').forEach((img) => {
-    gsap.fromTo(img, { yPercent: -8 }, {
-      yPercent: 8,
-      ease: 'none',
-      scrollTrigger: { trigger: img.closest('.band'), start: 'top bottom', end: 'bottom top', scrub: true },
-    });
-  });
+    /* ---------- Marquee: slow drift, nudged by scroll speed ---------- */
 
-  /* ---------- Marquee: slow drift, nudged by scroll speed ---------- */
+    const track = $('.marquee__track');
+    if (track) {
+      const loop = gsap.to(track, { xPercent: -50, duration: 70, ease: 'none', repeat: -1 });
+      let boost = 0;
+      let speed = 1;
+      ScrollTrigger.create({
+        trigger: '.marquee',
+        start: 'top bottom',
+        end: 'bottom top',
+        onToggle: (self) => (self.isActive ? loop.play() : loop.pause()),
+        onUpdate: (self) => { boost = Math.min(Math.abs(self.getVelocity()) / 250, 6); },
+      });
+      gsap.ticker.add(() => {
+        speed += (1 + boost - speed) * 0.06;
+        boost *= 0.9;
+        loop.timeScale(speed);
+      });
+    }
 
-  const track = $('.marquee__track');
-  if (track) {
-    const loop = gsap.to(track, { xPercent: -50, duration: 70, ease: 'none', repeat: -1 });
-    let boost = 0;
-    let speed = 1;
+    /* ---------- Chrome: nav, progress, wordmark ---------- */
+
+    const nav = $('.nav');
     ScrollTrigger.create({
-      trigger: '.marquee',
-      start: 'top bottom',
-      end: 'bottom top',
-      onToggle: (self) => (self.isActive ? loop.play() : loop.pause()),
-      onUpdate: (self) => { boost = Math.min(Math.abs(self.getVelocity()) / 250, 6); },
-    });
-    gsap.ticker.add(() => {
-      speed += (1 + boost - speed) * 0.06;
-      boost *= 0.9;
-      loop.timeScale(speed);
-    });
-  }
-
-  /* ---------- Chrome: nav, progress, wordmark ---------- */
-
-  const nav = $('.nav');
-  ScrollTrigger.create({
-    start: 0,
-    end: 'max',
-    onUpdate: (self) => {
-      if (root.classList.contains('menu-open')) return;
-      nav.classList.toggle('is-hidden', self.direction === 1 && self.scroll() > window.innerHeight * 0.5);
-    },
-  });
-
-  gsap.to('.progress', { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 0.4 } });
-
-  gsap.fromTo('.wordmark span', { yPercent: 100 }, {
-    yPercent: 0,
-    ease: 'none',
-    scrollTrigger: { trigger: '.wordmark', start: 'top bottom', end: 'max', scrub: true },
-  });
-
-  /* ---------- Cursor + magnetic buttons ---------- */
-
-  if (finePointer) {
-    const cursor = $('.cursor');
-    const dot = $('.cursor__dot');
-    const ring = $('.cursor__ring');
-    const label = $('.cursor__label');
-    root.classList.add('has-cursor');
-    gsap.set([dot, ring], { xPercent: -50, yPercent: -50 });
-
-    const dotX = gsap.quickTo(dot, 'x', { duration: 0.15, ease: 'power3' });
-    const dotY = gsap.quickTo(dot, 'y', { duration: 0.15, ease: 'power3' });
-    const ringX = gsap.quickTo(ring, 'x', { duration: 0.6, ease: 'power3' });
-    const ringY = gsap.quickTo(ring, 'y', { duration: 0.6, ease: 'power3' });
-
-    window.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse') return;
-      if (!cursor.classList.contains('is-visible')) {
-        gsap.set([dot, ring], { x: e.clientX, y: e.clientY });
-        cursor.classList.add('is-visible');
-      }
-      dotX(e.clientX); dotY(e.clientY);
-      ringX(e.clientX); ringY(e.clientY);
-    }, { passive: true });
-    document.addEventListener('mouseleave', () => cursor.classList.remove('is-visible'));
-
-    document.addEventListener('pointerover', (e) => {
-      const el = e.target.closest('a, button, [data-cursor]');
-      const text = el?.dataset.cursor || '';
-      cursor.classList.toggle('is-label', Boolean(text));
-      cursor.classList.toggle('is-link', Boolean(el) && !text);
-      if (text) label.textContent = text;
+      start: 0,
+      end: 'max',
+      onUpdate: (self) => {
+        if (root.classList.contains('menu-open')) return;
+        nav.classList.toggle('is-hidden', self.direction === 1 && self.scroll() > window.innerHeight * 0.5);
+      },
     });
 
-    $$('[data-magnetic]').forEach((el) => {
-      const pull = 0.3;
-      const xTo = gsap.quickTo(el, 'x', { duration: 0.9, ease: 'power3' });
-      const yTo = gsap.quickTo(el, 'y', { duration: 0.9, ease: 'power3' });
-      el.addEventListener('pointermove', (e) => {
-        const r = el.getBoundingClientRect();
-        xTo((e.clientX - (r.left + r.width / 2)) * pull);
-        yTo((e.clientY - (r.top + r.height / 2)) * pull);
+    gsap.to('.progress', { scaleX: 1, ease: 'none', scrollTrigger: { start: 0, end: 'max', scrub: 0.4 } });
+
+    gsap.fromTo('.wordmark span', { yPercent: 100 }, {
+      yPercent: 0,
+      ease: 'none',
+      scrollTrigger: { trigger: '.wordmark', start: 'top bottom', end: 'max', scrub: true },
+    });
+
+    /* ---------- Cursor + magnetic buttons ---------- */
+
+    if (finePointer) {
+      const cursor = $('.cursor');
+      const dot = $('.cursor__dot');
+      const ring = $('.cursor__ring');
+      const label = $('.cursor__label');
+      root.classList.add('has-cursor');
+      gsap.set([dot, ring], { xPercent: -50, yPercent: -50 });
+
+      const dotX = gsap.quickTo(dot, 'x', { duration: 0.15, ease: 'power3' });
+      const dotY = gsap.quickTo(dot, 'y', { duration: 0.15, ease: 'power3' });
+      const ringX = gsap.quickTo(ring, 'x', { duration: 0.6, ease: 'power3' });
+      const ringY = gsap.quickTo(ring, 'y', { duration: 0.6, ease: 'power3' });
+
+      window.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        if (!cursor.classList.contains('is-visible')) {
+          gsap.set([dot, ring], { x: e.clientX, y: e.clientY });
+          cursor.classList.add('is-visible');
+        }
+        dotX(e.clientX); dotY(e.clientY);
+        ringX(e.clientX); ringY(e.clientY);
+      }, { passive: true });
+      document.addEventListener('mouseleave', () => cursor.classList.remove('is-visible'));
+
+      document.addEventListener('pointerover', (e) => {
+        const el = e.target.closest('a, button, [data-cursor]');
+        const text = el?.dataset.cursor || '';
+        cursor.classList.toggle('is-label', Boolean(text));
+        cursor.classList.toggle('is-link', Boolean(el) && !text);
+        if (text) label.textContent = text;
       });
-      el.addEventListener('pointerleave', () => { xTo(0); yTo(0); });
-    });
-  }
 
-  document.fonts?.ready.then(() => ScrollTrigger.refresh());
+      $$('[data-magnetic]').forEach((el) => {
+        const pull = 0.3;
+        const xTo = gsap.quickTo(el, 'x', { duration: 0.9, ease: 'power3' });
+        const yTo = gsap.quickTo(el, 'y', { duration: 0.9, ease: 'power3' });
+        el.addEventListener('pointermove', (e) => {
+          const r = el.getBoundingClientRect();
+          xTo((e.clientX - (r.left + r.width / 2)) * pull);
+          yTo((e.clientY - (r.top + r.height / 2)) * pull);
+        });
+        el.addEventListener('pointerleave', () => { xTo(0); yTo(0); });
+      });
+    }
+
+    // Web fonts change line breaks; re-measure once if they land after setup.
+    if (document.fonts && document.fonts.status !== 'loaded') document.fonts.ready.then(() => ScrollTrigger.refresh());
+  };
+  requestAnimationFrame(() => setTimeout(setupScroll, 0));
 })();

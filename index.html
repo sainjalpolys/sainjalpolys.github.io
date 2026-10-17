@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Sainjal Poly — Solution Architect</title>
   <meta name="description" content="Sainjal Poly — solution architect who ships containers, both kinds. A playful 3D port of the systems, career and thinking behind enterprise logistics platforms.">
-  <meta name="theme-color" content="#eef5ff">
+  <meta name="theme-color" content="#fbf6ee">
   <script>
     (function () {
       var saved = null;
@@ -13,7 +13,7 @@
       var theme = saved === 'light' || saved === 'dark' ? saved
         : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', theme);
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', theme === 'dark' ? '#070b18' : '#eef5ff');
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', theme === 'dark' ? '#121212' : '#fbf6ee');
       document.documentElement.classList.replace('no-js', 'js');
     })();
   </script>
@@ -71,6 +71,7 @@
     </a>
     <nav class="nav" aria-label="Primary">
       <a href="#about">About</a>
+      <a href="#chain">Chain</a>
       <a href="#galaxy">Stack</a>
       <a href="#voyage">Voyage</a>
       <a href="#work">Work</a>
@@ -89,11 +90,12 @@
   <div class="menu" id="menu" aria-hidden="true" inert>
     <nav aria-label="Mobile">
       <a href="#about"><b>01</b>About</a>
-      <a href="#galaxy"><b>02</b>Stack</a>
-      <a href="#voyage"><b>03</b>Voyage</a>
-      <a href="#work"><b>04</b>Work</a>
-      <a href="#play"><b>05</b>Play</a>
-      <a href="#contact"><b>06</b>Contact</a>
+      <a href="#chain"><b>02</b>Chain</a>
+      <a href="#galaxy"><b>03</b>Stack</a>
+      <a href="#voyage"><b>04</b>Voyage</a>
+      <a href="#work"><b>05</b>Work</a>
+      <a href="#play"><b>06</b>Play</a>
+      <a href="#contact"><b>07</b>Contact</a>
     </nav>
   </div>
 
@@ -113,6 +115,7 @@
         <h1 class="hero__name" data-hero-name aria-label="Sainjal Poly">Sainjal Poly</h1>
         <p class="hero__role" data-hero-in><span class="pill pill--live"><i></i>Solution Architect</span><span class="pill">8+ yrs · Java · GCP</span></p>
         <p class="hero__tag" data-hero-in>I ship containers.<br><em>Both kinds.</em></p>
+        <p class="hero__sub" data-hero-in>End-to-end logistics software for <span><i style="--c:var(--c1)"></i>truck</span><span><i style="--c:var(--c2)"></i>rail</span><span><i style="--c:var(--c5)"></i>barge</span><span><i style="--c:var(--c3)"></i>sea</span></p>
         <div class="hero__cta" data-hero-in>
           <a class="btn btn--primary" href="#play" data-magnetic data-cursor="Play">Play Stack Overflow <span aria-hidden="true">→</span></a>
           <a class="btn" href="#work" data-magnetic data-cursor="Open">See my work</a>
@@ -171,10 +174,47 @@
       </ul>
     </section>
 
+    <!-- THE WHOLE CHAIN -->
+    <section class="section chain" id="chain">
+      <p class="eyebrow" data-reveal><span>02</span>The whole chain</p>
+      <h2 class="title" data-words>Not just ships. <em>The whole chain.</em></h2>
+      <p class="lede" data-reveal>Across the platforms I've built, the software covers logistics end to end — from master data and rates to orders, fleet, execution and invoicing — for every mode that moves a container.</p>
+
+      <ul class="modes" aria-label="Transport modes and sites">
+        <li class="mode" tabindex="0" style="--mc:#e76f51" data-reveal><span class="mode__ic"><svg viewBox="0 0 76 42" aria-hidden="true"><g class="anim-drive"><rect class="fill" x="4" y="12" width="40" height="22" rx="2"/><path d="M4 12h40v22H4z M12 15v16 M20 15v16 M28 15v16 M36 15v16"/><path d="M44 18h12l8 9v7H44z"/><path d="M50 21h5l4 5h-9z"/><circle class="wheel" cx="14" cy="36" r="4"/><circle class="wheel" cx="52" cy="36" r="4"/></g></svg></span><b>Truck</b><span>Pre- and on-carriage, door to door.</span></li>
+        <li class="mode" tabindex="0" style="--mc:#2a9d8f" data-reveal><span class="mode__ic"><svg viewBox="0 0 76 42" aria-hidden="true"><path d="M0 39h76"/><g class="anim-drive"><rect class="fill" x="6" y="10" width="44" height="20" rx="2"/><path d="M6 10h44v20H6z M14 13v14 M22 13v14 M30 13v14 M38 13v14"/><path d="M2 30h60"/><circle class="wheel" cx="14" cy="34" r="3.5"/><circle class="wheel" cx="26" cy="34" r="3.5"/><circle class="wheel" cx="44" cy="34" r="3.5"/><circle class="wheel" cx="56" cy="34" r="3.5"/></g></svg></span><b>Rail</b><span>Intermodal trains and wagons.</span></li>
+        <li class="mode" tabindex="0" style="--mc:#e9c46a" data-reveal><span class="mode__ic"><svg viewBox="0 0 76 42" aria-hidden="true"><g class="anim-bob"><path class="fill" d="M2 26h70l-6 8H8z"/><path d="M2 26h70l-6 8H8z"/><rect x="10" y="14" width="24" height="12" rx="1.5"/><rect x="36" y="14" width="24" height="12" rx="1.5"/></g><path d="M0 39c6-3 10 3 16 0s10 3 16 0 10 3 16 0 10 3 16 0"/></svg></span><b>Barge</b><span>Inland waterways, river and canal.</span></li>
+        <li class="mode" tabindex="0" style="--mc:var(--c3)" data-reveal><span class="mode__ic"><svg viewBox="0 0 76 42" aria-hidden="true"><g class="anim-bob"><path class="fill" d="M2 24h72l-8 10H10z"/><path d="M2 24h72l-8 10H10z"/><rect x="56" y="6" width="10" height="18" rx="1.5"/><path d="M10 24V16h12v8 M24 24V12h12v12 M38 24V16h12v8"/></g><path d="M0 39c6-3 10 3 16 0s10 3 16 0 10 3 16 0 10 3 16 0"/></svg></span><b>Sea</b><span>Deep-sea vessels and feeders.</span></li>
+        <li class="mode" tabindex="0" style="--mc:#f4a261" data-reveal><span class="mode__ic"><svg viewBox="0 0 76 42" aria-hidden="true"><path d="M0 38h76"/><g class="anim-drive"><path class="fill" d="M14 14h22v8h14v12H10V22h4z"/><path d="M14 14h22v8h14v12H10V22h4z M18 18h8"/><path d="M50 26h8"/><circle class="wheel" cx="20" cy="34" r="3.5"/><circle class="wheel" cx="40" cy="34" r="3.5"/></g></svg></span><b>Shunt</b><span>Yard moves on sidings and spurs.</span></li>
+        <li class="mode" tabindex="0" style="--mc:#8ab17d" data-reveal><span class="mode__ic"><svg viewBox="0 0 76 42" aria-hidden="true"><g class="anim-stack"><rect class="fill" x="6" y="24" width="30" height="12" rx="1.5"/><rect x="6" y="24" width="30" height="12" rx="1.5"/><rect x="38" y="24" width="30" height="12" rx="1.5"/><rect x="22" y="10" width="30" height="12" rx="1.5"/></g></svg></span><b>Depot</b><span>Empties, storage and repairs.</span></li>
+        <li class="mode" tabindex="0" style="--mc:#c98a2b" data-reveal><span class="mode__ic"><svg viewBox="0 0 76 42" aria-hidden="true"><path d="M8 38V6h58v32 M8 12h58"/><path d="M14 38h6 M54 38h6"/><g class="anim-swing"><path d="M38 12v10"/><rect class="fill" x="26" y="22" width="24" height="10" rx="1.5"/><rect x="26" y="22" width="24" height="10" rx="1.5"/></g></svg></span><b>Terminal</b><span>Gate, yard and gantry moves.</span></li>
+        <li class="mode" tabindex="0" style="--mc:#8a5a83" data-reveal><span class="mode__ic"><svg viewBox="0 0 76 42" aria-hidden="true"><path d="M18 38V8 M30 38V8 M12 8h56 M18 16h12"/><path d="M60 8v4"/><g class="anim-swing"><path d="M60 12v12"/><rect class="fill" x="50" y="24" width="20" height="9" rx="1.5"/><rect x="50" y="24" width="20" height="9" rx="1.5"/></g></svg></span><b>Port</b><span>Quay cranes, berths and vessels.</span></li>
+      </ul>
+
+      <div class="flow" data-flow>
+        <div class="flow__head"><b>From master data to invoice</b><span>Scroll to move the container · tap a step</span></div>
+        <div class="flow__rail">
+          <div class="flow__line" aria-hidden="true"><span></span></div>
+          <i class="flow__token" aria-hidden="true" data-flow-token></i>
+          <ol class="steps">
+            <li class="step" data-detail="Customers, locations, carriers, equipment and the reference data everything else depends on."><span class="step__dot">01</span><button type="button"><b>Master data</b><small>Customers, sites, equipment</small></button></li>
+            <li class="step" data-detail="Buy and sell rates, tariffs and surcharges by lane, mode and equipment."><span class="step__dot">02</span><button type="button"><b>Rates</b><small>Tariffs & surcharges</small></button></li>
+            <li class="step" data-detail="Sourcing capacity from carriers, hauliers, terminals and depots — tenders included."><span class="step__dot">03</span><button type="button"><b>Procurement</b><small>Capacity & tenders</small></button></li>
+            <li class="step" data-detail="Fast, accurate quotes for multi-leg, multi-mode moves, with cost and margin in view."><span class="step__dot">04</span><button type="button"><b>Quotation</b><small>Multi-leg pricing</small></button></li>
+            <li class="step" data-detail="From booking to order: what moves, when, where, and under which conditions."><span class="step__dot">05</span><button type="button"><b>Order</b><small>Booking to order</small></button></li>
+            <li class="step" data-detail="Planning across truck, rail, barge and sea — the cheapest sensible route, leg by leg."><span class="step__dot">06</span><button type="button"><b>Planning</b><small>Intermodal routing</small></button></li>
+            <li class="step" data-detail="Fleet management, dispatch, shunting, depot and terminal operations, and tracking."><span class="step__dot">07</span><button type="button"><b>Fleet & execution</b><small>Fleet · shunt · depot</small></button></li>
+            <li class="step" data-detail="Sales and purchase invoices that match what actually happened on the ground."><span class="step__dot">08</span><button type="button"><b>Invoicing</b><small>Sales & purchase</small></button></li>
+          </ol>
+        </div>
+        <div class="flow__detail" aria-live="polite"><span class="flow__detail-n" data-flow-n>01</span><div><b data-flow-name>Master data</b><p data-flow-text>Customers, locations, carriers, equipment and the reference data everything else depends on.</p></div></div>
+      </div>
+    </section>
+
     <!-- TECH GALAXY -->
     <section class="section galaxy" id="galaxy">
       <div class="galaxy__head">
-        <p class="eyebrow" data-reveal><span>02</span>Tech galaxy</p>
+        <p class="eyebrow" data-reveal><span>03</span>Tech galaxy</p>
         <h2 class="title" data-words>Everything in my <em>toolbox</em>, in orbit.</h2>
         <p class="lede" data-reveal>Drag the sphere to spin it. Pick a category to light up its stars.</p>
         <div class="filters" role="group" aria-label="Filter technologies" data-reveal>
@@ -195,7 +235,7 @@
     <section class="voyage" id="voyage">
       <div class="voyage__pin">
         <div class="voyage__head">
-          <p class="eyebrow"><span>03</span>The voyage</p>
+          <p class="eyebrow"><span>04</span>The voyage</p>
           <h2 class="title">Eight ports, <em>one ship.</em></h2>
         </div>
         <div class="voyage__viewport">
@@ -219,12 +259,12 @@
 
     <!-- WORK -->
     <section class="section work" id="work">
-      <p class="eyebrow" data-reveal><span>04</span>Selected work</p>
+      <p class="eyebrow" data-reveal><span>05</span>Selected work</p>
       <h2 class="title" data-words>Two platforms that <em>move the world's boxes.</em></h2>
       <p class="lede" data-reveal>Tilt a card with your cursor — or tap it to look under the hood.</p>
 
       <div class="holo-grid">
-        <article class="holo" data-holo tabindex="0" role="button" aria-label="Cloud-native logistics platform — flip to see under the hood" data-cursor="Flip" style="--h1:#4f7cff;--h2:#14b8a6">
+        <article class="holo" data-holo tabindex="0" role="button" aria-label="Cloud-native logistics platform — flip to see under the hood" data-cursor="Flip" style="--h1:#2a9d8f;--h2:#e9c46a">
           <div class="holo__inner">
             <div class="holo__face holo__face--front">
               <span class="holo__glare" aria-hidden="true"></span>
@@ -252,7 +292,7 @@
           </div>
         </article>
 
-        <article class="holo" data-holo tabindex="0" role="button" aria-label="Integrated transport management — flip to see under the hood" data-cursor="Flip" style="--h1:#ff7a3d;--h2:#8b5cf6">
+        <article class="holo" data-holo tabindex="0" role="button" aria-label="Integrated transport management — flip to see under the hood" data-cursor="Flip" style="--h1:#e76f51;--h2:#264653">
           <div class="holo__inner">
             <div class="holo__face holo__face--front">
               <span class="holo__glare" aria-hidden="true"></span>
@@ -285,7 +325,7 @@
     <!-- PLAY: Stack Overflow -->
     <section class="section play" id="play">
       <div class="play__head">
-        <p class="eyebrow" data-reveal><span>05</span>Take a break</p>
+        <p class="eyebrow" data-reveal><span>06</span>Take a break</p>
         <h2 class="title" data-words>Stack <em>Overflow</em>.</h2>
         <p class="lede" data-reveal>Drop each container on the stack. Overhangs fall into the sea. Every few levels unlocks something about me.</p>
         <ul class="play__keys" data-reveal><li><kbd>Click</kbd> / <kbd>Tap</kbd> / <kbd>Space</kbd> to drop</li><li>Perfect drops grow the stack back</li></ul>
@@ -306,23 +346,23 @@
 
     <!-- HOW I THINK: a card deck -->
     <section class="section think" id="think">
-      <p class="eyebrow" data-reveal><span>06</span>How I think</p>
+      <p class="eyebrow" data-reveal><span>07</span>How I think</p>
       <h2 class="title" data-words>Six cards I <em>always</em> play.</h2>
       <p class="lede" data-reveal>Swipe the top card away — or use the arrows.</p>
       <div class="deck" data-deck>
-        <article class="dcard" style="--dc:#4f7cff"><span class="dcard__n">01</span><p class="dcard__t">Complexity should be managed, not passed to the user.</p><span class="dcard__s">Simple outside, smart inside.</span></article>
-        <article class="dcard" style="--dc:#14b8a6"><span class="dcard__n">02</span><p class="dcard__t">Design for change.</p><span class="dcard__s">Boundaries follow the business.</span></article>
-        <article class="dcard" style="--dc:#ff7a3d"><span class="dcard__n">03</span><p class="dcard__t">Automate what repeats.</p><span class="dcard__s">CI/CD on every change.</span></article>
-        <article class="dcard" style="--dc:#8b5cf6"><span class="dcard__n">04</span><p class="dcard__t">Observe everything that matters.</p><span class="dcard__s">Logs and metrics from day one.</span></article>
-        <article class="dcard" style="--dc:#ef4444"><span class="dcard__n">05</span><p class="dcard__t">Scale without losing simplicity.</p><span class="dcard__s">Async by default.</span></article>
-        <article class="dcard" style="--dc:#f5b301"><span class="dcard__n">06</span><p class="dcard__t">Brain before bytes.</p><span class="dcard__s">Think it through, then type.</span></article>
+        <article class="dcard" style="--dc:#e76f51"><span class="dcard__n">01</span><p class="dcard__t">Complexity should be managed, not passed to the user.</p><span class="dcard__s">Simple outside, smart inside.</span></article>
+        <article class="dcard" style="--dc:#2a9d8f"><span class="dcard__n">02</span><p class="dcard__t">Design for change.</p><span class="dcard__s">Boundaries follow the business.</span></article>
+        <article class="dcard" style="--dc:#264653"><span class="dcard__n">03</span><p class="dcard__t">Automate what repeats.</p><span class="dcard__s">CI/CD on every change.</span></article>
+        <article class="dcard" style="--dc:#c98a2b"><span class="dcard__n">04</span><p class="dcard__t">Observe everything that matters.</p><span class="dcard__s">Logs and metrics from day one.</span></article>
+        <article class="dcard" style="--dc:#5f8a55"><span class="dcard__n">05</span><p class="dcard__t">Scale without losing simplicity.</p><span class="dcard__s">Async by default.</span></article>
+        <article class="dcard" style="--dc:#8a5a83"><span class="dcard__n">06</span><p class="dcard__t">Brain before bytes.</p><span class="dcard__s">Think it through, then type.</span></article>
       </div>
       <div class="deck__nav"><button type="button" class="round" data-deck-prev aria-label="Previous card">←</button><span data-deck-count>1 / 6</span><button type="button" class="round" data-deck-next aria-label="Next card">→</button></div>
     </section>
 
     <!-- CONTACT -->
     <section class="section contact" id="contact">
-      <p class="eyebrow" data-reveal><span>07</span>Contact</p>
+      <p class="eyebrow" data-reveal><span>08</span>Contact</p>
       <h2 class="contact__title" data-words>Got cargo? <em>Let's ship it.</em></h2>
       <p class="lede" data-reveal>Have a system to design, scale or untangle? Load a message and I'll sail it home.</p>
       <div class="dock" data-reveal>

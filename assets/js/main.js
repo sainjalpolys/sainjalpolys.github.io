@@ -18,7 +18,7 @@
   const animate = hasGsap && !reduceMotion;
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const lerp = (a, b, t) => a + (b - a) * t;
-  const COLORS = ['#ff7a3d', '#14b8a6', '#4f7cff', '#ef4444', '#f5b301', '#8b5cf6'];
+  const COLORS = ['#e76f51', '#2a9d8f', '#264653', '#f4a261', '#e9c46a', '#8ab17d'];
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private mode: this visit only */ } },
@@ -61,7 +61,7 @@
   const syncThemeButton = () => themeBtn?.setAttribute('aria-label', isNight() ? 'Switch to day mode' : 'Switch to night mode');
   const applyTheme = (theme) => {
     root.setAttribute('data-theme', theme);
-    $('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#070b18' : '#eef5ff');
+    $('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#121212' : '#fbf6ee');
     store.set('theme', theme);
     syncThemeButton();
     themeListeners.forEach((fn) => fn(theme === 'dark'));
@@ -142,7 +142,7 @@
   onScroll();
 
   const navLinks = $$('.nav a');
-  $$('#top, #about, #galaxy, #voyage, #work, #play, #contact').forEach((s) => new IntersectionObserver((entries) => entries.forEach((e) => {
+  $$('#top, #about, #chain, #galaxy, #voyage, #work, #play, #contact').forEach((s) => new IntersectionObserver((entries) => entries.forEach((e) => {
     if (e.isIntersecting) navLinks.forEach((a) => a.classList.toggle('is-active', a.getAttribute('href') === `#${s.id}`));
   }), { rootMargin: '-45% 0px -50% 0px' }).observe(s));
 
@@ -337,7 +337,7 @@
   };
   setTimeout(() => { if (!window.THREE) root.classList.add('no-webgl'); }, 9000);
 
-  /* ---------- HERO: the 3D container port ---------- */
+  /* ---------- HERO: an intermodal container port in 3D ---------- */
 
   const PORT_TECH = [
     ['Java', 'Backend'], ['Spring Boot', 'Backend'], ['Spring Security', 'Backend'], ['Hibernate / JPA', 'Backend'],
@@ -346,7 +346,18 @@
     ['Memcache / Redis', 'Caching'], ['Google Cloud', 'Cloud'], ['Cloud Run', 'Cloud'], ['Pub/Sub', 'Messaging'],
     ['BigQuery', 'Analytics'], ['Docker', 'Containers (the other kind)'], ['Kubernetes', 'Orchestration'], ['Jenkins', 'CI/CD'],
     ['GitHub Actions', 'CI/CD'], ['GitLab CI', 'CI/CD'], ['Maven', 'Build'], ['System design', 'Practice'],
+    ['Distributed systems', 'Architecture'], ['Domain-driven design', 'Architecture'], ['Caching', 'Performance'], ['Code review', 'Practice'],
+    ['Data structures', 'Foundations'], ['Algorithms', 'Foundations'], ['Design docs', 'Practice'], ['GenAI & LLMs', 'Next port'],
   ];
+  const MODE_TIPS = {
+    train: ['Rail', 'Intermodal train on the causeway'],
+    shunter: ['Shunting', 'Yard moves on the siding'],
+    truck: ['Truck', 'Pre- and on-carriage'],
+    barge: ['Barge', 'Inland waterways'],
+    vessel: ['Deep sea', 'Vessel at the berth'],
+    crane: ['Port', 'Quay crane · load & discharge'],
+    depot: ['Depot', 'Empties, storage & repairs'],
+  };
 
   const buildPort = (THREE) => {
     const canvas = $('[data-port]');
@@ -363,30 +374,39 @@
     renderer.toneMappingExposure = 1.05;
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0xd9ecff, 45, 110);
+    scene.fog = new THREE.Fog(0xfbe3cc, 55, 135);
     const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 400);
     const world = new THREE.Group();
     scene.add(world);
     const std = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.7, metalness: 0.05, ...extra });
+    const cast = (m) => { m.castShadow = !coarse; return m; };
+    const stripes = new THREE.CanvasTexture(stripeCanvas());
+    stripes.colorSpace = THREE.SRGBColorSpace;
+    const boxGeo = new THREE.BoxGeometry(2.0, 0.86, 0.86);
+    const boxMat = (c) => std(c, { map: stripes, roughness: 0.55, metalness: 0.12 });
+    const ease = (x) => x * x * (3 - 2 * clamp(x, 0, 1));
+    const seg01 = (u, a, b) => clamp((u - a) / (b - a), 0, 1);
+    const vehicles = [];
+    const tag = (obj, key) => { obj.userData.tip = key; obj.userData.kick = 0; vehicles.push(obj); return obj; };
     let dirty = true;
 
-    // Light
-    const hemi = new THREE.HemisphereLight(0xdbeeff, 0x8aa0c0, 1.15);
+    // Warm light
+    const hemi = new THREE.HemisphereLight(0xfff0e0, 0xa89a8a, 1.2);
     scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xffffff, 2.3);
-    sun.position.set(16, 28, 14);
+    const sun = new THREE.DirectionalLight(0xfff1e0, 2.4);
+    sun.position.set(18, 30, 12);
     sun.castShadow = !coarse;
-    sun.shadow.mapSize.set(1024, 1024);
-    Object.assign(sun.shadow.camera, { left: -20, right: 20, top: 20, bottom: -20, near: 1, far: 90 });
+    sun.shadow.mapSize.set(2048, 2048);
+    Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 1, far: 110 });
     sun.shadow.bias = -0.0006;
     sun.shadow.normalBias = 0.03;
     scene.add(sun);
 
-    // Low-poly sea, gently animated
-    const seg = coarse ? 26 : 44;
-    const waterGeo = new THREE.PlaneGeometry(140, 140, seg, seg).toNonIndexed();
+    // A teal, low-poly sea
+    const seg = coarse ? 28 : 48;
+    const waterGeo = new THREE.PlaneGeometry(160, 160, seg, seg).toNonIndexed();
     waterGeo.rotateX(-Math.PI / 2);
-    const waterMat = std(0x3aa6e6, { flatShading: true, roughness: 0.3, metalness: 0.1 });
+    const waterMat = std(0x3aa597, { flatShading: true, roughness: 0.32, metalness: 0.08 });
     const water = new THREE.Mesh(waterGeo, waterMat);
     water.position.y = -0.7;
     water.receiveShadow = !coarse;
@@ -398,158 +418,292 @@
       for (let i = 0; i < wPos.count; i++) {
         const x = wBase[i * 3];
         const z = wBase[i * 3 + 2];
-        a[i * 3 + 1] = Math.sin(x * 0.32 + t * 0.9) * 0.2 + Math.cos(z * 0.28 + t * 0.7) * 0.17 + Math.sin((x + z) * 0.55 + t * 1.5) * 0.05;
+        a[i * 3 + 1] = Math.sin(x * 0.3 + t * 0.9) * 0.2 + Math.cos(z * 0.27 + t * 0.7) * 0.17 + Math.sin((x + z) * 0.55 + t * 1.5) * 0.05;
       }
       wPos.needsUpdate = true;
       waterGeo.computeVertexNormals();
     };
     waves(0);
 
-    // The island: concrete apron, quay edge, yellow safety lines, lane markings
-    const islandMat = std(0xe8edf5, { roughness: 0.85 });
+    // The terminal: apron, quay edge, safety lines, lane markings
+    const islandMat = std(0xefe6da, { roughness: 0.88 });
     const island = new THREE.Mesh(new THREE.BoxGeometry(17, 1.4, 11.5), islandMat);
     island.position.y = -0.7;
     island.receiveShadow = !coarse;
     world.add(island);
-    const edge = new THREE.Mesh(new THREE.BoxGeometry(17.5, 1.1, 12), std(0x5f6b86, { roughness: 0.9 }));
+    const edge = new THREE.Mesh(new THREE.BoxGeometry(17.5, 1.1, 12), std(0x7d7268, { roughness: 0.9 }));
     edge.position.y = -1.05;
     world.add(edge);
-    const lineMat = std(0xf5b301, { roughness: 0.5 });
-    [5.55, -5.55].forEach((z) => {
-      const m = new THREE.Mesh(new THREE.BoxGeometry(16.4, 0.04, 0.14), lineMat);
-      m.position.set(0, 0.02, z);
-      world.add(m);
-    });
+    const lineMat = std(0xe9c46a, { roughness: 0.5 });
+    [5.6, -5.62].forEach((z) => { const m = new THREE.Mesh(new THREE.BoxGeometry(16.4, 0.04, 0.14), lineMat); m.position.set(0, 0.02, z); world.add(m); });
     const laneMat = std(0xffffff, { roughness: 0.6 });
-    for (let x = -7; x <= 7; x += 1.4) {
-      const m = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.03, 0.08), laneMat);
-      m.position.set(x, 0.02, -0.98);
-      world.add(m);
-    }
+    for (let x = -7.4; x <= 5.4; x += 1.4) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.03, 0.08), laneMat); m.position.set(x, 0.02, -0.7); world.add(m); }
 
-    // Containers: instanced, and every stack's top box carries a technology
-    const stripes = new THREE.CanvasTexture(stripeCanvas());
-    stripes.colorSpace = THREE.SRGBColorSpace;
-    const boxGeo = new THREE.BoxGeometry(2.0, 0.86, 0.86);
+    // Rail: a causeway behind the terminal, plus a siding on it
+    const railMat = std(0x6b5f55, { metalness: 0.5, roughness: 0.4 });
+    const causeway = new THREE.Mesh(new THREE.BoxGeometry(120, 0.9, 1.9), std(0xb8aa96, { roughness: 0.95 }));
+    causeway.position.set(0, -0.35, -7.05);
+    causeway.receiveShadow = !coarse;
+    world.add(causeway);
+    const railPair = (x0, len, z, y) => [z - 0.29, z + 0.29].forEach((rz) => { const r = new THREE.Mesh(new THREE.BoxGeometry(len, 0.08, 0.08), railMat); r.position.set(x0, y, rz); world.add(r); });
+    railPair(0, 120, -7.05, 0.15);
+    railPair(-1.2, 14, -5.0, 0.05);
+    const sleeperCount = coarse ? 90 : 150;
+    const sleepers = new THREE.InstancedMesh(new THREE.BoxGeometry(0.16, 0.06, 0.95), std(0x7a6a5a), sleeperCount);
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < sleeperCount; i++) {
+      dummy.position.set(-60 + i * (120 / sleeperCount), 0.09, -7.05);
+      dummy.updateMatrix();
+      sleepers.setMatrixAt(i, dummy.matrix);
+    }
+    world.add(sleepers);
+
+    const wagon = (len, color) => {
+      const g = new THREE.Group();
+      const frame = cast(new THREE.Mesh(new THREE.BoxGeometry(len + 0.3, 0.16, 0.86), std(0x34302c)));
+      frame.position.y = 0.3;
+      const box = cast(new THREE.Mesh(boxGeo, boxMat(color)));
+      box.scale.x = len / 2;
+      box.position.y = 0.81;
+      g.add(frame, box);
+      return g;
+    };
+    const train = new THREE.Group();
+    const loco = new THREE.Group();
+    const locoBody = cast(new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.85, 0.92), std(0xe76f51)));
+    locoBody.position.y = 0.78;
+    const locoCab = cast(new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.42, 0.92), std(0x264653)));
+    locoCab.position.set(0.7, 1.4, 0);
+    const locoFrame = cast(new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.18, 0.86), std(0x34302c)));
+    locoFrame.position.y = 0.3;
+    loco.add(locoBody, locoCab, locoFrame);
+    train.add(loco);
+    const tRand = rng(19);
+    for (let i = 0; i < 6; i++) {
+      const w = wagon(2, COLORS[Math.floor(tRand() * COLORS.length)]);
+      w.position.x = -(i + 1) * 2.55;
+      train.add(w);
+    }
+    train.position.set(-40, 0, -7.05);
+    world.add(tag(train, 'train'));
+
+    const shunter = new THREE.Group();
+    const sBody = cast(new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.62, 0.78), std(0xe9c46a)));
+    sBody.position.y = 0.42;
+    const sCab = cast(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.36, 0.78), std(0x264653)));
+    sCab.position.set(-0.3, 0.9, 0);
+    shunter.add(sBody, sCab);
+    [0, 1].forEach((i) => { const w = wagon(1.6, COLORS[(i * 3 + 1) % 6]); w.position.set(1.95 + i * 2.05, -0.12, 0); shunter.add(w); });
+    shunter.position.set(-4, 0, -5.0);
+    world.add(tag(shunter, 'shunter'));
+
+    // The yard: every stack's top box carries a technology
     const rand = rng(42);
     const stacks = [];
-    const ROWS = [-4.4, -3.4, -2.4, 0.4, 1.4, 2.4];
+    const ROWS = [-3.9, -2.95, -2.0, 0.6, 1.55, 2.5];
     const COLS = [-6.3, -4.1, -1.9, 0.3, 2.5, 4.7];
     let techIdx = 0;
-    ROWS.forEach((z, ri) => COLS.forEach((x, ci) => {
-      if ((ri === 2 || ri === 3) && (ci === 0 || ci === 5)) return; // room for the trucks
+    ROWS.forEach((z) => COLS.forEach((x) => {
       const h = 1 + Math.floor(rand() * 3);
-      const tech = techIdx < PORT_TECH.length ? PORT_TECH[techIdx++] : PORT_TECH[Math.floor(rand() * PORT_TECH.length)];
-      stacks.push({ x: x + (rand() - 0.5) * 0.12, z, h, tech });
+      stacks.push({ x: x + (rand() - 0.5) * 0.1, z, h, tech: PORT_TECH[techIdx++ % PORT_TECH.length] });
     }));
-    const total = stacks.reduce((s, st) => s + st.h, 0);
-    const boxes = new THREE.InstancedMesh(boxGeo, std(0xffffff, { map: stripes, roughness: 0.55, metalness: 0.15 }), total);
+    const total = stacks.reduce((n, st) => n + st.h, 0);
+    const boxes = new THREE.InstancedMesh(boxGeo, std(0xffffff, { map: stripes, roughness: 0.55, metalness: 0.12 }), total);
     boxes.castShadow = !coarse;
     boxes.receiveShadow = !coarse;
+    boxes.frustumCulled = false;
     const inst = [];
-    const dummy = new THREE.Object3D();
     const tmpColor = new THREE.Color();
     const white = new THREE.Color(0xffffff);
-    let k = 0;
     stacks.forEach((st, si) => {
       st.ids = [];
       for (let lvl = 0; lvl < st.h; lvl++) {
         const color = new THREE.Color(COLORS[Math.floor(rand() * COLORS.length)]);
-        inst.push({ si, lvl, color, lift: 0, liftTarget: 0, vy: 0, jump: 0, spin: 0, spinV: 0 });
-        dummy.position.set(st.x, 0.43 + lvl * 0.88, st.z);
-        dummy.rotation.set(0, 0, 0);
-        dummy.updateMatrix();
-        boxes.setMatrixAt(k, dummy.matrix);
-        boxes.setColorAt(k, color);
-        st.ids.push(k);
-        k++;
+        const id = inst.length;
+        const dist = Math.hypot(st.x + 1, st.z);
+        inst.push({ si, lvl, color, lift: 0, vy: 0, jump: 0, spin: 0, spinV: 0, drop: 0, dvy: 0, sq: 0, start: dist * 0.11 + lvl * 0.16 + rand() * 0.12, live: !animate });
+        boxes.setColorAt(id, color);
+        st.ids.push(id);
       }
     });
-    boxes.instanceMatrix.needsUpdate = true;
-    world.add(boxes);
     const placeInstance = (id) => {
       const it = inst[id];
       const st = stacks[it.si];
-      dummy.position.set(st.x, 0.43 + it.lvl * 0.88 + it.lift + it.jump, st.z);
+      if (!it.live) {
+        dummy.position.set(st.x, -50, st.z);
+        dummy.scale.setScalar(0.0001);
+      } else {
+        dummy.position.set(st.x, 0.43 + it.lvl * 0.88 + it.lift + it.jump + it.drop, st.z);
+        dummy.scale.set(1 + it.sq * 0.12, 1 - it.sq * 0.22, 1 + it.sq * 0.12);
+      }
       dummy.rotation.set(0, it.spin, 0);
-      dummy.scale.setScalar(1);
       dummy.updateMatrix();
       boxes.setMatrixAt(id, dummy.matrix);
     };
+    inst.forEach((_, id) => placeInstance(id));
+    boxes.instanceMatrix.needsUpdate = true;
+    world.add(boxes);
 
-    // Trucks waiting by the stacks
-    const truck = (x, z, color, flip) => {
+    // Containers rain into the yard, wave by wave, once the loader is gone.
+    let introAt = -1;
+    bootDone.then(() => { if (!animate) return; introAt = performance.now() / 1000 + 0.2; inst.forEach((it) => { it.drop = 10 + it.lvl * 0.6; it.dvy = 0; }); });
+
+    // Trucks on the lane
+    const truck = (color) => {
       const g = new THREE.Group();
-      const cab = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.8), std(color));
-      cab.position.set(0.95, 0.45, 0);
-      const bed = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.18, 0.8), std(0x2b3550));
+      const cab = cast(new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.72, 0.8), std(color)));
+      cab.position.set(0.95, 0.46, 0);
+      const bed = cast(new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.18, 0.8), std(0x34302c)));
       bed.position.set(-0.3, 0.2, 0);
-      const box = new THREE.Mesh(boxGeo, std(COLORS[2], { map: stripes }));
+      const box = cast(new THREE.Mesh(boxGeo, boxMat(COLORS[Math.floor(rand() * 6)])));
       box.scale.set(0.85, 0.8, 0.85);
       box.position.set(-0.3, 0.64, 0);
-      [cab, bed, box].forEach((m) => { m.castShadow = !coarse; g.add(m); });
-      g.position.set(x, 0, z);
-      if (flip) g.rotation.y = Math.PI;
-      world.add(g);
+      g.add(cab, bed, box);
+      g.position.set(0, 0, -0.7);
+      world.add(tag(g, 'truck'));
       return g;
     };
-    const trucks = [truck(-6.3, -0.95, 0xef4444), truck(5.6, -0.35, 0x14b8a6, true)];
+    const trucks = [truck(0xe76f51), truck(0x2a9d8f)];
 
-    // Lamp posts that light up at night
-    const bulbMat = new THREE.MeshStandardMaterial({ color: 0xfff1c1, emissive: 0xffc861, emissiveIntensity: 0 });
-    [[-8, -5.4], [8, -5.4], [-8, 5.4], [8, 5.4]].forEach(([x, z]) => {
-      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 3.2, 8), std(0x6b7690));
+    // A depot of empties with its office
+    const depot = new THREE.Group();
+    const office = cast(new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.1, 1.5), std(0xf6eee2)));
+    office.position.set(7.4, 0.55, -3.6);
+    const roof = cast(new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.14, 1.7), std(0xe76f51)));
+    roof.position.set(7.4, 1.17, -3.6);
+    const windowMat = new THREE.MeshStandardMaterial({ color: 0x3b4a52, emissive: 0xffc27a, emissiveIntensity: 0 });
+    const win = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.34, 0.02), windowMat);
+    win.position.set(7.4, 0.7, -2.84);
+    depot.add(office, roof, win);
+    [[7.0, -0.55], [7.95, -0.55], [7.0, 1.65], [7.95, 1.65]].forEach(([x, z], i) => {
+      for (let l = 0; l < (i % 3 === 0 ? 2 : 1); l++) {
+        const e = cast(new THREE.Mesh(boxGeo, boxMat(i % 2 ? 0xcfc4b4 : 0xb9ad9b)));
+        e.rotation.y = Math.PI / 2;
+        e.position.set(x, 0.43 + l * 0.88, z);
+        depot.add(e);
+      }
+    });
+    world.add(tag(depot, 'depot'));
+
+    // Lamp posts, warm at night
+    const bulbMat = new THREE.MeshStandardMaterial({ color: 0xfff1c1, emissive: 0xffb45e, emissiveIntensity: 0 });
+    [[-8.1, -5.45], [8.1, -5.45], [-8.1, 5.45], [8.1, 5.45], [-0.6, -5.45]].forEach(([x, z]) => {
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 3.2, 8), std(0x6b625a));
       pole.position.set(x, 1.6, z);
       const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), bulbMat);
       bulb.position.set(x, 3.25, z);
       world.add(pole, bulb);
     });
 
-    // A ship-to-shore crane on the quay
-    const craneMat = std(0x3f6cf0, { roughness: 0.5, metalness: 0.2 });
-    const darkMat = std(0x22283a);
+    // A vessel at the berth
+    const hullShape = new THREE.Shape();
+    hullShape.moveTo(-7.6, -1.45); hullShape.lineTo(5.8, -1.45); hullShape.quadraticCurveTo(8.3, 0, 5.8, 1.45); hullShape.lineTo(-7.6, 1.45); hullShape.lineTo(-7.6, -1.45);
+    const hullGeo = new THREE.ExtrudeGeometry(hullShape, { depth: 1.5, bevelEnabled: false });
+    hullGeo.rotateX(-Math.PI / 2);
+    const vessel = new THREE.Group();
+    const hull = cast(new THREE.Mesh(hullGeo, std(0x264653, { roughness: 0.6 })));
+    hull.position.y = -0.9;
+    const band = new THREE.Mesh(hullGeo, std(0xe76f51));
+    band.scale.set(1.004, 0.18, 1.02);
+    band.position.y = -0.95;
+    const bridgeMat = new THREE.MeshStandardMaterial({ color: 0xf6eee2, emissive: 0xffc27a, emissiveIntensity: 0, roughness: 0.7 });
+    const bridge = cast(new THREE.Mesh(new THREE.BoxGeometry(1.3, 2.3, 2.5), bridgeMat));
+    bridge.position.set(-6.6, 1.75, 0);
+    const funnel = cast(new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.9, 0.8), std(0xe76f51)));
+    funnel.position.set(-7.0, 3.2, 0);
+    vessel.add(hull, band, bridge, funnel);
+    const dRand = rng(7);
+    const deckSpots = [];
+    [-4.6, -2.5, -0.4, 1.7, 3.8].forEach((x) => [-0.95, 0, 0.95].forEach((z) => {
+      const tiers = Math.floor(dRand() * 3.4);
+      for (let l = 0; l < tiers; l++) deckSpots.push([x, 0.6 + 0.43 + l * 0.88, z, COLORS[Math.floor(dRand() * 6)]]);
+    }));
+    const deck = new THREE.InstancedMesh(boxGeo, std(0xffffff, { map: stripes, roughness: 0.55 }), deckSpots.length);
+    deck.castShadow = !coarse;
+    deckSpots.forEach(([x, y, z, c], i) => { dummy.position.set(x, y, z); dummy.scale.setScalar(1); dummy.rotation.set(0, 0, 0); dummy.updateMatrix(); deck.setMatrixAt(i, dummy.matrix); deck.setColorAt(i, new THREE.Color(c)); });
+    vessel.add(deck);
+    vessel.position.set(0.2, 0, 10.6);
+    world.add(tag(vessel, 'vessel'));
+
+    // An inland barge passing by
+    const barge = new THREE.Group();
+    const bHull = cast(new THREE.Mesh(new THREE.BoxGeometry(8.4, 0.55, 2.2), std(0x3c3833)));
+    bHull.position.y = -0.3;
+    const bHouse = cast(new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 1.6), std(0xf6eee2)));
+    bHouse.position.set(-3.6, 0.45, 0);
+    barge.add(bHull, bHouse);
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 2; j++) {
+      const c = cast(new THREE.Mesh(boxGeo, boxMat(COLORS[(i + j * 2 + 2) % 6])));
+      c.position.set(-1.6 + i * 2.1, 0.4, -0.47 + j * 0.94);
+      barge.add(c);
+    }
+    barge.position.set(0, 0, 19);
+    world.add(tag(barge, 'barge'));
+
+    // The quay crane, really working the ship
+    const craneMat = std(0xe76f51, { roughness: 0.5, metalness: 0.15 });
+    const darkMat = std(0x34302c);
     const crane = new THREE.Group();
-    const part = (w, h, d, x, y, z, mat = craneMat) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); m.castShadow = !coarse; crane.add(m); return m; };
+    const part = (w, h, d, x, y, z, mat = craneMat) => { const m = cast(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat)); m.position.set(x, y, z); crane.add(m); return m; };
     [[-1.3, 4.3], [1.3, 4.3], [-1.3, 6.3], [1.3, 6.3]].forEach(([x, z]) => part(0.26, 6.2, 0.26, x, 3.1, z));
     part(2.9, 0.3, 0.3, 0, 6.2, 4.3); part(2.9, 0.3, 0.3, 0, 6.2, 6.3); part(2.9, 0.3, 0.3, 0, 2.2, 4.3); part(2.9, 0.3, 0.3, 0, 2.2, 6.3);
-    part(0.34, 0.34, 11, -0.5, 6.6, 6.8); part(0.34, 0.34, 11, 0.5, 6.6, 6.8);
-    part(0.2, 2.6, 0.2, 0, 7.9, 4.8);
-    const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), new THREE.MeshStandardMaterial({ color: 0xff4d4d, emissive: 0xff2a2a, emissiveIntensity: 0.4 }));
-    beacon.position.set(0, 9.3, 4.8);
+    part(0.34, 0.34, 11.4, -0.5, 6.6, 7.0); part(0.34, 0.34, 11.4, 0.5, 6.6, 7.0);
+    part(1.7, 0.9, 1.5, 0, 7.25, 5.3, std(0xf6eee2));
+    const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.15, 10, 8), new THREE.MeshStandardMaterial({ color: 0xff5a4a, emissive: 0xff3a2a, emissiveIntensity: 0.4 }));
+    beacon.position.set(0, 7.85, 5.3);
     crane.add(beacon);
-    const trolley = part(1.3, 0.35, 0.8, 0, 6.25, 8);
-    const cable = part(0.05, 1, 0.05, 0, 5.6, 8, darkMat);
-    const spreader = part(2.1, 0.12, 0.9, 0, 4.6, 8, darkMat);
-    const carried = new THREE.Mesh(boxGeo, std(COLORS[4], { map: stripes, roughness: 0.55 }));
-    carried.castShadow = !coarse;
+    const trolley = part(1.3, 0.35, 0.8, 0, 6.25, 3.6, darkMat);
+    const cable = part(0.05, 1, 0.05, 0, 5, 3.6, darkMat);
+    const spreader = part(2.1, 0.12, 0.9, 0, 5.8, 3.6, darkMat);
+    const carried = cast(new THREE.Mesh(boxGeo, boxMat(COLORS[0])));
+    carried.visible = false;
     crane.add(carried);
-    world.add(crane);
-
-    // A container ship sailing around the island
-    const hullShape = new THREE.Shape();
-    hullShape.moveTo(-3.6, -1.05); hullShape.lineTo(2.6, -1.05); hullShape.quadraticCurveTo(3.9, 0, 2.6, 1.05); hullShape.lineTo(-3.6, 1.05); hullShape.lineTo(-3.6, -1.05);
-    const hullGeo = new THREE.ExtrudeGeometry(hullShape, { depth: 1.1, bevelEnabled: false });
-    hullGeo.rotateX(-Math.PI / 2);
-    const ship = new THREE.Group();
-    const hull = new THREE.Mesh(hullGeo, std(0x1c2a4d, { roughness: 0.6 }));
-    hull.position.y = -0.5;
-    const band = new THREE.Mesh(hullGeo, std(0xef4444));
-    band.scale.set(1.01, 0.25, 1.01);
-    band.position.y = -0.62;
-    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 1.6), std(0xf4f6fb));
-    bridge.position.set(-2.9, 1.25, 0);
-    ship.add(hull, band, bridge);
-    const deckRand = rng(7);
-    for (let i = 0; i < 4; i++) for (let j = 0; j < 2; j++) {
-      const layers = 1 + Math.floor(deckRand() * 2);
-      for (let l = 0; l < layers; l++) {
-        const c = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.5, 0.82), std(COLORS[Math.floor(deckRand() * COLORS.length)], { map: stripes, roughness: 0.55 }));
-        c.position.set(-1.7 + i * 1.22, 0.86 + l * 0.52, -0.43 + j * 0.86);
-        ship.add(c);
-      }
-    }
-    ship.traverse((m) => { if (m.isMesh) m.castShadow = !coarse; });
-    world.add(ship);
+    world.add(tag(crane, 'crane'));
+    const SLOTS = [-5.6, -3.3, -1.0, 1.3, 3.6];
+    const quay = SLOTS.map((x, i) => {
+      const m = cast(new THREE.Mesh(boxGeo, boxMat(COLORS[(i * 2 + 1) % 6])));
+      m.position.set(x, 0.43, 3.6);
+      m.visible = false;
+      world.add(m);
+      return m;
+    });
+    const CYCLE = 7.6;
+    const LAND_Z = 3.6;
+    const SEA_Z = 10.6;
+    const HIGH = 5.8;
+    const SHIP_Y = 2.75;
+    const LAND_Y = 0.93;
+    const workCrane = (t) => {
+      const n = SLOTS.length;
+      const cycleT = t % (CYCLE * n);
+      const slot = Math.floor(cycleT / CYCLE);
+      const u = cycleT - slot * CYCLE;
+      const fromX = SLOTS[(slot - 1 + n) % n];
+      crane.position.x = lerp(fromX, SLOTS[slot], ease(seg01(u, 0, 1.8)));
+      let z = LAND_Z;
+      let y = HIGH;
+      if (u >= 1.8 && u < 2.8) z = lerp(LAND_Z, SEA_Z, ease(seg01(u, 1.8, 2.8)));
+      else if (u >= 2.8 && u < 4.6) z = SEA_Z;
+      else if (u >= 4.6 && u < 5.6) z = lerp(SEA_Z, LAND_Z, ease(seg01(u, 4.6, 5.6)));
+      if (u >= 2.8 && u < 3.8) y = lerp(HIGH, SHIP_Y, ease(seg01(u, 2.8, 3.6)));
+      else if (u >= 3.8 && u < 4.6) y = lerp(SHIP_Y, HIGH, ease(seg01(u, 3.8, 4.6)));
+      else if (u >= 5.6 && u < 6.6) y = lerp(HIGH, LAND_Y, ease(seg01(u, 5.6, 6.4)));
+      else if (u >= 6.6) y = lerp(LAND_Y, HIGH, ease(seg01(u, 6.6, 7.6)));
+      trolley.position.z = z;
+      spreader.position.set(0, y, z);
+      cable.scale.y = Math.max(0.1, 6.15 - y);
+      cable.position.set(0, (6.15 + y) / 2, z);
+      carried.visible = u >= 3.65 && u < 6.5;
+      if (carried.visible) { carried.material.color.copy(quay[slot].material.color); carried.position.set(0, y - 0.5, z); }
+      quay.forEach((q, i) => {
+        // Boxes land on the quay one per slot; a new round clears them away.
+        const placed = i < slot || (i === slot && u >= 6.5);
+        q.visible = placed || (slot === 0 && u < 0.6);
+        if (slot === 0 && u < 0.6) q.scale.setScalar(Math.max(0.001, 1 - u / 0.6));
+        else q.scale.setScalar(1);
+        q.position.y = 0.43 + (i === slot && u >= 6.5 && u < 6.9 ? Math.sin(seg01(u, 6.5, 6.9) * Math.PI) * 0.12 : 0);
+      });
+    };
 
     // Clouds by day, stars by night
     const clouds = new THREE.Group();
@@ -562,7 +716,7 @@
         puff.position.set(j * 1.2 - 1.2, cRand() * 0.4, cRand() * 0.6);
         c.add(puff);
       }
-      c.position.set(-30 + i * 12 + cRand() * 4, 11 + cRand() * 5, -20 + cRand() * 30);
+      c.position.set(-34 + i * 13 + cRand() * 4, 19 + cRand() * 6, -34 + cRand() * 16);
       c.userData.speed = 0.4 + cRand() * 0.5;
       clouds.add(c);
     }
@@ -572,33 +726,30 @@
     for (let i = 0; i < 600; i++) {
       const th = sRand() * Math.PI * 2;
       const ph = sRand() * 0.45 * Math.PI;
-      starPos[i * 3] = Math.cos(th) * Math.sin(ph) * 120;
-      starPos[i * 3 + 1] = Math.cos(ph) * 80 + 10;
-      starPos[i * 3 + 2] = Math.sin(th) * Math.sin(ph) * 120;
+      starPos[i * 3] = Math.cos(th) * Math.sin(ph) * 130;
+      starPos[i * 3 + 1] = Math.cos(ph) * 85 + 10;
+      starPos[i * 3 + 2] = Math.sin(th) * Math.sin(ph) * 130;
     }
     const starGeo = new THREE.BufferGeometry();
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-    const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.45, transparent: true, opacity: 0, depthWrite: false }));
+    const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xfff6e8, size: 0.45, transparent: true, opacity: 0, depthWrite: false }));
     scene.add(stars);
 
-    // A burst of confetti boxes when a container is clicked
-    const burst = new THREE.InstancedMesh(new THREE.BoxGeometry(0.16, 0.16, 0.16), new THREE.MeshBasicMaterial({ color: 0xffffff }), 36);
-    const bits = Array.from({ length: 36 }, () => ({ life: 0, p: new THREE.Vector3(), v: new THREE.Vector3() }));
-    bits.forEach((b, i) => {
-      burst.setColorAt(i, new THREE.Color(COLORS[i % 6]));
-      dummy.position.set(0, -60, 0); dummy.updateMatrix();
-      burst.setMatrixAt(i, dummy.matrix);
-    });
+    // Confetti boxes for clicks
+    const burst = new THREE.InstancedMesh(new THREE.BoxGeometry(0.16, 0.16, 0.16), new THREE.MeshBasicMaterial({ color: 0xffffff }), 40);
+    const bits = Array.from({ length: 40 }, () => ({ life: 0, p: new THREE.Vector3(), v: new THREE.Vector3() }));
+    bits.forEach((b, i) => { burst.setColorAt(i, new THREE.Color(COLORS[i % 6])); dummy.position.set(0, -60, 0); dummy.scale.setScalar(1); dummy.updateMatrix(); burst.setMatrixAt(i, dummy.matrix); });
+    burst.frustumCulled = false;
     world.add(burst);
-    const pop = (x, y, z) => bits.forEach((b) => {
+    const pop = (p) => bits.forEach((b) => {
       b.life = 1;
-      b.p.set(x, y, z);
+      b.p.copy(p);
       b.v.set((Math.random() - 0.5) * 7, 4 + Math.random() * 5, (Math.random() - 0.5) * 7);
     });
 
-    // Day / night palette
-    const DAY = { hemiSky: 0xdbeeff, hemiGround: 0x8aa0c0, hemiI: 1.15, sun: 0xffffff, sunI: 2.3, fog: 0xd9ecff, water: 0x3aa6e6, island: 0xe8edf5, exposure: 1.05 };
-    const NIGHT = { hemiSky: 0x5a6fc0, hemiGround: 0x1a2340, hemiI: 1.0, sun: 0xb8c6ff, sunI: 1.25, fog: 0x0b1433, water: 0x17468f, island: 0x6a7591, exposure: 1.1 };
+    // Day / night
+    const DAY = { hemiSky: 0xfff0e0, hemiGround: 0xa89a8a, hemiI: 1.2, sun: 0xfff1e0, sunI: 2.4, fog: 0xfbe3cc, water: 0x3aa597, island: 0xefe6da, exposure: 1.05 };
+    const NIGHT = { hemiSky: 0x6b6a9a, hemiGround: 0x2a2226, hemiI: 1.0, sun: 0xcfc9ff, sunI: 1.15, fog: 0x1d1b28, water: 0x1f5a5c, island: 0x7a726b, exposure: 1.08 };
     const ca = new THREE.Color();
     const cb = new THREE.Color();
     const mix = (a, b, t) => ca.set(a).lerp(cb.set(b), t);
@@ -614,9 +765,11 @@
       waterMat.color.copy(mix(DAY.water, NIGHT.water, t));
       islandMat.color.copy(mix(DAY.island, NIGHT.island, t));
       renderer.toneMappingExposure = lerp(DAY.exposure, NIGHT.exposure, t);
-      bulbMat.emissiveIntensity = t * 3;
+      bulbMat.emissiveIntensity = t * 3.2;
+      windowMat.emissiveIntensity = t * 1.6;
+      bridgeMat.emissiveIntensity = t * 0.35;
       stars.material.opacity = t;
-      cloudMat.opacity = lerp(0.95, 0.12, t);
+      cloudMat.opacity = lerp(0.95, 0.1, t);
       dirty = true;
     };
     themeListeners.push((night) => {
@@ -625,16 +778,16 @@
     });
 
     // Camera: slow orbit, drag to spin, scroll to rise away
-    const view = { theta: 0.65, phi: 0.98, radius: 36, vTheta: 0, vPhi: 0, scroll: 0 };
+    const view = { theta: 0.62, phi: 0.98, radius: 48, vTheta: 0, vPhi: 0, scroll: 0 };
     const layout = () => {
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
-      // Push the port right on wide screens and up on narrow ones, so the words have room.
-      if (w > 900) camera.setViewOffset(w * 1.42, h, 0, 0, w, h);
+      // The port sits right of the words on wide screens and above them on narrow ones.
+      if (w > 900) camera.setViewOffset(w * 1.4, h, 0, 0, w, h);
       else camera.setViewOffset(w, h * 1.5, 0, h * 0.5, w, h);
-      view.radius = w > 900 ? 42 : w > 600 ? 48 : 54;
+      view.radius = w > 900 ? 48 : w > 600 ? 54 : 60;
       camera.updateProjectionMatrix();
       dirty = true;
     };
@@ -642,54 +795,74 @@
     window.addEventListener('resize', layout);
     applyMood();
 
-    // Pointer: drag to rotate, hover for a tooltip, click to make a container jump
+    // Pointer: the yard ripples under the cursor; hover shows what a box or vehicle is; clicks send a shockwave.
     const tip = $('[data-tip]');
     const tipName = $('[data-tip-name]');
     const tipCat = $('[data-tip-cat]');
     const raycaster = new THREE.Raycaster();
     const ndc = new THREE.Vector2();
+    const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const hitPoint = new THREE.Vector3();
     const tipAt = new THREE.Vector3();
-    let hoverStack = -1;
+    const cursor = { on: false, x: 0, z: 0 };
+    const pulses = [];
+    let hover = null;
     let drag = null;
     let tipTimer = 0;
     const topId = (si) => stacks[si].ids[stacks[si].ids.length - 1];
-    const setHover = (si) => {
-      if (si === hoverStack) return;
-      if (hoverStack >= 0) {
-        const id = topId(hoverStack);
-        inst[id].liftTarget = 0;
-        boxes.setColorAt(id, inst[id].color);
-      }
-      hoverStack = si;
-      if (si >= 0) {
-        const id = topId(si);
-        inst[id].liftTarget = 0.42;
-        boxes.setColorAt(id, tmpColor.copy(inst[id].color).lerp(white, 0.22));
-        tipName.textContent = stacks[si].tech[0];
-        tipCat.textContent = stacks[si].tech[1];
-        tip.classList.add('is-on');
-      } else tip.classList.remove('is-on');
-      boxes.instanceColor.needsUpdate = true;
-      dirty = true;
-    };
-    const pick = (cx, cy) => {
+    const aim = (cx, cy) => {
       const r = canvas.getBoundingClientRect();
       ndc.set(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
       raycaster.setFromCamera(ndc, camera);
+    };
+    const groundAt = () => {
+      ground.constant = -(world.position.y + 0.9);
+      if (!raycaster.ray.intersectPlane(ground, hitPoint)) return null;
+      return { x: hitPoint.x - world.position.x, z: hitPoint.z - world.position.z };
+    };
+    const pick = () => {
       const hit = raycaster.intersectObject(boxes, false)[0];
-      return hit ? inst[hit.instanceId].si : -1;
+      if (hit && inst[hit.instanceId].live) return { kind: 'box', si: inst[hit.instanceId].si, point: hit.point.clone() };
+      const vh = raycaster.intersectObjects(vehicles, true)[0];
+      if (!vh) return null;
+      let o = vh.object;
+      while (o && !o.userData.tip) o = o.parent;
+      return o ? { kind: 'veh', obj: o, point: vh.point.clone() } : null;
+    };
+    const same = (a, b) => (a && b && a.kind === b.kind && (a.kind === 'box' ? a.si === b.si : a.obj === b.obj)) || (!a && !b);
+    const setHover = (h) => {
+      if (same(h, hover)) return;
+      if (hover?.kind === 'box') boxes.setColorAt(topId(hover.si), inst[topId(hover.si)].color);
+      hover = h;
+      if (!h) { tip.classList.remove('is-on'); }
+      else {
+        if (h.kind === 'box') {
+          const id = topId(h.si);
+          boxes.setColorAt(id, tmpColor.copy(inst[id].color).lerp(white, 0.25));
+          [tipName.textContent, tipCat.textContent] = stacks[h.si].tech;
+        } else [tipName.textContent, tipCat.textContent] = MODE_TIPS[h.obj.userData.tip];
+        tip.classList.add('is-on');
+      }
+      boxes.instanceColor.needsUpdate = true;
+      dirty = true;
     };
     const placeTip = () => {
-      if (hoverStack < 0) return;
-      const id = topId(hoverStack);
-      const st = stacks[hoverStack];
-      tipAt.set(st.x, 0.9 + inst[id].lvl * 0.88 + inst[id].lift + inst[id].jump, st.z);
-      world.localToWorld(tipAt);
+      if (!hover) return;
+      if (hover.kind === 'box') {
+        const id = topId(hover.si);
+        const st = stacks[hover.si];
+        tipAt.set(st.x, 0.95 + inst[id].lvl * 0.88 + inst[id].lift + inst[id].jump, st.z);
+        world.localToWorld(tipAt);
+      } else {
+        hover.obj.getWorldPosition(tipAt);
+        tipAt.y += hover.obj.userData.tip === 'crane' ? 8.4 : hover.obj.userData.tip === 'vessel' ? 4 : 2;
+      }
       tipAt.project(camera);
       const r = canvas.getBoundingClientRect();
       tip.style.left = `${(((tipAt.x + 1) / 2) * r.width).toFixed(1)}px`;
       tip.style.top = `${(((1 - tipAt.y) / 2) * r.height).toFixed(1)}px`;
     };
+
     canvas.addEventListener('pointerdown', (e) => {
       drag = { x: e.clientX, y: e.clientY, sx: e.clientX, moved: false, id: e.pointerId };
       if (e.pointerType === 'mouse') canvas.setPointerCapture(e.pointerId);
@@ -707,9 +880,13 @@
           dirty = true;
         }
         drag.x = e.clientX; drag.y = e.clientY;
-        return;
       }
-      if (e.pointerType === 'mouse') setHover(pick(e.clientX, e.clientY));
+      if (e.pointerType !== 'mouse') return;
+      aim(e.clientX, e.clientY);
+      const g = groundAt();
+      cursor.on = Boolean(g);
+      if (g) { cursor.x = g.x; cursor.z = g.z; }
+      if (!drag?.moved) setHover(pick());
     });
     const endDrag = (e) => {
       if (!drag || drag.id !== e.pointerId) return;
@@ -717,69 +894,112 @@
       drag = null;
       hero.classList.remove('is-dragging');
       if (!wasClick || e.type !== 'pointerup') return;
-      const si = pick(e.clientX, e.clientY);
-      setHover(si);
-      if (si < 0) return;
-      const id = topId(si);
-      inst[id].vy = 7.5;
-      inst[id].spinV = (Math.random() < 0.5 ? -1 : 1) * 9;
-      const st = stacks[si];
-      pop(st.x, 1 + inst[id].lvl * 0.88, st.z);
+      aim(e.clientX, e.clientY);
+      const h = pick();
+      setHover(h);
+      const g = groundAt();
+      if (g) { pulses.push({ x: g.x, z: g.z, t0: performance.now() / 1000 }); if (pulses.length > 4) pulses.shift(); }
+      if (h) {
+        if (h.kind === 'box') {
+          const id = topId(h.si);
+          inst[id].vy = 7.5;
+          inst[id].spinV = (Math.random() < 0.5 ? -1 : 1) * 9;
+        } else h.obj.userData.kick = 1;
+        pop(world.worldToLocal(h.point.clone()));
+      }
       clearTimeout(tipTimer);
-      if (e.pointerType !== 'mouse') tipTimer = setTimeout(() => setHover(-1), 2400);
+      if (e.pointerType !== 'mouse') tipTimer = setTimeout(() => setHover(null), 2400);
     };
     canvas.addEventListener('pointerup', endDrag);
     canvas.addEventListener('pointercancel', endDrag);
-    canvas.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && !drag) setHover(-1); });
+    canvas.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && !drag) { cursor.on = false; setHover(null); } });
 
     if (animate) {
       ScrollTrigger.create({ trigger: hero, start: 'top top', end: 'bottom top', onUpdate: (self) => { view.scroll = self.progress; dirty = true; } });
     }
 
-    const target = new THREE.Vector3(0, 0.6, 0.8);
+    const pingpong = (v, a, b) => { const span = b - a; const m = ((v % (2 * span)) + 2 * span) % (2 * span); return m < span ? [a + m, 1] : [b - (m - span), -1]; };
+    const target = new THREE.Vector3(0, 0.4, 3.4);
     const render = (t, dt) => {
       if (!reduceMotion) {
         if (!drag) {
-          view.theta += 0.05 * dt + view.vTheta;
+          view.theta += 0.045 * dt + view.vTheta;
           view.vTheta *= 0.92;
           view.phi = clamp(view.phi + view.vPhi, 0.72, 1.28);
           view.vPhi *= 0.9;
         }
         waves(t);
-        const a = t * 0.07;
-        ship.position.set(Math.cos(a) * 15, Math.sin(t * 1.4) * 0.08, Math.sin(a) * 11.5);
-        ship.rotation.set(Math.sin(t * 1.1) * 0.025, -a - Math.PI / 2, Math.sin(t * 0.9) * 0.03);
-        crane.position.x = Math.sin(t * 0.18) * 4.5;
-        const shuttle = (Math.sin(t * 0.55) + 1) / 2;
-        const hoist = (Math.sin(t * 1.1) + 1) / 2;
-        trolley.position.z = lerp(5, 10.2, shuttle);
-        spreader.position.set(0, lerp(1.3, 5.6, hoist), trolley.position.z);
-        carried.position.set(0, spreader.position.y - 0.5, trolley.position.z);
-        cable.scale.y = Math.max(0.1, 6.2 - spreader.position.y);
-        cable.position.set(0, (6.2 + spreader.position.y) / 2, trolley.position.z);
+        workCrane(t);
+        // Vehicles: kicks fade, then each moves on its own path
+        vehicles.forEach((v) => { v.userData.kick = Math.max(0, v.userData.kick - dt * 1.4); });
+        train.userData.x = ((train.userData.x ?? -40) + dt * (3.2 + train.userData.kick * 9));
+        if (train.userData.x > 62) train.userData.x = -62;
+        train.position.x = train.userData.x;
+        shunter.position.x = -1.5 + Math.sin(t * 0.32) * 3.6;
+        shunter.position.y = Math.sin(shunter.userData.kick * Math.PI) * 0.5;
+        trucks.forEach((tr, i) => {
+          const [x, dir] = pingpong(t * 2.1 + i * 7, -6.6, 4.4);
+          tr.position.x = x;
+          tr.rotation.y = lerp(tr.rotation.y, dir > 0 ? 0 : Math.PI, Math.min(1, dt * 6));
+          tr.position.y = Math.sin(tr.userData.kick * Math.PI) * 0.7;
+        });
+        barge.position.x = ((t * 1.5 + 30) % 120) - 60;
+        barge.position.y = Math.sin(t * 1.2) * 0.07;
+        barge.rotation.z = Math.sin(t * 0.9) * 0.02 + barge.userData.kick * Math.sin(t * 20) * 0.08;
+        vessel.position.y = Math.sin(t * 0.8) * 0.05;
+        vessel.rotation.x = Math.sin(t * 0.7) * 0.012 + vessel.userData.kick * Math.sin(t * 16) * 0.05;
+        depot.position.y = Math.sin(depot.userData.kick * Math.PI) * 0.25;
+        crane.rotation.z = crane.userData.kick * Math.sin(t * 18) * 0.015;
         beacon.material.emissiveIntensity = (Math.sin(t * 4) > 0.6 ? 2.5 : 0.3) * (0.3 + mood.night);
-        trucks[0].position.x = -6.3 + Math.sin(t * 0.3) * 0.5;
-        clouds.children.forEach((c) => { c.position.x += c.userData.speed * dt; if (c.position.x > 40) c.position.x = -40; });
+        clouds.children.forEach((c) => { c.position.x += c.userData.speed * dt; if (c.position.x > 42) c.position.x = -42; });
         dirty = true;
       }
 
+      // The yard: arrival drop, cursor ripple, shockwaves, hover lift, click jumps
+      const now = performance.now() / 1000;
+      const introT = introAt < 0 ? -1 : now - introAt;
+      const live = pulses.filter((p) => now - p.t0 < 2.6);
+      pulses.length = 0;
+      pulses.push(...live);
       let changed = false;
       inst.forEach((it, id) => {
+        const st = stacks[it.si];
+        if (!it.live) {
+          if (introT >= it.start) { it.live = true; changed = true; } else return;
+        }
+        if (it.drop > 0 || it.dvy !== 0) {
+          it.dvy -= 34 * dt;
+          it.drop += it.dvy * dt;
+          if (it.drop <= 0) {
+            it.drop = 0;
+            if (it.dvy < -3) { it.sq = Math.min(1, -it.dvy / 16); it.dvy = -it.dvy * 0.3; } else it.dvy = 0;
+          }
+          changed = true;
+        }
+        if (it.sq > 0.001) { it.sq *= Math.exp(-dt * 9); changed = true; } else it.sq = 0;
+        let lift = 0;
+        const amp = 0.35 + it.lvl * 0.55;
+        if (cursor.on && !reduceMotion) {
+          const d2 = (st.x - cursor.x) ** 2 + (st.z - cursor.z) ** 2;
+          lift += 0.6 * Math.exp(-d2 / 11) * amp;
+        }
+        live.forEach((p) => {
+          const age = now - p.t0;
+          const d = Math.hypot(st.x - p.x, st.z - p.z);
+          lift += 1.2 * Math.exp(-((d - age * 8) ** 2) / 1.6) * (1 - age / 2.6) * amp;
+        });
+        if (hover?.kind === 'box' && hover.si === it.si && id === topId(it.si)) lift += 0.4;
+        if (Math.abs(lift - it.lift) > 0.0008) { it.lift += (lift - it.lift) * Math.min(1, dt * 10); changed = true; }
         if (it.vy || it.jump > 0) {
           it.vy -= 22 * dt;
           it.jump = Math.max(0, it.jump + it.vy * dt);
           it.spin += it.spinV * dt;
-          if (it.jump === 0 && it.vy < 0) { it.vy = 0; it.spin = Math.round(it.spin / Math.PI) * Math.PI; it.spinV = 0; }
-          placeInstance(id);
-          changed = true;
-        }
-        if (Math.abs(it.liftTarget - it.lift) > 0.001) {
-          it.lift += (it.liftTarget - it.lift) * Math.min(1, dt * 12);
-          placeInstance(id);
+          if (it.jump === 0 && it.vy < 0) { it.vy = 0; it.spin = Math.round(it.spin / Math.PI) * Math.PI; it.spinV = 0; it.sq = 0.6; }
           changed = true;
         }
       });
-      if (changed) { boxes.instanceMatrix.needsUpdate = true; dirty = true; }
+      if (changed) { inst.forEach((_, id) => placeInstance(id)); boxes.instanceMatrix.needsUpdate = true; dirty = true; }
+
       let alive = false;
       bits.forEach((b, i) => {
         if (b.life <= 0) return;
@@ -795,10 +1015,11 @@
         burst.setMatrixAt(i, dummy.matrix);
       });
       dummy.scale.setScalar(1);
+      dummy.rotation.set(0, 0, 0);
       if (alive) { burst.instanceMatrix.needsUpdate = true; dirty = true; }
 
       if (!dirty) return;
-      const radius = view.radius + view.scroll * 16;
+      const radius = view.radius + view.scroll * 18;
       const phi = view.phi - view.scroll * 0.3;
       camera.position.set(
         target.x + radius * Math.sin(phi) * Math.cos(view.theta),
@@ -867,6 +1088,54 @@
     });
   }
   onEnter($$('[data-count]'), (b) => b.forEach((el) => countUp(el, parseInt(el.dataset.count, 10))), '-5%');
+
+  /* ---------- The whole chain: a container rides from master data to invoice ---------- */
+
+  const flow = $('[data-flow]');
+  if (flow) {
+    const steps = $$('.step', flow);
+    const dots = steps.map((s) => $('.step__dot', s));
+    const token = $('[data-flow-token]', flow);
+    const line = $('.flow__line', flow);
+    const rail = $('.flow__rail', flow);
+    const nEl = $('[data-flow-n]');
+    const nameEl = $('[data-flow-name]');
+    const textEl = $('[data-flow-text]');
+    const n = steps.length;
+    let ends = [0, 0];
+    let vertical = false;
+    let active = -1;
+    const measure = () => {
+      vertical = narrow();
+      const r = rail.getBoundingClientRect();
+      const a = dots[0].getBoundingClientRect();
+      const b = dots[n - 1].getBoundingClientRect();
+      ends = vertical ? [a.top + a.height / 2 - r.top, b.top + b.height / 2 - r.top] : [a.left + a.width / 2 - r.left, b.left + b.width / 2 - r.left];
+    };
+    const show = (i) => {
+      if (i === active) return;
+      active = i;
+      steps.forEach((s, k) => s.classList.toggle('is-active', k === i));
+      nEl.textContent = String(i + 1).padStart(2, '0');
+      nameEl.textContent = $('b', steps[i]).textContent;
+      textEl.textContent = steps[i].dataset.detail;
+      token.style.backgroundColor = COLORS[i % COLORS.length];
+    };
+    const setP = (p) => {
+      const at = lerp(ends[0], ends[1], p);
+      token.style.transform = vertical ? `translateY(${(at - 20).toFixed(1)}px)` : `translateX(${at.toFixed(1)}px)`;
+      line.style.setProperty('--p', p.toFixed(3));
+      steps.forEach((s, k) => s.classList.toggle('is-on', p >= k / (n - 1) - 0.01));
+      show(Math.round(p * (n - 1)));
+    };
+    steps.forEach((s, k) => $('button', s).addEventListener('click', () => setP(k / (n - 1))));
+    measure();
+    window.addEventListener('resize', measure);
+    if (animate) {
+      ScrollTrigger.create({ trigger: flow, start: 'top 80%', end: 'bottom 45%', onRefresh: measure, onUpdate: (self) => setP(self.progress) });
+      setP(0);
+    } else setP(1);
+  }
 
   /* ---------- Tech galaxy: a 3D sphere of logos ---------- */
 
@@ -1134,7 +1403,7 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     const scene = new THREE.Scene();
     const cam = new THREE.OrthographicCamera(-5, 5, 5, -5, 0.1, 200);
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x8899bb, 1.2));
+    scene.add(new THREE.HemisphereLight(0xfff4e8, 0xa8998a, 1.25));
     const dl = new THREE.DirectionalLight(0xffffff, 1.6);
     dl.position.set(6, 12, 4);
     scene.add(dl);
@@ -1165,7 +1434,7 @@
       if (state.moving) dispose(state.moving.m);
       state.stack = []; state.falling = []; state.moving = null;
     };
-    const base = new THREE.Mesh(new THREE.BoxGeometry(3, 6, 3), new THREE.MeshStandardMaterial({ color: 0x2b3550, roughness: 0.8 }));
+    const base = new THREE.Mesh(new THREE.BoxGeometry(3, 6, 3), new THREE.MeshStandardMaterial({ color: 0x4a443d, roughness: 0.85 }));
     base.position.set(0, -3.25, 0);
     scene.add(base);
 

@@ -40,6 +40,57 @@
     setInterval(tick, 20000);
   }
 
+  /* ---------- Theme: light / dark, remembered per visitor ---------- */
+
+  const PALETTES = {
+    dark: {
+      glowA: 'rgba(77, 124, 255, 0.17)', glowB: 'rgba(139, 108, 255, 0.05)',
+      link: [130, 160, 255], linkA: [0.07, 0.08], spoke: 'rgba(63, 208, 224, 0.26)',
+      far: [170, 185, 230], farA: 0.22, near: [63, 208, 255], packet: '#a7f0f7',
+      frag: [150, 170, 215], fragA: 0.24, dotHot: 'rgb(150, 200, 255)', dotIdle: 'rgb(150, 170, 230)',
+    },
+    light: {
+      glowA: 'rgba(77, 124, 255, 0.13)', glowB: 'rgba(139, 108, 255, 0.06)',
+      link: [58, 92, 210], linkA: [0.07, 0.075], spoke: 'rgba(10, 151, 172, 0.32)',
+      far: [62, 78, 130], farA: 0.26, near: [10, 151, 190], packet: '#0a97ac',
+      frag: [70, 84, 125], fragA: 0.3, dotHot: 'rgb(58, 99, 238)', dotIdle: 'rgb(90, 104, 150)',
+    },
+  };
+  let pal = PALETTES.dark;
+  const themeListeners = [];
+  const readTheme = () => { pal = PALETTES[root.getAttribute('data-theme') === 'light' ? 'light' : 'dark']; };
+  readTheme();
+
+  const themeBtn = $('[data-theme-toggle]');
+  const themeMeta = $('meta[name="theme-color"]');
+  const syncThemeButton = () => {
+    themeBtn?.setAttribute('aria-label', `Switch to ${pal === PALETTES.light ? 'dark' : 'light'} theme`);
+  };
+  const applyTheme = (theme) => {
+    root.setAttribute('data-theme', theme);
+    themeMeta?.setAttribute('content', theme === 'light' ? '#f3f5f9' : '#07080b');
+    try { localStorage.setItem('theme', theme); } catch (e) { /* private mode: keep it for this visit only */ }
+    readTheme();
+    syncThemeButton();
+    themeListeners.forEach((fn) => fn());
+  };
+  syncThemeButton();
+  themeBtn?.addEventListener('click', () => {
+    const next = pal === PALETTES.light ? 'dark' : 'light';
+    if (!document.startViewTransition || reduceMotion) { applyTheme(next); return; }
+    // The new theme grows out of the button as a circle.
+    const b = themeBtn.getBoundingClientRect();
+    const x = b.left + b.width / 2;
+    const y = b.top + b.height / 2;
+    const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    document.startViewTransition(() => applyTheme(next)).ready.then(() => {
+      document.documentElement.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`] },
+        { duration: 700, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', pseudoElement: '::view-transition-new(root)' },
+      );
+    });
+  });
+
   /* ---------- One frame loop; each visual only runs while it is on screen ---------- */
 
   const loops = [];
@@ -372,8 +423,8 @@
       // The light follows the cursor.
       if (pointer.active && !coarse) {
         const g = ctx.createRadialGradient(px, py, 0, px, py, 440);
-        g.addColorStop(0, 'rgba(77, 124, 255, 0.17)');
-        g.addColorStop(0.5, 'rgba(139, 108, 255, 0.05)');
+        g.addColorStop(0, pal.glowA);
+        g.addColorStop(0.5, pal.glowB);
         g.addColorStop(1, 'rgba(0, 0, 0, 0)');
         ctx.fillStyle = g;
         ctx.fillRect(px - 440, py - 440, 880, 880);
@@ -425,14 +476,14 @@
       ctx.lineWidth = 1;
       buckets.forEach((arr, bi) => {
         if (!arr.length) return;
-        ctx.strokeStyle = `rgba(130, 160, 255, ${0.07 + bi * 0.08})`;
+        ctx.strokeStyle = `rgba(${pal.link}, ${pal.linkA[0] + bi * pal.linkA[1]})`;
         ctx.beginPath();
         for (let q = 0; q < arr.length; q += 4) { ctx.moveTo(arr[q], arr[q + 1]); ctx.lineTo(arr[q + 2], arr[q + 3]); }
         ctx.stroke();
       });
 
       if (pointer.active && !coarse) {
-        ctx.strokeStyle = 'rgba(63, 208, 224, 0.26)';
+        ctx.strokeStyle = pal.spoke;
         ctx.beginPath();
         let c = 0;
         for (const n of nodes) {
@@ -446,8 +497,8 @@
       for (const n of nodes) {
         const near = pointer.active ? Math.max(0, 1 - Math.hypot(n.sx - px, n.sy - py) / 230) : 0;
         ctx.fillStyle = near > 0
-          ? `rgba(${lerp(170, 63, near) | 0}, ${lerp(185, 208, near) | 0}, 255, ${0.4 + near * 0.6})`
-          : `rgba(170, 185, 230, ${0.22 + n.z * 0.45})`;
+          ? `rgba(${lerp(pal.far[0], pal.near[0], near) | 0}, ${lerp(pal.far[1], pal.near[1], near) | 0}, ${lerp(pal.far[2], pal.near[2], near) | 0}, ${0.4 + near * 0.6})`
+          : `rgba(${pal.far}, ${pal.farA + n.z * 0.45})`;
         ctx.beginPath();
         ctx.arc(n.sx, n.sy, 0.8 + n.z * 1.6 + near * 1.8, 0, Math.PI * 2);
         ctx.fill();
@@ -465,7 +516,7 @@
         }
         if (best && bd < (LINK * 1.1) ** 2) packets.push({ a, b: best, t: 0 });
       }
-      ctx.fillStyle = '#a7f0f7';
+      ctx.fillStyle = pal.packet;
       for (let i = packets.length - 1; i >= 0; i--) {
         const pk = packets[i];
         pk.t += 0.013 * k;
@@ -484,12 +535,12 @@
         f.life += dt;
         if (f.y < -20) { frags[i] = fragment(false); continue; }
         const fade = Math.min(1, f.life / 1400) * Math.min(1, (f.y + 20) / 140);
-        ctx.fillStyle = `rgba(150, 170, 215, ${(0.24 * f.z * fade).toFixed(3)})`;
+        ctx.fillStyle = `rgba(${pal.frag}, ${(pal.fragA * f.z * fade).toFixed(3)})`;
         ctx.fillText(f.text, f.x - parX * 50 * f.z, f.y - parY * 30 * f.z);
       }
     };
 
-    if (reduceMotion) draw(performance.now(), 16);
+    if (reduceMotion) { draw(performance.now(), 16); themeListeners.push(() => draw(performance.now(), 16)); }
     else addLoop(hero, draw, '0px');
   }
 
@@ -1253,7 +1304,7 @@
         cy = cb.top - sb.top + cb.height / 2;
         rad = cb.width * 0.62;
       }
-      ctx.fillStyle = ctaHot ? 'rgba(150, 200, 255, 1)' : 'rgba(150, 170, 230, 1)';
+      ctx.fillStyle = ctaHot ? pal.dotHot : pal.dotIdle;
       for (let i = 0; i < parts.length; i++) {
         const p = parts[i];
         let tx;

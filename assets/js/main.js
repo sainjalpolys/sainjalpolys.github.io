@@ -26,6 +26,38 @@
     setInterval(tick, 20000);
   }
 
+  /* ---------- Theme: light / dark, remembered per visitor ---------- */
+
+  const themeBtn = $('[data-theme-toggle]');
+  const themeMeta = $('meta[name="theme-color"]');
+  const currentTheme = () => root.getAttribute('data-theme') || 'dark';
+  const syncThemeButton = () => {
+    const next = currentTheme() === 'light' ? 'dark' : 'light';
+    themeBtn?.setAttribute('aria-label', `Switch to ${next} theme`);
+  };
+  const applyTheme = (theme) => {
+    root.setAttribute('data-theme', theme);
+    themeMeta?.setAttribute('content', theme === 'light' ? '#f5f2ec' : '#0b0b0a');
+    try { localStorage.setItem('theme', theme); } catch (e) { /* private mode: keep it for this visit only */ }
+    syncThemeButton();
+  };
+  syncThemeButton();
+  themeBtn?.addEventListener('click', () => {
+    const next = currentTheme() === 'light' ? 'dark' : 'light';
+    if (!document.startViewTransition || reduceMotion) { applyTheme(next); return; }
+    // The new theme grows out of the button as a circle.
+    const b = themeBtn.getBoundingClientRect();
+    const x = b.left + b.width / 2;
+    const y = b.top + b.height / 2;
+    const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    document.startViewTransition(() => applyTheme(next)).ready.then(() => {
+      document.documentElement.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${r}px at ${x}px ${y}px)`] },
+        { duration: 700, easing: 'cubic-bezier(0.76, 0, 0.24, 1)', pseudoElement: '::view-transition-new(root)' },
+      );
+    });
+  });
+
   /* ---------- Smooth scroll ---------- */
 
   let lenis = null;

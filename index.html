@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Sainjal Poly — Solution Architect</title>
-  <meta name="description" content="Sainjal Poly — solution architect who ships containers, both kinds. A playful 3D port of the systems, career and thinking behind enterprise logistics platforms.">
+  <meta name="description" content="Sainjal Poly — solution architect who builds the software that moves the world’s cargo. A playful 3D port of the systems, career and thinking behind enterprise logistics platforms.">
   <meta name="theme-color" content="#fbf6ee">
   <script>
     (function () {
@@ -22,7 +22,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://sainjalpolys.github.io/">
   <meta property="og:title" content="Sainjal Poly — Solution Architect">
-  <meta property="og:description" content="I ship containers. Both kinds. Spin the 3D port, sail the career voyage, play Stack Overflow.">
+  <meta property="og:description" content="I build the software that moves the world’s cargo. Spin the 3D port, sail the career voyage, play Stack Overflow.">
   <meta property="og:image" content="https://sainjalpolys.github.io/assets/img/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
 
@@ -56,7 +56,7 @@
     <p class="boot__text"><span data-boot-text>Loading cargo</span> <b data-boot-pct>0%</b></p>
   </div>
 
-  <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__ring"><span class="cursor__label"></span></span></div>
+  <div class="cursor" aria-hidden="true"><canvas class="cursor__trail"></canvas><span class="cursor__frame"><i></i><i></i><i></i><i></i></span><span class="cursor__dot"></span><span class="cursor__label"><span class="cursor__pill"></span></span></div>
 
   <!-- Scroll progress: a little ship sails along the top -->
   <div class="voyage-bar" aria-hidden="true">
@@ -103,18 +103,34 @@
 
     <!-- HERO: a 3D container port -->
     <section class="hero" id="top">
-      <div class="hero__sky" aria-hidden="true"><i class="hero__sun"></i></div>
-      <canvas class="hero__canvas" data-port aria-label="A 3D container port. Drag to spin it, hover or tap a container to see which technology it carries." role="img"></canvas>
+      <div class="hero__sky" aria-hidden="true">
+        <i class="hero__stars"></i>
+        <i class="hero__cloud hero__cloud--1"></i><i class="hero__cloud hero__cloud--2"></i><i class="hero__cloud hero__cloud--3"></i>
+        <div class="hero__birds"><svg viewBox="0 0 120 40"><path d="M2 16q7-9 13 0q6-9 13 0"/><path d="M50 7q5-7 10 0q5-7 10 0"/><path d="M88 24q6-8 11 0q5-8 11 0"/></svg></div>
+        <div class="hero__horizon">
+          <i class="hero__glow"></i>
+          <i class="hero__sun"></i>
+          <div class="hero__range hero__range--far" data-range="far"></div>
+          <div class="hero__range hero__range--near" data-range="near"></div>
+        </div>
+      </div>
+      <canvas class="hero__canvas" data-port data-cursor="Drag" aria-label="A 3D container port. Drag to spin it; click or tap a container to unbox the technology it carries." role="img"></canvas>
       <div class="hero__fallback" aria-hidden="true">
         <i style="--c:var(--c1)"></i><i style="--c:var(--c2)"></i><i style="--c:var(--c3)"></i><i style="--c:var(--c4)"></i><i style="--c:var(--c5)"></i><i style="--c:var(--c6)"></i>
       </div>
       <div class="tip" data-tip role="status" aria-live="polite"><b data-tip-name></b><span data-tip-cat></span></div>
+      <div class="unbox" data-unbox role="status" aria-live="polite">
+        <div class="unbox__top"><span class="unbox__logo" data-unbox-logo></span><div><span class="unbox__cat" data-unbox-cat></span><b class="unbox__name" data-unbox-name></b></div></div>
+        <p class="unbox__line" data-unbox-line></p>
+        <div class="unbox__meter"><i data-unbox-bar></i></div>
+        <span class="unbox__count" data-unbox-count></span>
+      </div>
 
       <div class="hero__content">
         <p class="hero__hello" data-hero-in><span class="wave" aria-hidden="true">👋</span> Hello, world — I'm</p>
         <h1 class="hero__name" data-hero-name aria-label="Sainjal Poly">Sainjal Poly</h1>
         <p class="hero__role" data-hero-in><span class="pill pill--live"><i></i>Solution Architect</span><span class="pill">8+ yrs · Java · GCP</span></p>
-        <p class="hero__tag" data-hero-in>I ship containers.<br><em>Both kinds.</em></p>
+        <p class="hero__tag" data-hero-in>I build the software that<br><em>moves the world’s cargo.</em></p>
         <p class="hero__sub" data-hero-in>End-to-end logistics software for <span><i style="--c:var(--c1)"></i>truck</span><span><i style="--c:var(--c2)"></i>rail</span><span><i style="--c:var(--c5)"></i>barge</span><span><i style="--c:var(--c3)"></i>sea</span></p>
         <div class="hero__cta" data-hero-in>
           <a class="btn btn--primary" href="#play" data-magnetic data-cursor="Play">Play Stack Overflow <span aria-hidden="true">→</span></a>
@@ -122,14 +138,14 @@
         </div>
       </div>
 
-      <p class="hero__hint" data-hero-in><span class="hero__hint-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 0 1 4 0v5M13 10V4a2 2 0 0 1 4 0v7M9 10a2 2 0 0 0-4 0v4a7 7 0 0 0 14 0v-3a2 2 0 0 0-4 0"/></svg></span>Drag to spin the port · tap a container</p>
+      <p class="hero__hint" data-hero-in><span class="hero__hint-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 0 1 4 0v5M13 10V4a2 2 0 0 1 4 0v7M9 10a2 2 0 0 0-4 0v4a7 7 0 0 0 14 0v-3a2 2 0 0 0-4 0"/></svg></span>Drag to spin · tap a container to unbox it</p>
       <a class="hero__scroll" href="#about" aria-label="Scroll to the next section"><span></span></a>
     </section>
 
     <div class="ticker" aria-hidden="true">
       <div class="ticker__track">
-        <div class="ticker__group"><span>Brain before bytes</span><i></i><span>Containers, both kinds</span><i></i><span>Living in 0s &amp; 1s</span><i></i><span>Diagrams before code</span><i></i><span>Ship small, ship often</span><i></i><span>Left brain + right brain</span><i></i></div>
-        <div class="ticker__group"><span>Brain before bytes</span><i></i><span>Containers, both kinds</span><i></i><span>Living in 0s &amp; 1s</span><i></i><span>Diagrams before code</span><i></i><span>Ship small, ship often</span><i></i><span>Left brain + right brain</span><i></i></div>
+        <div class="ticker__group"><span>Brain before bytes</span><i></i><span>Code that moves cargo</span><i></i><span>Living in 0s &amp; 1s</span><i></i><span>Diagrams before code</span><i></i><span>Ship small, ship often</span><i></i><span>Left brain + right brain</span><i></i></div>
+        <div class="ticker__group"><span>Brain before bytes</span><i></i><span>Code that moves cargo</span><i></i><span>Living in 0s &amp; 1s</span><i></i><span>Diagrams before code</span><i></i><span>Ship small, ship often</span><i></i><span>Left brain + right brain</span><i></i></div>
       </div>
     </div>
 

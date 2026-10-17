@@ -2,18 +2,19 @@
 <html lang="en" class="no-js">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Sainjal Poly — Solution Architect</title>
-  <meta name="description" content="Sainjal Poly is a solution architect designing scalable, cloud-native logistics platforms — architecture, design and the technology behind them.">
-  <meta name="theme-color" content="#0b0b0a">
+  <meta name="description" content="Sainjal Poly — solution architect who ships containers, both kinds. A playful 3D port of the systems, career and thinking behind enterprise logistics platforms.">
+  <meta name="theme-color" content="#eef5ff">
   <script>
     (function () {
       var saved = null;
       try { saved = localStorage.getItem('theme'); } catch (e) {}
       var theme = saved === 'light' || saved === 'dark' ? saved
-        : (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', theme);
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', theme === 'light' ? '#f5f2ec' : '#0b0b0a');
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', theme === 'dark' ? '#070b18' : '#eef5ff');
+      document.documentElement.classList.replace('no-js', 'js');
     })();
   </script>
   <link rel="canonical" href="https://sainjalpolys.github.io/">
@@ -21,7 +22,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://sainjalpolys.github.io/">
   <meta property="og:title" content="Sainjal Poly — Solution Architect">
-  <meta property="og:description" content="Architecting scalable, cloud-native solutions for logistics — from data model to deployment.">
+  <meta property="og:description" content="I ship containers. Both kinds. Spin the 3D port, sail the career voyage, play Stack Overflow.">
   <meta property="og:image" content="https://sainjalpolys.github.io/assets/img/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
 
@@ -31,1006 +32,349 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500;600&display=swap">
-  <link rel="preload" as="image" type="image/avif" imagesrcset="assets/img/circuit-1200.avif 1200w, assets/img/circuit-1600.avif 1600w, assets/img/circuit-2400.avif 2400w, assets/img/circuit-3200.avif 3200w, assets/img/circuit-3840.avif 3840w" imagesizes="100vw">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/main.css">
-
   <script>
-    document.documentElement.classList.replace('no-js', 'js');
-    // If the scripts never boot (offline CDN, blocked JS), drop the intro and show the page as-is.
+    // If the scripts never boot (offline CDN, blocked JS), drop the loader and show the page as-is.
     setTimeout(function () {
       if (window.__siteBooted) return;
-      document.documentElement.classList.remove('js');
-      var loader = document.querySelector('.loader');
-      if (loader) loader.remove();
+      var boot = document.querySelector('.boot');
+      if (boot) boot.remove();
     }, 6000);
   </script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
 
-  <!-- Shared diagram materials: gradients, glow, shadow, grid and glyphs -->
-  <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
-    <defs>
-      <linearGradient id="g-box" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" style="stop-color: rgb(var(--fg-rgb))" stop-opacity="0.09"/>
-        <stop offset="1" style="stop-color: rgb(var(--fg-rgb))" stop-opacity="0.02"/>
-      </linearGradient>
-      <linearGradient id="g-box-accent" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" style="stop-color: rgb(var(--accent-rgb))" stop-opacity="0.24"/>
-        <stop offset="1" style="stop-color: rgb(var(--accent-rgb))" stop-opacity="0.05"/>
-      </linearGradient>
-      <linearGradient id="g-edge" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" style="stop-color: rgb(var(--fg-rgb))" stop-opacity="0.42"/>
-        <stop offset="1" style="stop-color: rgb(var(--fg-rgb))" stop-opacity="0.1"/>
-      </linearGradient>
-      <linearGradient id="g-plate" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" style="stop-color: rgb(var(--fg-rgb))" stop-opacity="0.13"/>
-        <stop offset="1" style="stop-color: rgb(var(--fg-rgb))" stop-opacity="0.02"/>
-      </linearGradient>
-      <linearGradient id="g-plate-accent" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" style="stop-color: rgb(var(--accent-rgb))" stop-opacity="0.42"/>
-        <stop offset="1" style="stop-color: rgb(var(--accent-rgb))" stop-opacity="0.08"/>
-      </linearGradient>
-      <radialGradient id="g-spot" cx="50%" cy="38%" r="70%">
-        <stop offset="0" style="stop-color: rgb(var(--fg-rgb))" stop-opacity="0.07"/>
-        <stop offset="1" style="stop-color: rgb(var(--fg-rgb))" stop-opacity="0"/>
-      </radialGradient>
-      <radialGradient id="g-fade" cx="50%" cy="50%" r="62%">
-        <stop offset="0.45" stop-color="#fff"/>
-        <stop offset="1" stop-color="#000"/>
-      </radialGradient>
-      <mask id="m-fade" maskContentUnits="objectBoundingBox"><rect width="1" height="1" fill="url(#g-fade)"/></mask>
-      <pattern id="p-dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.9" style="fill: rgb(var(--fg-rgb))" fill-opacity="0.16"/></pattern>
-      <pattern id="p-grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M100 0 H0 V100" fill="none" style="stroke: rgb(var(--fg-rgb))" stroke-opacity="0.06"/></pattern>
-      <filter id="f-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      <filter id="f-shadow" x="-20%" y="-30%" width="140%" height="190%"><feDropShadow dx="0" dy="8" stdDeviation="9" style="flood-color: var(--shadow); flood-opacity: var(--shadow-o)"/></filter>
-
-      <symbol id="i-service" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 L20.5 7.25 V16.75 L12 21.5 L3.5 16.75 V7.25 Z"/><circle cx="12" cy="12" r="3"/></g></symbol>
-      <symbol id="i-db" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="2.8"/><path d="M5 6 V18 A7 2.8 0 0 0 19 18 V6 M5 12 A7 2.8 0 0 0 19 12"/></g></symbol>
-      <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3.5 7.5 L12 13.5 L20.5 7.5"/></g></symbol>
-      <symbol id="i-relay" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9 H17 M14 5.5 L17.5 9 L14 12.5 M20 15 H7 M10 11.5 L6.5 15 L10 18.5"/></g></symbol>
-      <symbol id="i-broadcast" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.2"/><path d="M7.8 7.8 A6 6 0 0 0 7.8 16.2 M16.2 7.8 A6 6 0 0 1 16.2 16.2 M4.9 4.9 A10 10 0 0 0 4.9 19.1 M19.1 4.9 A10 10 0 0 1 19.1 19.1"/></g></symbol>
-      <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 L20.5 20.5"/></g></symbol>
-      <symbol id="i-bell" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.5 V11 a6 6 0 0 1 12 0 v5.5 l1.5 1.5 H4.5 Z M10 20 a2 2 0 0 0 4 0"/></g></symbol>
-      <symbol id="i-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14 a4 4 0 0 1 0-5.66 l3-3 a4 4 0 0 1 5.66 5.66 l-1.5 1.5 M14 10 a4 4 0 0 1 0 5.66 l-3 3 a4 4 0 0 1-5.66-5.66 l1.5-1.5"/></g></symbol>
-      <symbol id="i-commit" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"/><path d="M2.5 12 H8.5 M15.5 12 H21.5"/></g></symbol>
-      <symbol id="i-cube" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8 L20 7.2 V16.8 L12 21.2 L4 16.8 V7.2 Z M4 7.2 L12 11.6 L20 7.2 M12 11.6 V21.2"/></g></symbol>
-      <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8 12.3 L10.8 15 L16 9.5"/></g></symbol>
-      <symbol id="i-container" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="11" rx="1.5"/><path d="M7.5 9.5 V15.5 M12 9.5 V15.5 M16.5 9.5 V15.5"/></g></symbol>
-      <symbol id="i-archive" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1.2"/><path d="M4.5 9 V19 a1.5 1.5 0 0 0 1.5 1.5 H18 a1.5 1.5 0 0 0 1.5-1.5 V9 M10 13 H14"/></g></symbol>
-      <symbol id="i-deploy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 17.5 H17 a4.5 4.5 0 0 0 0-9 a6 6 0 0 0-11.4 1.4 A3.7 3.7 0 0 0 7.5 17.5"/><path d="M12 21 V12.5 M9 15.5 L12 12.5 L15 15.5"/></g></symbol>
-      <symbol id="i-pulse" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12 H6.5 L9 6 L13 18 L15.5 12 H21.5"/></g></symbol>
-      <symbol id="i-compass" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 L13.4 13.4 L8.5 15.5 L10.6 10.6 Z"/></g></symbol>
-      <symbol id="i-branch" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.5" r="2.2"/><circle cx="6" cy="18.5" r="2.2"/><circle cx="18" cy="8" r="2.2"/><path d="M6 7.7 V16.3 M18 10.2 C 18 14, 6 12.5, 6 16.3"/></g></symbol>
-      <symbol id="i-code" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 7 L3.5 12 L8.5 17 M15.5 7 L20.5 12 L15.5 17 M13.5 5 L10.5 19"/></g></symbol>
-      <symbol id="i-cycle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 12 a7.5 7.5 0 1 1-2.2-5.3 M19.5 4.5 V9 H15"/></g></symbol>
-    </defs>
-  </svg>
-
-  <div class="loader" aria-hidden="true">
-    <div class="loader__panel loader__panel--top"></div>
-    <div class="loader__panel loader__panel--bottom"></div>
-    <div class="loader__content">
-      <div class="loader__inner">
-        <p class="loader__name"><span>Sainjal Poly</span></p>
-        <p class="loader__role label">Brain before bytes · Loading</p>
-      </div>
-      <div class="loader__bar"><span></span></div>
-      <span class="loader__count">000</span>
+  <!-- Loader: three containers drop onto a stack -->
+  <div class="boot" aria-hidden="true">
+    <div class="boot__stack">
+      <i class="boot__box boot__box--1"></i>
+      <i class="boot__box boot__box--2"></i>
+      <i class="boot__box boot__box--3"></i>
     </div>
+    <p class="boot__text"><span data-boot-text>Loading cargo</span> <b data-boot-pct>0%</b></p>
   </div>
 
-  <div class="grain" aria-hidden="true"></div>
-  <div class="progress" aria-hidden="true"></div>
-  <div class="cursor" aria-hidden="true">
-    <div class="cursor__ring"><span class="cursor__label"></span></div>
-    <div class="cursor__dot"></div>
+  <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__ring"><span class="cursor__label"></span></span></div>
+
+  <!-- Scroll progress: a little ship sails along the top -->
+  <div class="voyage-bar" aria-hidden="true">
+    <div class="voyage-bar__line"><span data-progress-line></span></div>
+    <svg class="voyage-bar__ship" data-progress-ship viewBox="0 0 32 20"><path d="M3 11h26l-4 7H7z"/><rect x="9" y="5" width="6" height="5" rx="1"/><rect x="16" y="2" width="6" height="8" rx="1"/></svg>
   </div>
 
-  <header class="nav">
-    <a class="nav__brand roll" href="#top"><span data-text="Sainjal Poly">Sainjal Poly</span></a>
-    <p class="nav__clock"><span class="nav__clock-label">Kerala, IN</span> <time data-clock>IST</time></p>
-    <div class="nav__end">
-    <nav class="nav__links" aria-label="Primary">
-      <a class="roll" href="#about"><span data-text="About">About</span></a>
-      <a class="roll" href="#work"><span data-text="Work">Work</span></a>
-      <a class="roll" href="#architecture"><span data-text="Architecture">Architecture</span></a>
-      <a class="roll" href="#stack"><span data-text="Stack">Stack</span></a>
-      <a class="roll" href="#contact"><span data-text="Contact">Contact</span></a>
+  <header class="topbar">
+    <a class="brand" href="#top" data-cursor="Top">
+      <span class="brand__box"><i></i><i></i><i></i>SP</span>
+      <span class="brand__name">Sainjal Poly</span>
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#galaxy">Stack</a>
+      <a href="#voyage">Voyage</a>
+      <a href="#work">Work</a>
+      <a href="#play">Play</a>
+      <a href="#contact">Contact</a>
     </nav>
-          <button class="theme" type="button" data-theme-toggle aria-label="Switch to light theme" data-cursor="Theme">
-        <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
-        <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <div class="topbar__actions">
+      <button class="daynight" type="button" data-theme-toggle aria-label="Switch to night mode" data-cursor="Day / night">
+        <span class="daynight__track"><span class="daynight__knob"><i class="daynight__crater"></i><i class="daynight__crater"></i></span><i class="daynight__star"></i><i class="daynight__star"></i><i class="daynight__star"></i></span>
       </button>
-    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="menu"><span data-label>Menu</span></button>
+      <a class="btn btn--small" href="attachments/Sainjal_Poly_Resume.pdf" download data-magnetic data-cursor="Download">Résumé <span aria-hidden="true">↓</span></a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><i></i><i></i></button>
     </div>
   </header>
 
   <div class="menu" id="menu" aria-hidden="true" inert>
-    <nav class="menu__links" aria-label="Mobile">
-      <a href="#about"><span>About</span></a>
-      <a href="#work"><span>Work</span></a>
-      <a href="#architecture"><span>Architecture</span></a>
-      <a href="#stack"><span>Stack</span></a>
-      <a href="#journey"><span>Journey</span></a>
-      <a href="#contact"><span>Contact</span></a>
+    <nav aria-label="Mobile">
+      <a href="#about"><b>01</b>About</a>
+      <a href="#galaxy"><b>02</b>Stack</a>
+      <a href="#voyage"><b>03</b>Voyage</a>
+      <a href="#work"><b>04</b>Work</a>
+      <a href="#play"><b>05</b>Play</a>
+      <a href="#contact"><b>06</b>Contact</a>
     </nav>
-    <div class="menu__foot">
-      <a href="mailto:sainjalpoly123@gmail.com">sainjalpoly123@gmail.com</a>
-      <a href="attachments/Sainjal_Poly_Resume.pdf" download>Résumé ↓</a>
-    </div>
   </div>
 
   <main id="main">
 
-    <!-- Hero -->
-    <section class="hero" id="top" data-cursor="Scroll">
-      <div class="hero__media">
-        <div class="hero__parallax">
-          <picture>
-            <source type="image/avif" srcset="assets/img/circuit-1200.avif 1200w, assets/img/circuit-1600.avif 1600w, assets/img/circuit-2400.avif 2400w, assets/img/circuit-3200.avif 3200w, assets/img/circuit-3840.avif 3840w" sizes="100vw">
-            <img class="hero__img" src="assets/img/circuit-2400.jpg" srcset="assets/img/circuit-1200.jpg 1200w, assets/img/circuit-1600.jpg 1600w, assets/img/circuit-2400.jpg 2400w, assets/img/circuit-3200.jpg 3200w, assets/img/circuit-3840.jpg 3840w" sizes="100vw" alt="Macro view of a dark circuit board, a processor in sharp focus" fetchpriority="high" decoding="async">
-          </picture>
-        </div>
-        <div class="hero__shade"></div>
-        <div class="hero__dim"></div>
+    <!-- HERO: a 3D container port -->
+    <section class="hero" id="top">
+      <div class="hero__sky" aria-hidden="true"><i class="hero__sun"></i></div>
+      <canvas class="hero__canvas" data-port aria-label="A 3D container port. Drag to spin it, hover or tap a container to see which technology it carries." role="img"></canvas>
+      <div class="hero__fallback" aria-hidden="true">
+        <i style="--c:var(--c1)"></i><i style="--c:var(--c2)"></i><i style="--c:var(--c3)"></i><i style="--c:var(--c4)"></i><i style="--c:var(--c5)"></i><i style="--c:var(--c6)"></i>
       </div>
-
-      <div class="hero__hud" aria-hidden="true">
-        <span>9.93° N</span><span>76.26° E</span><span>Kochi, India</span>
-      </div>
+      <div class="tip" data-tip role="status" aria-live="polite"><b data-tip-name></b><span data-tip-cat></span></div>
 
       <div class="hero__content">
-        <p class="hero__eyebrow label" data-hero-fade>Solution Architect</p>
-        <h1 class="hero__title" aria-label="Sainjal Poly">
-          <span class="line" aria-hidden="true"><span data-chars>Sainjal</span></span>
-          <span class="line line--indent" aria-hidden="true"><em data-chars>Poly</em></span>
-        </h1>
-        <div class="hero__foot">
-          <span class="hero__rule"></span>
-          <p class="hero__lede" data-hero-fade>I architect scalable, cloud&#8209;native solutions for logistics — from data model to deployment.</p>
-          <dl class="hero__meta" data-hero-fade>
-            <div><dt class="label">Focus</dt><dd>Solution architecture · Cloud</dd></div>
-            <div><dt class="label">Based in</dt><dd>Kerala, India</dd></div>
-            <div><dt class="label">Motto</dt><dd class="hero__motto" data-motto>Brain before bytes</dd></div>
-          </dl>
-          <a class="hero__scroll" href="#about" data-hero-fade><span class="label">Scroll</span><span class="hero__scroll-line"></span></a>
+        <p class="hero__hello" data-hero-in><span class="wave" aria-hidden="true">👋</span> Hello, world — I'm</p>
+        <h1 class="hero__name" data-hero-name aria-label="Sainjal Poly">Sainjal Poly</h1>
+        <p class="hero__role" data-hero-in><span class="pill pill--live"><i></i>Solution Architect</span><span class="pill">8+ yrs · Java · GCP</span></p>
+        <p class="hero__tag" data-hero-in>I ship containers.<br><em>Both kinds.</em></p>
+        <div class="hero__cta" data-hero-in>
+          <a class="btn btn--primary" href="#play" data-magnetic data-cursor="Play">Play Stack Overflow <span aria-hidden="true">→</span></a>
+          <a class="btn" href="#work" data-magnetic data-cursor="Open">See my work</a>
         </div>
       </div>
+
+      <p class="hero__hint" data-hero-in><span class="hero__hint-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 0 1 4 0v5M13 10V4a2 2 0 0 1 4 0v7M9 10a2 2 0 0 0-4 0v4a7 7 0 0 0 14 0v-3a2 2 0 0 0-4 0"/></svg></span>Drag to spin the port · tap a container</p>
+      <a class="hero__scroll" href="#about" aria-label="Scroll to the next section"><span></span></a>
     </section>
 
-    <!-- About -->
-    <section class="section about" id="about">
-      <header class="section__head"><span class="rule"></span><span class="label">(01)</span><span class="label">About</span></header>
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker__track">
+        <div class="ticker__group"><span>Brain before bytes</span><i></i><span>Containers, both kinds</span><i></i><span>Living in 0s &amp; 1s</span><i></i><span>Diagrams before code</span><i></i><span>Ship small, ship often</span><i></i><span>Left brain + right brain</span><i></i></div>
+        <div class="ticker__group"><span>Brain before bytes</span><i></i><span>Containers, both kinds</span><i></i><span>Living in 0s &amp; 1s</span><i></i><span>Diagrams before code</span><i></i><span>Ship small, ship often</span><i></i><span>Left brain + right brain</span><i></i></div>
+      </div>
+    </div>
 
-      <p class="statement" data-scrub-words>I turn complex logistics into <em>clear, scalable systems</em> — built for performance and designed to last.</p>
+    <!-- ABOUT -->
+    <section class="section about" id="about">
+      <p class="eyebrow" data-reveal><span>01</span>About</p>
+      <h2 class="statement" data-words>I turn <mark class="hl hl--1">complex logistics</mark> into <mark class="hl hl--2">clear, scalable systems</mark> — and stay close enough to the code to <mark class="hl hl--3">build them</mark>.</h2>
 
       <div class="about__grid">
-        <div class="about__media">
-          <figure class="duo" data-duo data-cursor="Drag">
-            <div class="duo__layer duo__layer--atoms">
-              <picture>
-                <source type="image/avif" srcset="assets/img/containers-1200.avif 1200w, assets/img/containers-2000.avif 2000w, assets/img/containers-2800.avif 2800w" sizes="(max-width: 760px) 100vw, 75vw">
-                <img src="assets/img/containers-2000.jpg" srcset="assets/img/containers-1200.jpg 1200w, assets/img/containers-2000.jpg 2000w, assets/img/containers-2800.jpg 2800w" sizes="(max-width: 760px) 100vw, 75vw" alt="Stacked shipping containers and gantry cranes at dusk" loading="lazy" decoding="async">
-              </picture>
+        <div class="flip" data-flip tabindex="0" role="button" aria-label="Flip the card: left brain or right brain" data-cursor="Flip">
+          <div class="flip__inner">
+            <div class="flip__face flip__face--front">
+              <p class="flip__k">Left brain</p>
+              <p class="flip__big">∑ Math</p>
+              <ul><li>Logic &amp; algorithms</li><li>Data structures</li><li>Systems that add up</li></ul>
+              <p class="flip__hint">Tap to flip ↻</p>
             </div>
-            <div class="duo__layer duo__layer--bits">
-              <picture>
-                <source type="image/avif" srcset="assets/img/servers-1600.avif 1600w, assets/img/servers-2400.avif 2400w" sizes="(max-width: 760px) 100vw, 90vw">
-                <img src="assets/img/servers-1600.jpg" srcset="assets/img/servers-1600.jpg 1600w, assets/img/servers-2400.jpg 2400w" sizes="(max-width: 760px) 100vw, 90vw" alt="Server racks with patch cables in a dark data centre" loading="lazy" decoding="async">
-              </picture>
-              <pre class="duo__binary" aria-hidden="true" data-binary></pre>
+            <div class="flip__face flip__face--back">
+              <p class="flip__k">Right brain</p>
+              <p class="flip__big">¶ English</p>
+              <ul><li>Words &amp; stories</li><li>Design docs people read</li><li>Systems that make sense</li></ul>
+              <p class="flip__hint">Tap to flip ↻</p>
             </div>
-            <span class="duo__tag duo__tag--atoms"><span class="label">Atoms</span><span>Containers, cranes, ships</span></span>
-            <span class="duo__tag duo__tag--bits"><span class="label">Bits</span><span>Services, data, 0s &amp; 1s</span></span>
-            <input class="duo__range" type="range" min="0" max="100" value="50" aria-label="Slide between the logistics photo and the software photo">
-            <span class="duo__handle" aria-hidden="true"><span class="duo__knob"><svg viewBox="0 0 24 24"><path d="M9 7 L4 12 L9 17 M15 7 L20 12 L15 17"/></svg></span></span>
-          </figure>
-          <p class="duo__caption"><span class="label">Drag across</span><span>I work where the two meet.</span></p>
+          </div>
         </div>
 
-        <div class="about__copy">
-          <p class="label" data-reveal>Profile</p>
-          <p class="about__quote" data-reveal><span data-scramble>Brain before bytes.</span></p>
-          <p data-reveal>Solution architect with eight years in enterprise software — living in a world of 0s and 1s, building for a world of ships and containers.</p>
-          <p data-reveal>I once took one of those personality tests that tell you whether you're left&#8209;brained or right&#8209;brained. I came out exactly in the middle — which is apparently pretty rare. That probably explains why my two best subjects at school were English and Math, and why I chose a career that's both highly creative and highly technical.</p>
-
+        <div class="about__story">
+          <p class="about__lead" data-reveal>A personality test once put me <b>exactly between left- and right-brained</b> — which is apparently rare. It explains why my two best subjects were English and Math, and why I chose a career that's both highly creative and highly technical.</p>
           <div class="brain" data-brain data-reveal>
-            <div class="brain__ends">
-              <span class="brain__end brain__end--left"><b>Left brain</b>Logic · Math · Systems</span>
-              <span class="brain__end brain__end--right"><b>Right brain</b>Words · Stories · Design</span>
-            </div>
+            <div class="brain__ends"><span><b>Logic</b>Math · Systems</span><span><b>Language</b>Words · Design</span></div>
             <div class="brain__track"><span class="brain__tick"></span><span class="brain__knob"><span class="brain__me">Me</span></span></div>
-            <p class="brain__note" data-brain-note aria-live="polite">Exactly in the middle. Apparently that's rare.</p>
-          </div>
-
-          <div class="about__actions" data-reveal>
-            <a class="btn" href="attachments/Sainjal_Poly_Resume.pdf" download data-magnetic data-cursor="PDF">Download résumé <span aria-hidden="true">↓</span></a>
-            <a class="link" href="#contact">Get in touch</a>
+            <p class="brain__note" data-brain-note aria-live="polite">Drag me. I always come back to the middle.</p>
           </div>
         </div>
       </div>
 
       <ul class="stats">
-        <li data-reveal><span class="stats__n"><span data-count="8">8</span>+</span><span class="stats__l">Years in enterprise software</span></li>
-        <li data-reveal><span class="stats__n" data-count="2">2</span><span class="stats__l">Logistics platforms architected and built</span></li>
-        <li data-reveal><span class="stats__n"><span data-count="5">5</span>+</span><span class="stats__l">Partner integrations delivered</span></li>
+        <li class="stat" data-reveal data-tilt><b><span data-count="8">0</span>+</b><span>Years shipping enterprise Java</span></li>
+        <li class="stat" data-reveal data-tilt><b><span data-count="4">0</span>×</b><span>Promoted at one company</span></li>
+        <li class="stat" data-reveal data-tilt><b><span data-count="2">0</span></b><span>Logistics platforms architected</span></li>
+        <li class="stat" data-reveal data-tilt><b><span data-count="5">0</span>+</b><span>Partner integrations delivered</span></li>
       </ul>
     </section>
 
-    <!-- Image expansion -->
-    <section class="expand" aria-label="Interlude">
-      <div class="expand__sticky">
-        <div class="expand__frame">
-          <picture>
-            <source type="image/avif" srcset="assets/img/ship-1200.avif 1200w, assets/img/ship-1600.avif 1600w, assets/img/ship-2400.avif 2400w, assets/img/ship-3200.avif 3200w, assets/img/ship-3840.avif 3840w" sizes="100vw">
-            <img class="expand__img" src="assets/img/ship-2400.jpg" srcset="assets/img/ship-1200.jpg 1200w, assets/img/ship-1600.jpg 1600w, assets/img/ship-2400.jpg 2400w, assets/img/ship-3200.jpg 3200w, assets/img/ship-3840.jpg 3840w" sizes="100vw" alt="A container ship seen from above, crossing dark water" loading="lazy" decoding="async">
-          </picture>
-          <div class="expand__shade"></div>
+    <!-- TECH GALAXY -->
+    <section class="section galaxy" id="galaxy">
+      <div class="galaxy__head">
+        <p class="eyebrow" data-reveal><span>02</span>Tech galaxy</p>
+        <h2 class="title" data-words>Everything in my <em>toolbox</em>, in orbit.</h2>
+        <p class="lede" data-reveal>Drag the sphere to spin it. Pick a category to light up its stars.</p>
+        <div class="filters" role="group" aria-label="Filter technologies" data-reveal>
+          <button type="button" class="chip is-on" data-filter="all">All</button>
+          <button type="button" class="chip" data-filter="backend">Backend</button>
+          <button type="button" class="chip" data-filter="architecture">Architecture</button>
+          <button type="button" class="chip" data-filter="cloud">Cloud</button>
+          <button type="button" class="chip" data-filter="data">Data</button>
+          <button type="button" class="chip" data-filter="devops">DevOps</button>
+          <button type="button" class="chip" data-filter="ai">AI &amp; tools</button>
         </div>
-        <h2 class="expand__title">
-          <span class="expand__line expand__line--a">Engineering the</span>
-          <span class="expand__line expand__line--b"><em>flow of freight</em></span>
-        </h2>
-        <div class="expand__caption">
-          <p class="label">Logistics, in software</p>
-          <p>Planning, pricing and tracking container movements — end to end.</p>
+        <div class="galaxy__readout" aria-live="polite"><span class="galaxy__cat" data-galaxy-cat>Hover a star</span><b data-galaxy-name>40+ technologies</b></div>
+      </div>
+      <div class="galaxy__stage" data-galaxy data-cursor="Spin"><div class="galaxy__core" aria-hidden="true"></div></div>
+    </section>
+
+    <!-- VOYAGE -->
+    <section class="voyage" id="voyage">
+      <div class="voyage__pin">
+        <div class="voyage__head">
+          <p class="eyebrow"><span>03</span>The voyage</p>
+          <h2 class="title">Eight ports, <em>one ship.</em></h2>
+        </div>
+        <div class="voyage__viewport">
+          <div class="voyage__track" data-voyage-track>
+            <svg class="voyage__sea" data-voyage-svg aria-hidden="true"><path class="voyage__route" data-voyage-route/><path class="voyage__route voyage__route--done" data-voyage-done/></svg>
+            <svg class="voyage__boat" data-voyage-boat viewBox="-24 -20 48 34" aria-hidden="true"><path class="hull" d="M-22 2h44l-7 10h-30z"/><rect class="c1" x="-14" y="-7" width="9" height="8" rx="1.2"/><rect class="c2" x="-4" y="-7" width="9" height="8" rx="1.2"/><rect class="c3" x="-9" y="-15" width="9" height="8" rx="1.2"/><rect class="bridge" x="8" y="-11" width="7" height="12" rx="1.2"/></svg>
+            <ol class="ports">
+              <li class="port" data-port-i="0"><span class="port__dot"></span><div class="port__card"><p class="port__when">2014</p><h3>Set sail</h3><p>B.Tech, Computer Science at FISAT — GPA 8.5. Best subjects: English &amp; Math.</p></div></li>
+              <li class="port" data-port-i="1"><span class="port__dot"></span><div class="port__card"><p class="port__when">May 2017</p><h3>First harbour · TCS</h3><p>Internship: a cross-browser Selenium tool that captures any element's locators.</p></div></li>
+              <li class="port" data-port-i="2"><span class="port__dot"></span><div class="port__card"><p class="port__when">Jun 2018</p><h3>Associate Software Engineer</h3><p>Joined Rappit. Java, Spring and my first enterprise logistics platform.</p></div></li>
+              <li class="port" data-port-i="3"><span class="port__dot"></span><div class="port__card"><p class="port__when">Jan 2020</p><h3>Software Engineer</h3><p>Data structures, algorithms and the core framework every module runs on.</p></div></li>
+              <li class="port" data-port-i="4"><span class="port__dot"></span><div class="port__card"><p class="port__when">Jan 2022</p><h3>Team Lead</h3><p>Leading the team that ships it — Core Java, delivery and code reviews.</p></div></li>
+              <li class="port" data-port-i="5"><span class="port__dot"></span><div class="port__card"><p class="port__when">Jan 2023</p><h3>Technical Lead</h3><p>Owning platforms end to end: design, integrations, CI/CD and performance.</p></div></li>
+              <li class="port port--now" data-port-i="6"><span class="port__dot"></span><div class="port__card"><p class="port__when"><i></i>Jan 2024 — now</p><h3>Associate Solution Architect</h3><p>Architecture, solution design and cloud-native platforms on Google Cloud.</p></div></li>
+              <li class="port port--next" data-port-i="7"><span class="port__dot"></span><div class="port__card"><p class="port__when">Next port</p><h3>GenAI &amp; LLM apps</h3><p>Where agents and automation fit inside dependable enterprise systems.</p></div></li>
+            </ol>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Work -->
+    <!-- WORK -->
     <section class="section work" id="work">
-      <header class="section__head"><span class="rule"></span><span class="label">(02)</span><span class="label">Work</span></header>
-      <h2 class="display" data-reveal-words>Platforms that move <em>containers</em></h2>
+      <p class="eyebrow" data-reveal><span>04</span>Selected work</p>
+      <h2 class="title" data-words>Two platforms that <em>move the world's boxes.</em></h2>
+      <p class="lede" data-reveal>Tilt a card with your cursor — or tap it to look under the hood.</p>
 
-      <!-- Project 01 -->
-      <article class="chapter">
-        <div class="chapter__ghost" aria-hidden="true">Cloud</div>
-        <div class="chapter__grid">
-          <aside class="chapter__aside">
-            <div class="chapter__top" data-reveal>
-              <span class="label">01 / 02</span>
-              <span class="status status--live">Ongoing</span>
+      <div class="holo-grid">
+        <article class="holo" data-holo tabindex="0" role="button" aria-label="Cloud-native logistics platform — flip to see under the hood" data-cursor="Flip" style="--h1:#4f7cff;--h2:#14b8a6">
+          <div class="holo__inner">
+            <div class="holo__face holo__face--front">
+              <span class="holo__glare" aria-hidden="true"></span>
+              <div class="holo__top"><span class="pill pill--live"><i></i>Ongoing</span><span class="holo__no">01</span></div>
+              <h3 class="holo__title">Cloud-native logistics platform</h3>
+              <p class="holo__role">Solution Architect · Google Cloud</p>
+              <p class="holo__text">A modern platform for planning, pricing and tracking container movements — microservices, event-driven, built for scale.</p>
+              <ul class="holo__metrics"><li><b>RBAC</b><span>at runtime</span></li><li><b>Multi-leg</b><span>routing &amp; cost</span></li><li><b>Cloud Run</b><span>serverless</span></li></ul>
+              <div class="holo__logos" data-logos="openjdk springboot postgresql elasticsearch googlepubsub googlecloud docker"></div>
+              <p class="holo__flip">Under the hood ↻</p>
             </div>
-            <h3 class="chapter__name" data-reveal>Cloud&#8209;native logistics platform</h3>
-            <p class="chapter__kind" data-reveal>Enterprise transport management, built as microservices on Google Cloud.</p>
-            <dl class="facts" data-reveal>
-              <div><dt>Role</dt><dd>Solution Architect</dd></div>
-              <div><dt>Style</dt><dd>Microservices · Event&#8209;driven</dd></div>
-              <div><dt>Cloud</dt><dd>Google Cloud</dd></div>
-            </dl>
-            <ul class="tags" data-reveal>
-              <li>Java</li><li>Spring Boot</li><li>Spring Security</li><li>JPA / Hibernate</li><li>PostgreSQL</li><li>Elasticsearch</li><li>Pub/Sub</li><li>Cloud Run</li><li>OpenFeign</li>
-            </ul>
-          </aside>
-
-          <div class="chapter__body">
-            <p class="chapter__lead" data-reveal>A modern platform for planning, pricing and tracking container movements — designed cloud&#8209;native from day one.</p>
-
-            <figure class="viz-figure">
-              <div class="viz">
-                <div class="viz__zoom"><div class="viz__hover">
-                  <svg viewBox="0 0 800 500" role="img" aria-labelledby="p1-route-title">
-                    <title id="p1-route-title">A multi-leg container route from origin through a hub and a transfer point to its destination, with alternative routes dashed</title>
-                    <defs><pattern id="dots-p1r" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" class="dot"/></pattern></defs>
-                    <rect width="800" height="500" fill="url(#dots-p1r)"/>
-                    <path class="alt" d="M90 390 C 230 400, 260 330, 380 330 S 600 300, 700 140"/>
-                    <path class="alt" d="M90 390 C 160 300, 260 150, 420 175 S 620 120, 700 140"/>
-                    <path id="route-p1" class="route" pathLength="1" data-draw d="M90 390 C 210 390, 230 230, 330 230 S 470 300, 545 262 S 640 150, 700 140"/>
-                    <circle class="mover" r="5" data-mover>
-                      <animateMotion dur="8s" repeatCount="indefinite"><mpath href="#route-p1" xlink:href="#route-p1"/></animateMotion>
-                    </circle>
-                    <g class="node" data-node><circle class="node-ring" cx="90" cy="390" r="12"/><circle class="node-dot" cx="90" cy="390" r="4"/></g>
-                    <g class="node" data-node><circle class="node-ring" cx="330" cy="230" r="12"/><circle class="node-dot" cx="330" cy="230" r="4"/></g>
-                    <g class="node" data-node><circle class="node-ring" cx="545" cy="262" r="12"/><circle class="node-dot" cx="545" cy="262" r="4"/></g>
-                    <g class="node node--accent" data-node><circle class="node-ring" cx="700" cy="140" r="14"/><circle class="node-dot" cx="700" cy="140" r="5"/></g>
-                    <text x="90" y="428" text-anchor="middle" class="t-strong">ORIGIN</text>
-                    <text x="330" y="200" text-anchor="middle" class="t-strong">HUB</text>
-                    <text x="545" y="300" text-anchor="middle" class="t-strong">TRANSFER</text>
-                    <text x="700" y="108" text-anchor="middle" class="t-strong">DESTINATION</text>
-                    <text x="240" y="332">LEG 01</text>
-                    <text x="430" y="222" text-anchor="middle">LEG 02</text>
-                    <text x="652" y="214">LEG 03</text>
-                    <text x="32" y="46" class="t-hud">ROUTE OPTIMISATION</text>
-                    <text x="32" y="68" class="t-hud">MULTI-LEG · COST PER LEG</text>
-                    <line x1="32" y1="466" x2="62" y2="466" class="legend"/>
-                    <text x="72" y="471" class="t-hud">OPTIMISED ROUTE</text>
-                    <line x1="248" y1="466" x2="278" y2="466" class="legend legend--alt"/>
-                    <text x="288" y="471" class="t-hud">ALTERNATIVES</text>
-                  </svg>
-                </div></div>
+            <div class="holo__face holo__face--back">
+              <p class="holo__k">Under the hood</p>
+              <div class="flowline" aria-label="Clients, gateway, services, Pub/Sub, data">
+                <span>Clients</span><i></i><span>Gateway</span><i></i><span class="is-hot">Services</span><i></i><span>Pub/Sub</span><i></i><span>Data</span>
               </div>
-              <figcaption class="viz-caption"><span class="label">Fig. 1 — Multi&#8209;leg routing &amp; costing</span><span class="viz-caption__hint">Swipe →</span></figcaption>
-            </figure>
-
-            <div class="built">
-              <p class="label" data-reveal>What I built</p>
-              <ul class="features">
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><rect x="16" y="28" width="32" height="24" rx="4"/><path d="M22 28 V21 A10 10 0 0 1 42 21 V28"/><circle class="a" cx="32" cy="37" r="2.5"/><path class="a" d="M32 39.5 V44"/></svg>
-                  <h4>Dynamic access control</h4><p>Role&#8209;based access with permissions configured at runtime, not in code.</p>
-                </li>
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path class="a" d="M10 50 C 22 50, 20 26, 32 26 S 42 42, 54 14"/><circle cx="10" cy="50" r="3.5"/><circle cx="32" cy="26" r="3.5"/><circle class="a" cx="54" cy="14" r="4"/></svg>
-                  <h4>Cost &amp; route optimisation</h4><p>Pricing and routing for multi&#8209;leg container moves.</p>
-                </li>
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><circle class="a" cx="32" cy="32" r="5"/><path d="M23 23 A13 13 0 0 0 23 41"/><path d="M41 23 A13 13 0 0 1 41 41"/><path d="M16 16 A22.6 22.6 0 0 0 16 48"/><path d="M48 16 A22.6 22.6 0 0 1 48 48"/></svg>
-                  <h4>Event&#8209;driven integration</h4><p>Reliable, asynchronous hand&#8209;offs between services and partners.</p>
-                </li>
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><circle cx="27" cy="27" r="15"/><path d="M38 38 L54 54"/><path class="a" d="M20 23 H34 M20 28 H34 M20 33 H28"/></svg>
-                  <h4>Search &amp; indexing</h4><p>Fast search over operational data with bulk indexing.</p>
-                </li>
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path d="M16 8 H38 L48 18 V56 H16 Z"/><path d="M38 8 V18 H48"/><path d="M23 28 H41 M23 35 H41 M23 42 H33"/><circle class="a" cx="45" cy="48" r="8"/><path class="a" d="M45 44 V48 L48 50"/></svg>
-                  <h4>Audit &amp; documents</h4><p>Full change history and generated business documents.</p>
-                </li>
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path d="M18 46 H46 A9 9 0 0 0 46 28 A13 13 0 0 0 21 25 A10.5 10.5 0 0 0 18 46 Z"/><path class="a" d="M32 54 V34 M25 41 L32 34 L39 41"/></svg>
-                  <h4>Cloud delivery</h4><p>Containerised services with CI/CD, managed secrets and central logging.</p>
-                </li>
+              <ul class="holo__list">
+                <li>A fully dynamic <b>RBAC engine</b> — roles change without code changes.</li>
+                <li>The <b>cost and route optimisation</b> engine for multi-leg moves.</li>
+                <li>Event-driven integration via <b>Pub/Sub and a transactional outbox</b>.</li>
+                <li><b>CI/CD and engineering standards</b> that sped up every release.</li>
               </ul>
+              <p class="holo__flip">Back to the front ↻</p>
             </div>
           </div>
-        </div>
-      </article>
+        </article>
 
-      <!-- Project 02 -->
-      <article class="chapter">
-        <div class="chapter__ghost" aria-hidden="true">TMS</div>
-        <div class="chapter__grid">
-          <aside class="chapter__aside">
-            <div class="chapter__top" data-reveal>
-              <span class="label">02 / 02</span>
-              <span class="status">Delivered</span>
+        <article class="holo" data-holo tabindex="0" role="button" aria-label="Integrated transport management — flip to see under the hood" data-cursor="Flip" style="--h1:#ff7a3d;--h2:#8b5cf6">
+          <div class="holo__inner">
+            <div class="holo__face holo__face--front">
+              <span class="holo__glare" aria-hidden="true"></span>
+              <div class="holo__top"><span class="pill">Delivered</span><span class="holo__no">02</span></div>
+              <h3 class="holo__title">Integrated transport management</h3>
+              <p class="holo__role">Technical Lead · end to end</p>
+              <p class="holo__text">One system for procurement, sales, operations, finance and customer portals — from the first quote to the final invoice.</p>
+              <ul class="holo__metrics"><li><b>5+</b><span>integrations</span></li><li><b>Sharded</b><span>Solr search</span></li><li><b>1</b><span>data model</span></li></ul>
+              <div class="holo__logos" data-logos="openjdk hibernate apachesolr jenkins git"></div>
+              <p class="holo__flip">Under the hood ↻</p>
             </div>
-            <h3 class="chapter__name" data-reveal>Integrated transport management</h3>
-            <p class="chapter__kind" data-reveal>One system for procurement, sales, operations, finance and customer portals.</p>
-            <dl class="facts" data-reveal>
-              <div><dt>Role</dt><dd>Technical Lead</dd></div>
-              <div><dt>Data</dt><dd>MSSQL · Apache Solr</dd></div>
-              <div><dt>Delivery</dt><dd>Jenkins CI/CD</dd></div>
-            </dl>
-            <ul class="tags" data-reveal>
-              <li>Java</li><li>Hibernate</li><li>JPA</li><li>MSSQL</li><li>Apache Solr</li><li>Memcache</li><li>REST</li><li>Jenkins</li>
-            </ul>
-          </aside>
-
-          <div class="chapter__body">
-            <p class="chapter__lead" data-reveal>A single system that runs a logistics business end to end — from the first quote to the final invoice.</p>
-
-            <figure class="viz-figure">
-              <div class="viz">
-                <div class="viz__zoom"><div class="viz__hover">
-                  <svg viewBox="0 0 800 500" role="img" aria-labelledby="p2-map-title">
-                    <title id="p2-map-title">The transport management core connected to its Procurement, Sales, Operations, Finance and Customer Portal modules</title>
-                    <defs><pattern id="dots-p2m" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" class="dot"/></pattern></defs>
-                    <rect width="800" height="500" fill="url(#dots-p2m)"/>
-                    <circle class="orbit" cx="400" cy="250" r="96"/>
-                    <circle class="orbit orbit--far" cx="400" cy="250" r="178"/>
-                    <path class="spoke" pathLength="1" data-draw d="M400 250 L190 125"/>
-                    <path class="spoke" pathLength="1" data-draw d="M400 250 L650 125"/>
-                    <path class="spoke" pathLength="1" data-draw d="M400 250 L185 360"/>
-                    <path class="spoke" pathLength="1" data-draw d="M400 250 L640 360"/>
-                    <path class="spoke" pathLength="1" data-draw d="M400 250 L400 430"/>
-                    <g data-mover>
-                      <circle class="pulse" r="3"><animateMotion dur="3.2s" begin="0s" repeatCount="indefinite" path="M400 250 L190 125"/></circle>
-                      <circle class="pulse" r="3"><animateMotion dur="3.2s" begin="0.6s" repeatCount="indefinite" path="M400 250 L650 125"/></circle>
-                      <circle class="pulse" r="3"><animateMotion dur="3.2s" begin="1.2s" repeatCount="indefinite" path="M400 250 L185 360"/></circle>
-                      <circle class="pulse" r="3"><animateMotion dur="3.2s" begin="1.8s" repeatCount="indefinite" path="M400 250 L640 360"/></circle>
-                      <circle class="pulse" r="3"><animateMotion dur="3.2s" begin="2.4s" repeatCount="indefinite" path="M400 250 L400 430"/></circle>
-                    </g>
-                    <g class="node" data-node><circle class="node-ring" cx="190" cy="125" r="12"/><circle class="node-dot" cx="190" cy="125" r="4"/></g>
-                    <g class="node" data-node><circle class="node-ring" cx="650" cy="125" r="12"/><circle class="node-dot" cx="650" cy="125" r="4"/></g>
-                    <g class="node" data-node><circle class="node-ring" cx="185" cy="360" r="12"/><circle class="node-dot" cx="185" cy="360" r="4"/></g>
-                    <g class="node" data-node><circle class="node-ring" cx="640" cy="360" r="12"/><circle class="node-dot" cx="640" cy="360" r="4"/></g>
-                    <g class="node" data-node><circle class="node-ring" cx="400" cy="430" r="12"/><circle class="node-dot" cx="400" cy="430" r="4"/></g>
-                    <g class="node node--core" data-node><circle class="node-ring" cx="400" cy="250" r="46"/><text x="400" y="259" text-anchor="middle" class="t-core">TMS</text></g>
-                    <text x="168" y="130" text-anchor="end" class="t-strong">PROCUREMENT</text>
-                    <text x="672" y="130" class="t-strong">SALES</text>
-                    <text x="163" y="365" text-anchor="end" class="t-strong">OPERATIONS</text>
-                    <text x="662" y="365" class="t-strong">FINANCE</text>
-                    <text x="400" y="470" text-anchor="middle" class="t-strong">CUSTOMER PORTAL</text>
-                    <text x="32" y="46" class="t-hud">MODULE MAP</text>
-                    <text x="32" y="68" class="t-hud">ROUTE PLANNING · BOOKING · TRACKING · DMS</text>
-                    <text x="768" y="46" text-anchor="end" class="t-hud">ONE DATA MODEL</text>
-                  </svg>
-                </div></div>
+            <div class="holo__face holo__face--back">
+              <p class="holo__k">Under the hood</p>
+              <div class="flowline" aria-label="Portals, API, core modules, search and cache, partners">
+                <span>Portals</span><i></i><span>API</span><i></i><span class="is-hot">Core</span><i></i><span>Search</span><i></i><span>Partners</span>
               </div>
-              <figcaption class="viz-caption"><span class="label">Fig. 2 — Module map</span><span class="viz-caption__hint">Swipe →</span></figcaption>
-            </figure>
-
-            <figure class="viz-figure">
-              <div class="viz">
-                <div class="viz__zoom"><div class="viz__hover">
-                  <svg viewBox="0 0 800 460" role="img" aria-labelledby="p2-search-title">
-                    <title id="p2-search-title">Search path: a query checks the cache, then a Solr router fans out to three shards; the database feeds an indexer that writes to the shards</title>
-                    <defs><pattern id="dots-p2s" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" class="dot"/></pattern></defs>
-                    <rect width="800" height="460" fill="url(#dots-p2s)"/>
-                    <text class="t-hud" x="32" y="44">SEARCH &amp; CACHING</text>
-                    <text class="t-hud" x="768" y="44" text-anchor="end">APACHE SOLR · SHARDED</text>
-
-                    <path class="alt" d="M260 190 C 260 150, 90 150, 90 190"/>
-                    <text class="t-small" x="175" y="146" text-anchor="middle">HIT</text>
-                    <path class="link" pathLength="1" data-draw d="M150 212 L200 212"/>
-                    <path class="link" pathLength="1" data-draw d="M320 212 L370 212"/>
-                    <text class="t-small" x="345" y="200" text-anchor="middle">MISS</text>
-                    <path class="link" pathLength="1" data-draw d="M490 212 C 545 212, 545 118, 600 118"/>
-                    <path class="link" pathLength="1" data-draw d="M490 212 L600 212"/>
-                    <path class="link" pathLength="1" data-draw d="M490 212 C 545 212, 545 306, 600 306"/>
-                    <path class="alt" d="M320 362 L370 362"/>
-                    <path class="alt" d="M490 362 C 560 362, 560 130, 600 130"/>
-                    <path class="alt" d="M490 362 C 560 362, 560 224, 600 224"/>
-                    <path class="alt" d="M490 362 C 560 362, 560 318, 600 318"/>
-
-                    <g data-mover>
-                      <circle class="pulse" r="3"><animateMotion dur="2.8s" repeatCount="indefinite" path="M150 212 L600 212"/></circle>
-                      <circle class="pulse pulse--accent" r="3"><animateMotion dur="3.4s" begin="1s" repeatCount="indefinite" path="M490 362 C 560 362, 560 130, 600 130"/></circle>
-                    </g>
-
-                    <g class="box" data-node><rect x="30" y="190" width="120" height="44" rx="6"/><text x="90" y="216" text-anchor="middle">QUERY</text></g>
-                    <g class="box" data-node><rect x="200" y="190" width="120" height="44" rx="6"/><text x="260" y="216" text-anchor="middle">CACHE</text></g>
-                    <g class="box box--strong" data-node><rect x="370" y="190" width="120" height="44" rx="6"/><text x="430" y="216" text-anchor="middle">SOLR ROUTER</text></g>
-                    <g class="box" data-node><rect x="600" y="96" width="160" height="44" rx="6"/><text x="680" y="122" text-anchor="middle">SHARD 1</text></g>
-                    <g class="box" data-node><rect x="600" y="190" width="160" height="44" rx="6"/><text x="680" y="216" text-anchor="middle">SHARD 2</text></g>
-                    <g class="box" data-node><rect x="600" y="284" width="160" height="44" rx="6"/><text x="680" y="310" text-anchor="middle">SHARD 3</text></g>
-                    <g class="box" data-node><rect x="200" y="340" width="120" height="44" rx="6"/><text x="260" y="366" text-anchor="middle">MSSQL</text></g>
-                    <g class="box box--accent" data-node><rect x="370" y="340" width="120" height="44" rx="6"/><text x="430" y="366" text-anchor="middle">INDEXER</text></g>
-                    <text class="t-small" x="260" y="404" text-anchor="middle">SYSTEM OF RECORD</text>
-
-                    <line x1="470" y1="434" x2="500" y2="434" class="legend"/>
-                    <text x="510" y="439" class="t-hud">READ PATH</text>
-                    <line x1="620" y1="434" x2="650" y2="434" class="legend legend--alt"/>
-                    <text x="660" y="439" class="t-hud">WRITE PATH</text>
-                  </svg>
-                </div></div>
-              </div>
-              <figcaption class="viz-caption"><span class="label">Fig. 3 — Sharded search with caching</span><span class="viz-caption__hint">Swipe →</span></figcaption>
-            </figure>
-
-            <div class="built">
-              <p class="label" data-reveal>What I built</p>
-              <ul class="features">
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path d="M8 34 L30 12 H52 V34 L30 56 Z"/><circle class="a" cx="44" cy="20" r="3.5"/><path class="a" d="M22 40 L36 26"/></svg>
-                  <h4>Quotation engine</h4><p>Cost and quote calculation for procurement, sales and tenders.</p>
-                </li>
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path d="M9 9 h12 v12 h-12 Z M26 9 h12 v12 h-12 Z M43 9 h12 v12 h-12 Z M9 26 h12 v12 h-12 Z M43 26 h12 v12 h-12 Z M9 43 h12 v12 h-12 Z M26 43 h12 v12 h-12 Z M43 43 h12 v12 h-12 Z"/><rect class="a" x="26" y="26" width="12" height="12"/></svg>
-                  <h4>Core framework</h4><p>Search, attachments, caching, access control, locking and a job engine.</p>
-                </li>
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path d="M10 24 H50 M43 17 L50 24 L43 31"/><path class="a" d="M54 42 H14 M21 35 L14 42 L21 49"/></svg>
-                  <h4>Partner integrations</h4><p>Route planning, carrier booking and tracking, document management.</p>
-                </li>
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><rect x="8" y="12" width="48" height="40" rx="4"/><path d="M8 22 H56"/><path d="M13 17 h0.1 M18 17 h0.1 M23 17 h0.1"/><path class="a" d="M16 32 H36 M16 39 H44 M16 46 H30"/></svg>
-                  <h4>Portals</h4><p>Self&#8209;service portals for customers and bills of lading.</p>
-                </li>
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path d="M14 10 V54"/><circle cx="14" cy="18" r="3.5"/><circle class="a" cx="14" cy="32" r="3.5"/><circle cx="14" cy="46" r="3.5"/><path d="M24 18 H50 M24 32 H44 M24 46 H52"/></svg>
-                  <h4>Traceability</h4><p>Job history, audit logs and document generation.</p>
-                </li>
-                <li class="feature" data-reveal>
-                  <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path d="M12 44 A20 20 0 1 1 52 44"/><path d="M16.5 30 L19.5 31.5 M32 18 V21 M47.5 30 L44.5 31.5"/><path class="a" d="M32 44 L43 28"/><circle class="a" cx="32" cy="44" r="3"/></svg>
-                  <h4>Performance at scale</h4><p>Sharded search, caching and automated pipelines.</p>
-                </li>
+              <ul class="holo__list">
+                <li>The <b>base framework</b> every module runs on — search, caching, ACL, locking, job engine.</li>
+                <li>The <b>quotation and business-rules engine</b> for procurement, sales and tenders.</li>
+                <li><b>Partner integrations</b>: route suggestions, carrier booking, tracking, documents.</li>
+                <li><b>Solr sharding and caching</b> for large, fast-growing data.</li>
               </ul>
+              <p class="holo__flip">Back to the front ↻</p>
             </div>
           </div>
-        </div>
-      </article>
-    </section>
-
-    <!-- Marquee -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee__track">
-        <div class="marquee__group">
-          <span class="marquee__item">Architecture</span><i class="marquee__sep"></i>
-          <span class="marquee__item marquee__item--ghost">Brain before bytes</span><i class="marquee__sep"></i>
-          <span class="marquee__item">Cloud&#8209;native</span><i class="marquee__sep"></i>
-          <span class="marquee__item marquee__item--ghost">0s &amp; 1s</span><i class="marquee__sep"></i>
-          <span class="marquee__item">Event&#8209;driven</span><i class="marquee__sep"></i>
-          <span class="marquee__item marquee__item--ghost">Diagrams before code</span><i class="marquee__sep"></i>
-          <span class="marquee__item">Scalable</span><i class="marquee__sep"></i>
-          <span class="marquee__item marquee__item--ghost">Left brain + right brain</span><i class="marquee__sep"></i>
-        </div>
-        <div class="marquee__group">
-          <span class="marquee__item">Architecture</span><i class="marquee__sep"></i>
-          <span class="marquee__item marquee__item--ghost">Brain before bytes</span><i class="marquee__sep"></i>
-          <span class="marquee__item">Cloud&#8209;native</span><i class="marquee__sep"></i>
-          <span class="marquee__item marquee__item--ghost">0s &amp; 1s</span><i class="marquee__sep"></i>
-          <span class="marquee__item">Event&#8209;driven</span><i class="marquee__sep"></i>
-          <span class="marquee__item marquee__item--ghost">Diagrams before code</span><i class="marquee__sep"></i>
-          <span class="marquee__item">Scalable</span><i class="marquee__sep"></i>
-          <span class="marquee__item marquee__item--ghost">Left brain + right brain</span><i class="marquee__sep"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Architecture -->
-    <section class="section architecture" id="architecture">
-      <header class="section__head"><span class="rule"></span><span class="label">(03)</span><span class="label">Architecture</span></header>
-      <h2 class="display" data-reveal-words>How I <em>architect</em> solutions</h2>
-      <p class="arch__intro" data-reveal>Good architecture is a chain of well&#8209;made trade&#8209;offs. I start from the domain and its quality goals, choose the simplest structure that meets them — and write down why.</p>
-
-      <figure class="frame frame--wide" data-frame>
-        <picture>
-          <source type="image/avif" srcset="assets/img/structure-1200.avif 1200w, assets/img/structure-1600.avif 1600w, assets/img/structure-2400.avif 2400w, assets/img/structure-3840.avif 3840w" sizes="100vw">
-          <img data-parallax-img src="assets/img/structure-2400.jpg" srcset="assets/img/structure-1200.jpg 1200w, assets/img/structure-1600.jpg 1600w, assets/img/structure-2400.jpg 2400w, assets/img/structure-3840.jpg 3840w" sizes="100vw" alt="Abstract black-and-white architecture, mirrored into a symmetrical structure" loading="lazy" decoding="async">
-        </picture>
-        <figcaption class="frame__caption"><span class="label">Principle</span><span>Every system has an architecture. The question is whether it was designed.</span></figcaption>
-      </figure>
-
-      <!-- Fig. 4 — Design loop -->
-      <figure class="viz-figure viz-figure--wide">
-        <div class="viz viz--wide">
-          <div class="viz__zoom"><div class="viz__hover">
-            <svg viewBox="0 0 900 520" role="img" aria-labelledby="loop-title">
-              <title id="loop-title">The design loop: understand, model, decide, build, evolve — and back to understand</title>
-              <rect width="900" height="520" fill="url(#g-spot)"/>
-              <g mask="url(#m-fade)"><rect width="900" height="520" fill="url(#p-grid)"/><rect width="900" height="520" fill="url(#p-dots)"/></g>
-              <text class="t-hud" x="32" y="40">HOW I ARCHITECT</text>
-              <text class="t-hud" x="868" y="40" text-anchor="end">ITERATIVE · EVIDENCE&#8209;LED</text>
-
-              <circle class="orbit" cx="450" cy="270" r="120"/>
-              <circle class="ring" cx="450" cy="270" r="170"/>
-              <path id="loop-path" class="route" pathLength="1" data-draw d="M450 100 A170 170 0 1 1 449.9 100"/>
-              <g class="chevrons" data-mover>
-                <path d="M-4 -5 L3 0 L-4 5" transform="translate(549.9 132.5) rotate(36)"/>
-                <path d="M-4 -5 L3 0 L-4 5" transform="translate(611.7 322.5) rotate(108)"/>
-                <path d="M-4 -5 L3 0 L-4 5" transform="translate(450 440) rotate(180)"/>
-                <path d="M-4 -5 L3 0 L-4 5" transform="translate(288.3 322.5) rotate(252)"/>
-                <path d="M-4 -5 L3 0 L-4 5" transform="translate(350.1 132.5) rotate(324)"/>
-              </g>
-              <circle class="mover" r="5.5" filter="url(#f-glow)" data-mover><animateMotion dur="12s" repeatCount="indefinite"><mpath href="#loop-path" xlink:href="#loop-path"/></animateMotion></circle>
-
-              <text class="t-center-label" x="450" y="250" text-anchor="middle">ARCHITECTURE IS</text>
-              <text class="t-center" x="450" y="292" text-anchor="middle">a loop,</text>
-              <text class="t-center t-center--em" x="450" y="326" text-anchor="middle">not a phase</text>
-
-              <g class="hub" data-node><circle cx="450" cy="100" r="32"/><use href="#i-compass" x="437" y="87" width="26" height="26"/></g>
-              <g class="hub" data-node><circle cx="611.7" cy="217.5" r="32"/><use href="#i-cube" x="598.7" y="204.5" width="26" height="26"/></g>
-              <g class="hub hub--accent" data-node><circle cx="549.9" cy="407.5" r="32"/><use href="#i-branch" x="536.9" y="394.5" width="26" height="26"/></g>
-              <g class="hub" data-node><circle cx="350.1" cy="407.5" r="32"/><use href="#i-code" x="337.1" y="394.5" width="26" height="26"/></g>
-              <g class="hub" data-node><circle cx="288.3" cy="217.5" r="32"/><use href="#i-cycle" x="275.3" y="204.5" width="26" height="26"/></g>
-
-              <text class="t-strong" x="496" y="74">01 · UNDERSTAND</text>
-              <text class="t-small" x="496" y="94">DOMAIN · CONSTRAINTS · GOALS</text>
-              <text class="t-strong" x="658" y="213">02 · MODEL</text>
-              <text class="t-small" x="658" y="233">BOUNDARIES · DATA · CONTRACTS</text>
-              <text class="t-strong" x="596" y="403">03 · DECIDE</text>
-              <text class="t-small" x="596" y="423">TRADE&#8209;OFFS, DOCUMENTED</text>
-              <text class="t-strong" x="304" y="403" text-anchor="end">04 · BUILD</text>
-              <text class="t-small" x="304" y="423" text-anchor="end">THIN SLICES · CI/CD</text>
-              <text class="t-strong" x="242" y="213" text-anchor="end">05 · EVOLVE</text>
-              <text class="t-small" x="242" y="233" text-anchor="end">MEASURE · LEARN · REFACTOR</text>
-            </svg>
-          </div></div>
-        </div>
-        <figcaption class="viz-caption"><span class="label">Fig. 4 — The design loop</span><span class="viz-caption__hint">Swipe →</span></figcaption>
-      </figure>
-
-      <!-- Pattern library -->
-      <div class="patterns">
-        <div class="patterns__head">
-          <p class="label" data-reveal>Patterns I design with</p>
-          <p class="patterns__count" data-reveal>12</p>
-        </div>
-        <ul class="patterns__grid">
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path class="a" d="M32 10 L54 21 L32 32 L10 21 Z"/><path d="M10 31 L32 42 L54 31"/><path d="M10 41 L32 52 L54 41"/></svg>
-            <h3>Layered</h3><p>Presentation, domain and data that change independently.</p>
-          </li>
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><rect x="9" y="9" width="17" height="17" rx="3"/><rect class="a" x="38" y="9" width="17" height="17" rx="3"/><rect x="9" y="38" width="17" height="17" rx="3"/><rect x="38" y="38" width="17" height="17" rx="3"/><path d="M26 17.5 H38 M17.5 26 V38 M46.5 26 V38 M26 46.5 H38"/></svg>
-            <h3>Microservices</h3><p>Independently deployable services around business capabilities.</p>
-          </li>
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><circle class="a" cx="32" cy="32" r="5"/><path d="M23 23 A13 13 0 0 0 23 41"/><path d="M41 23 A13 13 0 0 1 41 41"/><path d="M16 16 A22.6 22.6 0 0 0 16 48"/><path d="M48 16 A22.6 22.6 0 0 1 48 48"/></svg>
-            <h3>Event&#8209;driven</h3><p>Services react to events instead of calling each other.</p>
-          </li>
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path d="M8 18 L28 27 M8 32 H28 M8 46 L28 37"/><rect class="a" x="28" y="14" width="8" height="36" rx="2"/><path d="M36 32 L54 18 M36 32 H56 M36 32 L54 46"/></svg>
-            <h3>API gateway</h3><p>One secured front door for every client.</p>
-          </li>
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><circle cx="10" cy="32" r="3"/><path d="M13 32 H22 C 32 32, 32 18, 42 18 M22 32 C 32 32, 32 46, 42 46"/><ellipse class="a" cx="52" cy="13" rx="7" ry="3"/><path class="a" d="M45 13 V23 A7 3 0 0 0 59 23 V13"/><path d="M45 42 H59 M45 46 H59 M45 50 H55"/></svg>
-            <h3>CQRS</h3><p>Writes kept apart from fast, purpose&#8209;built read models.</p>
-          </li>
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><ellipse cx="22" cy="18" rx="10" ry="4"/><path d="M12 18 V44 A10 4 0 0 0 32 44 V18 M12 31 A10 4 0 0 0 32 31"/><path class="a" d="M48 12 L41 32 H50 L43 52"/></svg>
-            <h3>Cache&#8209;aside</h3><p>Hot data from cache; the database stays the source of truth.</p>
-          </li>
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><rect class="dash" x="6" y="14" width="30" height="36" rx="4"/><path d="M13 26 H29 M13 32 H29 M13 38 H23"/><path d="M36 31 H42"/><rect class="a" x="42" y="24" width="18" height="14" rx="2"/><path class="a" d="M42.5 25 L51 31.5 L59.5 25"/></svg>
-            <h3>Transactional outbox</h3><p>Data and its event saved together, published reliably.</p>
-          </li>
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><circle cx="12" cy="24" r="5"/><circle cx="32" cy="24" r="5"/><circle class="a" cx="52" cy="24" r="5"/><path d="M17 24 H27 M37 24 H47"/><path class="dash a" d="M52 33 C 52 50, 12 50, 12 33"/><path class="a" d="M8 37 L12 32 L16 37"/></svg>
-            <h3>Saga</h3><p>Long&#8209;running workflows across services, with compensation.</p>
-          </li>
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path d="M6 40 H19.5 M44.5 40 H58"/><circle cx="22" cy="40" r="2.5"/><circle cx="42" cy="40" r="2.5"/><path class="a" d="M24 38.5 L39 24"/><path class="a" d="M46 16 L52 22 M52 16 L46 22"/></svg>
-            <h3>Circuit breaker</h3><p>Fail fast when a dependency is down; recover gracefully.</p>
-          </li>
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><circle cx="32" cy="10" r="4"/><path d="M29.5 13 L17 26 M32 14 V26 M34.5 13 L47 26"/><ellipse cx="16" cy="30" rx="7" ry="2.5"/><path d="M9 30 V46 A7 2.5 0 0 0 23 46 V30"/><ellipse class="a" cx="32" cy="30" rx="7" ry="2.5"/><path class="a" d="M25 30 V46 A7 2.5 0 0 0 39 46 V30"/><ellipse cx="48" cy="30" rx="7" ry="2.5"/><path d="M41 30 V46 A7 2.5 0 0 0 55 46 V30"/></svg>
-            <h3>Sharding</h3><p>Data partitioned horizontally to scale reads and writes.</p>
-          </li>
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><path d="M32 6 L54 19 V45 L32 58 L10 45 V19 Z"/><path class="a" d="M32 21 L42 26.5 V37.5 L32 43 L22 37.5 V26.5 Z"/><path d="M2 32 H10 M54 32 H62"/></svg>
-            <h3>Hexagonal</h3><p>A domain core kept free of frameworks and I/O.</p>
-          </li>
-          <li class="pattern" data-reveal>
-            <svg class="icon" viewBox="0 0 64 64" aria-hidden="true" data-icon><rect class="dash" x="8" y="12" width="34" height="36" rx="3"/><rect x="34" y="34" width="22" height="20" rx="3"/><path class="a" d="M6 58 C 18 46, 16 34, 28 30 S 46 20, 58 8"/><path class="a" d="M24 40 C 28 38, 30 40, 30 44 M40 22 C 44 20, 47 22, 46 26"/></svg>
-            <h3>Strangler fig</h3><p>Legacy replaced step by step — no big bang.</p>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Fig. 5 — Anatomy -->
-      <div class="anatomy">
-        <figure class="viz-figure anatomy__figure">
-          <div class="viz viz--iso">
-            <div class="viz__zoom"><div class="viz__hover">
-              <svg viewBox="0 0 640 600" role="img" aria-labelledby="iso-title" data-iso>
-                <title id="iso-title">An exploded stack of six layers: experience, edge and identity, services, messaging, data and search, platform</title>
-                <rect width="640" height="600" fill="url(#g-spot)"/>
-                <g mask="url(#m-fade)"><rect width="640" height="600" fill="url(#p-dots)"/></g>
-
-                <g data-plate="6"><g class="plate" data-layer="6">
-                  <path class="side-l" d="M90 490 L250 570 L250 580 L90 500 Z"/><path class="side-r" d="M250 570 L410 490 L410 500 L250 580 Z"/>
-                  <path class="top" d="M250 410 L410 490 L250 570 L90 490 Z"/><path class="inner" d="M250 446 L338 490 L250 534 L162 490 Z"/>
-                </g></g>
-                <g data-plate="5"><g class="plate" data-layer="5">
-                  <path class="side-l" d="M90 414 L250 494 L250 504 L90 424 Z"/><path class="side-r" d="M250 494 L410 414 L410 424 L250 504 Z"/>
-                  <path class="top" d="M250 334 L410 414 L250 494 L90 414 Z"/><path class="inner" d="M250 370 L338 414 L250 458 L162 414 Z"/>
-                </g></g>
-                <g data-plate="4"><g class="plate" data-layer="4">
-                  <path class="side-l" d="M90 338 L250 418 L250 428 L90 348 Z"/><path class="side-r" d="M250 418 L410 338 L410 348 L250 428 Z"/>
-                  <path class="top" d="M250 258 L410 338 L250 418 L90 338 Z"/><path class="inner" d="M250 294 L338 338 L250 382 L162 338 Z"/>
-                </g></g>
-                <g data-plate="3"><g class="plate" data-layer="3">
-                  <path class="side-l" d="M90 262 L250 342 L250 352 L90 272 Z"/><path class="side-r" d="M250 342 L410 262 L410 272 L250 352 Z"/>
-                  <path class="top" d="M250 182 L410 262 L250 342 L90 262 Z"/><path class="inner" d="M250 218 L338 262 L250 306 L162 262 Z"/>
-                </g></g>
-                <g data-plate="2"><g class="plate" data-layer="2">
-                  <path class="side-l" d="M90 186 L250 266 L250 276 L90 196 Z"/><path class="side-r" d="M250 266 L410 186 L410 196 L250 276 Z"/>
-                  <path class="top" d="M250 106 L410 186 L250 266 L90 186 Z"/><path class="inner" d="M250 142 L338 186 L250 230 L162 186 Z"/>
-                </g></g>
-                <g data-plate="1"><g class="plate" data-layer="1">
-                  <path class="side-l" d="M90 110 L250 190 L250 200 L90 120 Z"/><path class="side-r" d="M250 190 L410 110 L410 120 L250 200 Z"/>
-                  <path class="top" d="M250 30 L410 110 L250 190 L90 110 Z"/><path class="inner" d="M250 66 L338 110 L250 154 L162 110 Z"/>
-                </g></g>
-
-                <path class="spine" d="M250 110 V490"/>
-                <circle class="pulse pulse--accent" r="4" filter="url(#f-glow)"><animateMotion dur="4.5s" repeatCount="indefinite" path="M250 110 V490"/></circle>
-
-                <g class="iso-labels">
-                  <g class="iso-label" data-layer="1"><path d="M410 110 H452"/><circle cx="410" cy="110" r="2.5"/><text class="t-small" x="460" y="106">L1</text><text class="t-strong" x="460" y="124">EXPERIENCE</text></g>
-                  <g class="iso-label" data-layer="2"><path d="M410 186 H452"/><circle cx="410" cy="186" r="2.5"/><text class="t-small" x="460" y="182">L2</text><text class="t-strong" x="460" y="200">EDGE &amp; IDENTITY</text></g>
-                  <g class="iso-label" data-layer="3"><path d="M410 262 H452"/><circle cx="410" cy="262" r="2.5"/><text class="t-small" x="460" y="258">L3</text><text class="t-strong" x="460" y="276">SERVICES</text></g>
-                  <g class="iso-label" data-layer="4"><path d="M410 338 H452"/><circle cx="410" cy="338" r="2.5"/><text class="t-small" x="460" y="334">L4</text><text class="t-strong" x="460" y="352">MESSAGING</text></g>
-                  <g class="iso-label" data-layer="5"><path d="M410 414 H452"/><circle cx="410" cy="414" r="2.5"/><text class="t-small" x="460" y="410">L5</text><text class="t-strong" x="460" y="428">DATA &amp; SEARCH</text></g>
-                  <g class="iso-label" data-layer="6"><path d="M410 490 H452"/><circle cx="410" cy="490" r="2.5"/><text class="t-small" x="460" y="486">L6</text><text class="t-strong" x="460" y="504">PLATFORM</text></g>
-                </g>
-              </svg>
-            </div></div>
-          </div>
-          <figcaption class="viz-caption"><span class="label">Fig. 5 — Anatomy of a well&#8209;shaped system</span></figcaption>
-        </figure>
-
-        <ol class="layers">
-          <li class="layer" data-reveal data-layer="1">
-            <span class="layer__n">L1</span>
-            <div class="layer__head"><h3 class="layer__name">Experience</h3><p class="layer__desc">Where people and partners meet the system.</p></div>
-            <ul class="chips"><li>Web</li><li>Mobile</li><li>Partner APIs</li></ul>
-          </li>
-          <li class="layer" data-reveal data-layer="2">
-            <span class="layer__n">L2</span>
-            <div class="layer__head"><h3 class="layer__name">Edge &amp; identity</h3><p class="layer__desc">One front door, secured once.</p></div>
-            <ul class="chips"><li>Gateway</li><li>Single sign&#8209;on</li><li>Tokens</li><li>Role&#8209;based access</li></ul>
-          </li>
-          <li class="layer" data-reveal data-layer="3">
-            <span class="layer__n">L3</span>
-            <div class="layer__head"><h3 class="layer__name">Services</h3><p class="layer__desc">Small, domain&#8209;shaped and independently deployable.</p></div>
-            <ul class="chips"><li>Bounded contexts</li><li>Contracts</li><li>Sync &amp; async APIs</li></ul>
-          </li>
-          <li class="layer" data-reveal data-layer="4">
-            <span class="layer__n">L4</span>
-            <div class="layer__head"><h3 class="layer__name">Messaging</h3><p class="layer__desc">Anything that can wait, goes async.</p></div>
-            <ul class="chips"><li>Events</li><li>Queues</li><li>Schedules</li><li>Outbox</li></ul>
-          </li>
-          <li class="layer" data-reveal data-layer="5">
-            <span class="layer__n">L5</span>
-            <div class="layer__head"><h3 class="layer__name">Data &amp; search</h3><p class="layer__desc">A system of record, with fast read models beside it.</p></div>
-            <ul class="chips"><li>Relational</li><li>Search index</li><li>Cache</li><li>Analytics</li></ul>
-          </li>
-          <li class="layer" data-reveal data-layer="6">
-            <span class="layer__n">L6</span>
-            <div class="layer__head"><h3 class="layer__name">Platform</h3><p class="layer__desc">Containers, secrets and signals.</p></div>
-            <ul class="chips"><li>Containers</li><li>Orchestration</li><li>Secrets</li><li>Logs &amp; metrics</li></ul>
-          </li>
-        </ol>
-      </div>
-
-      <!-- Fig. 6 — Quality attributes -->
-      <figure class="viz-figure viz-figure--wide">
-        <div class="viz viz--wide">
-          <div class="viz__zoom"><div class="viz__hover">
-            <svg viewBox="0 0 900 520" role="img" aria-labelledby="qa-title">
-              <title id="qa-title">Six quality attributes — scalability, availability, security, performance, maintainability and observability — with a shape that shifts as trade-offs change</title>
-              <rect width="900" height="520" fill="url(#g-spot)"/>
-              <g mask="url(#m-fade)"><rect width="900" height="520" fill="url(#p-grid)"/><rect width="900" height="520" fill="url(#p-dots)"/></g>
-              <text class="t-hud" x="32" y="40">QUALITY ATTRIBUTES</text>
-              <text class="t-hud" x="868" y="40" text-anchor="end">EVERY DESIGN IS A TRADE&#8209;OFF</text>
-
-              <path class="ring" d="M450 210 L501.96 240 V300 L450 330 L398.04 300 V240 Z"/>
-              <path class="ring" d="M450 150 L553.92 210 V330 L450 390 L346.08 330 V210 Z"/>
-              <path class="link" pathLength="1" data-draw d="M450 90 L605.88 180 V360 L450 450 L294.12 360 V180 Z"/>
-              <path class="link" pathLength="1" data-draw d="M450 270 L450 90 M450 270 L605.88 180 M450 270 L605.88 360 M450 270 L450 450 M450 270 L294.12 360 M450 270 L294.12 180"/>
-
-              <g data-mover>
-                <polygon class="qa-shape" filter="url(#f-glow)" points="450,108 566.9,202.5 582.5,346.5 450,396 325.3,342 348.7,211.5">
-                  <animate attributeName="points" dur="12s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.33;0.66;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1;0.45 0 0.55 1"
-                    values="450,108 566.9,202.5 582.5,346.5 450,396 325.3,342 348.7,211.5;450,144 590.3,189 559.1,333 450,423 348.7,328.5 317.5,193.5;450,126 559.1,207 590.3,351 450,405 309.7,351 340.9,207;450,108 566.9,202.5 582.5,346.5 450,396 325.3,342 348.7,211.5"/>
-                </polygon>
-              </g>
-              <circle class="node-dot" cx="450" cy="270" r="3.5"/>
-
-              <g class="qa-label" data-node><circle cx="450" cy="90" r="4"/><text class="t-strong" x="450" y="70" text-anchor="middle">SCALABILITY</text></g>
-              <g class="qa-label" data-node><circle cx="605.88" cy="180" r="4"/><text class="t-strong" x="624" y="176">AVAILABILITY</text></g>
-              <g class="qa-label" data-node><circle cx="605.88" cy="360" r="4"/><text class="t-strong" x="624" y="372">SECURITY</text></g>
-              <g class="qa-label" data-node><circle cx="450" cy="450" r="4"/><text class="t-strong" x="450" y="482" text-anchor="middle">PERFORMANCE</text></g>
-              <g class="qa-label" data-node><circle cx="294.12" cy="360" r="4"/><text class="t-strong" x="276" y="372" text-anchor="end">MAINTAINABILITY</text></g>
-              <g class="qa-label" data-node><circle cx="294.12" cy="180" r="4"/><text class="t-strong" x="276" y="176" text-anchor="end">OBSERVABILITY</text></g>
-            </svg>
-          </div></div>
-        </div>
-        <figcaption class="viz-caption"><span class="label">Fig. 6 — Quality attributes in balance</span><span class="viz-caption__hint">Swipe →</span></figcaption>
-      </figure>
-
-      <div class="principles">
-        <p class="label principles__label" data-reveal>Design principles</p>
-        <ol class="principles__grid">
-          <li class="principle" data-reveal><span class="principle__n">01</span><h3>Domain first</h3><p>Boundaries follow the business, not the database.</p></li>
-          <li class="principle" data-reveal><span class="principle__n">02</span><h3>API&#8209;first</h3><p>Contracts are agreed before the code is written.</p></li>
-          <li class="principle" data-reveal><span class="principle__n">03</span><h3>Async by default</h3><p>Anything that can wait goes on a queue, so failures don't cascade.</p></li>
-          <li class="principle" data-reveal><span class="principle__n">04</span><h3>Secure by design</h3><p>Identity, least privilege and managed secrets from the first commit.</p></li>
-          <li class="principle" data-reveal><span class="principle__n">05</span><h3>Fast reads</h3><p>Search indexes and caches in front of the system of record.</p></li>
-          <li class="principle" data-reveal><span class="principle__n">06</span><h3>Ship small, observe all</h3><p>CI/CD on every change; logs and metrics from day one.</p></li>
-        </ol>
-      </div>
-
-      <!-- Fig. 7 — Outbox -->
-      <figure class="viz-figure viz-figure--wide">
-        <div class="viz viz--wide">
-          <div class="viz__zoom"><div class="viz__hover">
-            <svg viewBox="0 0 1200 360" role="img" aria-labelledby="arch-events-title">
-              <title id="arch-events-title">Reliable events: a service writes business data and an outbox event in one transaction; a relay publishes the event to a broker, which fans out to a search indexer, notifications and partner sync</title>
-              <rect width="1200" height="360" fill="url(#g-spot)"/>
-              <g mask="url(#m-fade)"><rect width="1200" height="360" fill="url(#p-grid)"/><rect width="1200" height="360" fill="url(#p-dots)"/></g>
-              <text class="t-hud" x="32" y="40">RELIABLE EVENTS</text>
-              <text class="t-hud" x="1168" y="40" text-anchor="end">AT&#8209;LEAST&#8209;ONCE · IDEMPOTENT CONSUMERS</text>
-
-              <rect class="group" x="250" y="78" width="300" height="214" rx="14"/>
-              <text class="t-small" x="400" y="104" text-anchor="middle">ONE DATABASE TRANSACTION</text>
-
-              <path class="link" pathLength="1" data-draw data-flow d="M200 172 C 240 172, 240 146, 280 146"/>
-              <path class="link" pathLength="1" data-draw data-flow d="M200 172 C 240 172, 240 220, 280 220"/>
-              <path class="link" pathLength="1" data-draw data-flow d="M520 220 L590 220"/>
-              <path class="link" pathLength="1" data-draw data-flow d="M730 220 L800 220"/>
-              <path class="link" pathLength="1" data-draw data-flow d="M950 220 C 975 220, 975 130, 1000 130"/>
-              <path class="link" pathLength="1" data-draw data-flow d="M950 220 L1000 220"/>
-              <path class="link" pathLength="1" data-draw data-flow d="M950 220 C 975 220, 975 310, 1000 310"/>
-              <text class="t-small" x="555" y="208" text-anchor="middle">POLL</text>
-              <text class="t-small" x="765" y="208" text-anchor="middle">PUBLISH</text>
-
-              <g class="box" data-node><rect x="40" y="148" width="160" height="48" rx="10"/><use href="#i-service" x="58" y="160" width="24" height="24"/><text x="94" y="177">SERVICE</text></g>
-              <g class="box" data-node><rect x="280" y="122" width="240" height="48" rx="10"/><use href="#i-db" x="298" y="134" width="24" height="24"/><text x="334" y="151">BUSINESS DATA</text></g>
-              <g class="box box--accent" data-node><rect x="280" y="196" width="240" height="48" rx="10"/><use href="#i-mail" x="298" y="208" width="24" height="24"/><text x="334" y="225">OUTBOX EVENT</text></g>
-              <g class="box" data-node><rect x="590" y="196" width="140" height="48" rx="10"/><use href="#i-relay" x="606" y="208" width="24" height="24"/><text x="642" y="225">RELAY</text></g>
-              <g class="box box--strong" data-node><rect x="800" y="196" width="150" height="48" rx="10"/><use href="#i-broadcast" x="818" y="208" width="24" height="24"/><text x="854" y="225">BROKER</text></g>
-              <g class="box" data-node><rect x="1000" y="106" width="170" height="48" rx="10"/><use href="#i-search" x="1016" y="118" width="24" height="24"/><text x="1050" y="135">SEARCH INDEX</text></g>
-              <g class="box" data-node><rect x="1000" y="196" width="170" height="48" rx="10"/><use href="#i-bell" x="1016" y="208" width="24" height="24"/><text x="1050" y="225">NOTIFICATIONS</text></g>
-              <g class="box" data-node><rect x="1000" y="286" width="170" height="48" rx="10"/><use href="#i-link" x="1016" y="298" width="24" height="24"/><text x="1050" y="315">PARTNER SYNC</text></g>
-            </svg>
-          </div></div>
-        </div>
-        <figcaption class="viz-caption"><span class="label">Fig. 7 — Reliable events with a transactional outbox</span><span class="viz-caption__hint">Swipe →</span></figcaption>
-      </figure>
-
-      <!-- Fig. 8 — Pipeline -->
-      <figure class="viz-figure viz-figure--wide">
-        <div class="viz viz--wide">
-          <div class="viz__zoom"><div class="viz__hover">
-            <svg viewBox="0 0 1200 270" role="img" aria-labelledby="arch-pipeline-title">
-              <title id="arch-pipeline-title">Delivery pipeline: commit, build, test, image, registry, deploy, observe</title>
-              <rect width="1200" height="270" fill="url(#g-spot)"/>
-              <g mask="url(#m-fade)"><rect width="1200" height="270" fill="url(#p-grid)"/><rect width="1200" height="270" fill="url(#p-dots)"/></g>
-              <text class="t-hud" x="32" y="40">DELIVERY PIPELINE</text>
-              <text class="t-hud" x="1168" y="40" text-anchor="end">EVERY CHANGE · AUTOMATED</text>
-              <path id="pipeline" class="link" pathLength="1" data-draw data-flow d="M80 128 L1120 128"/>
-              <circle class="mover" r="5" filter="url(#f-glow)" data-mover><animateMotion dur="6s" repeatCount="indefinite"><mpath href="#pipeline" xlink:href="#pipeline"/></animateMotion></circle>
-              <g class="hub" data-node><circle cx="80" cy="128" r="26"/><use href="#i-commit" x="69" y="117" width="22" height="22"/></g>
-              <g class="hub" data-node><circle cx="253" cy="128" r="26"/><use href="#i-cube" x="242" y="117" width="22" height="22"/></g>
-              <g class="hub" data-node><circle cx="427" cy="128" r="26"/><use href="#i-check" x="416" y="117" width="22" height="22"/></g>
-              <g class="hub" data-node><circle cx="600" cy="128" r="26"/><use href="#i-container" x="589" y="117" width="22" height="22"/></g>
-              <g class="hub" data-node><circle cx="773" cy="128" r="26"/><use href="#i-archive" x="762" y="117" width="22" height="22"/></g>
-              <g class="hub" data-node><circle cx="947" cy="128" r="26"/><use href="#i-deploy" x="936" y="117" width="22" height="22"/></g>
-              <g class="hub hub--accent" data-node><circle cx="1120" cy="128" r="26"/><use href="#i-pulse" x="1109" y="117" width="22" height="22"/></g>
-              <g class="t-steps">
-                <text x="80" y="84" text-anchor="middle">01</text><text x="253" y="84" text-anchor="middle">02</text><text x="427" y="84" text-anchor="middle">03</text><text x="600" y="84" text-anchor="middle">04</text><text x="773" y="84" text-anchor="middle">05</text><text x="947" y="84" text-anchor="middle">06</text><text x="1120" y="84" text-anchor="middle">07</text>
-              </g>
-              <text class="t-strong" x="80" y="190" text-anchor="middle">COMMIT</text>
-              <text class="t-strong" x="253" y="190" text-anchor="middle">BUILD</text>
-              <text class="t-strong" x="427" y="190" text-anchor="middle">TEST</text>
-              <text class="t-strong" x="600" y="190" text-anchor="middle">IMAGE</text>
-              <text class="t-strong" x="773" y="190" text-anchor="middle">REGISTRY</text>
-              <text class="t-strong" x="947" y="190" text-anchor="middle">DEPLOY</text>
-              <text class="t-strong" x="1120" y="190" text-anchor="middle">OBSERVE</text>
-              <text class="t-small" x="80" y="214" text-anchor="middle">VERSION CONTROL</text>
-              <text class="t-small" x="253" y="214" text-anchor="middle">COMPILE · PACKAGE</text>
-              <text class="t-small" x="427" y="214" text-anchor="middle">UNIT · INTEGRATION</text>
-              <text class="t-small" x="600" y="214" text-anchor="middle">CONTAINER</text>
-              <text class="t-small" x="773" y="214" text-anchor="middle">VERSIONED ARTIFACT</text>
-              <text class="t-small" x="947" y="214" text-anchor="middle">ROLLING RELEASE</text>
-              <text class="t-small" x="1120" y="214" text-anchor="middle">LOGS · METRICS</text>
-            </svg>
-          </div></div>
-        </div>
-        <figcaption class="viz-caption"><span class="label">Fig. 8 — Delivery pipeline</span><span class="viz-caption__hint">Swipe →</span></figcaption>
-      </figure>
-    </section>
-
-    <!-- Full-bleed band -->
-    <section class="band" aria-label="Interlude">
-      <div class="band__media">
-        <picture>
-          <source type="image/avif" srcset="assets/img/interchange-1200.avif 1200w, assets/img/interchange-1600.avif 1600w, assets/img/interchange-2400.avif 2400w, assets/img/interchange-3200.avif 3200w, assets/img/interchange-3840.avif 3840w" sizes="100vw">
-          <img data-band-img src="assets/img/interchange-2400.jpg" srcset="assets/img/interchange-1200.jpg 1200w, assets/img/interchange-1600.jpg 1600w, assets/img/interchange-2400.jpg 2400w, assets/img/interchange-3200.jpg 3200w, assets/img/interchange-3840.jpg 3840w" sizes="100vw" alt="A city highway interchange at night, traffic drawn as streaks of orange light" loading="lazy" decoding="async">
-        </picture>
-      </div>
-      <div class="band__shade"></div>
-      <div class="band__content">
-        <p class="label">Integration</p>
-        <h2 class="band__title" data-reveal-words>Design the junctions, <em>and the traffic flows.</em></h2>
+        </article>
       </div>
     </section>
 
-    <!-- Stack -->
-    <section class="section stack" id="stack">
-      <header class="section__head"><span class="rule"></span><span class="label">(04)</span><span class="label">Tech stack</span></header>
-      <h2 class="display" data-reveal-words>Tools of the <em>trade</em></h2>
-
-      <ul class="stack__grid">
-        <li class="stack-card" data-reveal>
-          <span class="stack-card__n">01</span>
-          <h3>Languages &amp; frameworks</h3>
-          <p>The core of every service.</p>
-          <ul class="chips"><li>Java</li><li>Spring Boot</li><li>Spring Security</li><li>Spring Data JPA</li><li>Hibernate</li><li>OpenFeign</li><li>Jackson</li><li>Lombok</li></ul>
-        </li>
-        <li class="stack-card" data-reveal>
-          <span class="stack-card__n">02</span>
-          <h3>APIs &amp; identity</h3>
-          <p>Contracts, sign&#8209;on and access.</p>
-          <ul class="chips"><li>REST</li><li>OpenAPI / Swagger</li><li>SAML2 SSO</li><li>JWT</li><li>RBAC</li><li>JSON Schema</li><li>Microsoft Graph</li></ul>
-        </li>
-        <li class="stack-card" data-reveal>
-          <span class="stack-card__n">03</span>
-          <h3>Data</h3>
-          <p>Systems of record and analytics.</p>
-          <ul class="chips"><li>PostgreSQL</li><li>MSSQL</li><li>NoSQL</li><li>BigQuery</li><li>Cloud Storage</li><li>JaVers (audit)</li></ul>
-        </li>
-        <li class="stack-card" data-reveal>
-          <span class="stack-card__n">04</span>
-          <h3>Search &amp; caching</h3>
-          <p>Fast reads at scale.</p>
-          <ul class="chips"><li>Elasticsearch</li><li>Apache Solr</li><li>Sharding</li><li>Memcache</li><li>Bulk indexing</li></ul>
-        </li>
-        <li class="stack-card" data-reveal>
-          <span class="stack-card__n">05</span>
-          <h3>Google Cloud</h3>
-          <p>Serverless services and managed plumbing.</p>
-          <ul class="chips"><li>Cloud Run</li><li>Pub/Sub</li><li>Cloud Tasks</li><li>Cloud Scheduler</li><li>Secret Manager</li><li>KMS</li><li>Cloud Logging</li></ul>
-        </li>
-        <li class="stack-card" data-reveal>
-          <span class="stack-card__n">06</span>
-          <h3>Containers &amp; CI/CD</h3>
-          <p>From commit to production.</p>
-          <ul class="chips"><li>Docker</li><li>Kubernetes</li><li>Jenkins</li><li>GitHub Actions</li><li>GitLab CI</li><li>Maven</li><li>Artifact Registry</li></ul>
-        </li>
-        <li class="stack-card" data-reveal>
-          <span class="stack-card__n">07</span>
-          <h3>Architecture</h3>
-          <p>Patterns I reach for.</p>
-          <ul class="chips"><li>Microservices</li><li>Event&#8209;driven</li><li>Distributed systems</li><li>Transactional outbox</li><li>Domain&#8209;driven design</li></ul>
-        </li>
-        <li class="stack-card" data-reveal>
-          <span class="stack-card__n">08</span>
-          <h3>Documents &amp; reporting</h3>
-          <p>Business output, generated.</p>
-          <ul class="chips"><li>JasperReports</li><li>Apache POI</li><li>Audit trails</li></ul>
-        </li>
-        <li class="stack-card" data-reveal>
-          <span class="stack-card__n">09</span>
-          <h3>Craft</h3>
-          <p>Brain before bytes — think it through, then type.</p>
-          <ul class="chips"><li>Data structures &amp; algorithms</li><li>Performance tuning</li><li>Code review</li><li>Design docs</li><li>Git</li><li>IntelliJ</li></ul>
-        </li>
-      </ul>
+    <!-- PLAY: Stack Overflow -->
+    <section class="section play" id="play">
+      <div class="play__head">
+        <p class="eyebrow" data-reveal><span>05</span>Take a break</p>
+        <h2 class="title" data-words>Stack <em>Overflow</em>.</h2>
+        <p class="lede" data-reveal>Drop each container on the stack. Overhangs fall into the sea. Every few levels unlocks something about me.</p>
+        <ul class="play__keys" data-reveal><li><kbd>Click</kbd> / <kbd>Tap</kbd> / <kbd>Space</kbd> to drop</li><li>Perfect drops grow the stack back</li></ul>
+      </div>
+      <div class="play__board">
+        <canvas class="play__canvas" data-game aria-label="Stack Overflow game. Press space or tap to drop the moving container." role="img" tabindex="0" data-cursor="Drop"></canvas>
+        <div class="play__hud" aria-live="polite"><div><span>Stack</span><b data-score>0</b></div><div><span>Best</span><b data-best>0</b></div></div>
+        <p class="play__perfect" data-perfect>Perfect!</p>
+        <div class="play__toast" data-toast role="status" aria-live="polite"></div>
+        <div class="play__overlay" data-overlay>
+          <p class="play__over-k" data-over-k>Ready?</p>
+          <p class="play__over-t" data-over-t>Stack containers as high as you can.</p>
+          <button type="button" class="btn btn--primary" data-start data-cursor="Play">Start stacking <span aria-hidden="true">▶</span></button>
+        </div>
+      </div>
+      <ol class="unlocks" data-unlocks aria-label="Facts you unlock while playing"></ol>
     </section>
 
-    <!-- Journey -->
-    <section class="section journey" id="journey">
-      <header class="section__head"><span class="rule"></span><span class="label">(05)</span><span class="label">Journey</span></header>
-      <h2 class="display" data-reveal-words>The path <em>so far</em></h2>
-
-      <ol class="jr-list">
-        <li class="jr">
-          <span class="rule"></span>
-          <p class="jr__year" data-reveal>2018 — Now</p>
-          <div data-reveal><p class="jr__role">Solution Architect</p><p class="jr__org">Rappit India · Remote</p></div>
-          <p class="jr__desc" data-reveal>Architecting and delivering enterprise logistics platforms.</p>
-        </li>
-        <li class="jr">
-          <span class="rule"></span>
-          <p class="jr__year" data-reveal>2017</p>
-          <div data-reveal><p class="jr__role">Internship</p><p class="jr__org">TCS · Kochi</p></div>
-          <p class="jr__desc" data-reveal>A cross&#8209;browser tool that captures locators for any clicked web element.</p>
-        </li>
-        <li class="jr">
-          <span class="rule"></span>
-          <p class="jr__year" data-reveal>2014 — 2018</p>
-          <div data-reveal><p class="jr__role">B.Tech, Computer Science</p><p class="jr__org">FISAT · M G University</p></div>
-          <p class="jr__desc" data-reveal>GPA 8.50. Best subjects: English and Math — one for each half of the brain.</p>
-        </li>
-      </ol>
+    <!-- HOW I THINK: a card deck -->
+    <section class="section think" id="think">
+      <p class="eyebrow" data-reveal><span>06</span>How I think</p>
+      <h2 class="title" data-words>Six cards I <em>always</em> play.</h2>
+      <p class="lede" data-reveal>Swipe the top card away — or use the arrows.</p>
+      <div class="deck" data-deck>
+        <article class="dcard" style="--dc:#4f7cff"><span class="dcard__n">01</span><p class="dcard__t">Complexity should be managed, not passed to the user.</p><span class="dcard__s">Simple outside, smart inside.</span></article>
+        <article class="dcard" style="--dc:#14b8a6"><span class="dcard__n">02</span><p class="dcard__t">Design for change.</p><span class="dcard__s">Boundaries follow the business.</span></article>
+        <article class="dcard" style="--dc:#ff7a3d"><span class="dcard__n">03</span><p class="dcard__t">Automate what repeats.</p><span class="dcard__s">CI/CD on every change.</span></article>
+        <article class="dcard" style="--dc:#8b5cf6"><span class="dcard__n">04</span><p class="dcard__t">Observe everything that matters.</p><span class="dcard__s">Logs and metrics from day one.</span></article>
+        <article class="dcard" style="--dc:#ef4444"><span class="dcard__n">05</span><p class="dcard__t">Scale without losing simplicity.</p><span class="dcard__s">Async by default.</span></article>
+        <article class="dcard" style="--dc:#f5b301"><span class="dcard__n">06</span><p class="dcard__t">Brain before bytes.</p><span class="dcard__s">Think it through, then type.</span></article>
+      </div>
+      <div class="deck__nav"><button type="button" class="round" data-deck-prev aria-label="Previous card">←</button><span data-deck-count>1 / 6</span><button type="button" class="round" data-deck-next aria-label="Next card">→</button></div>
     </section>
 
-    <!-- Contact -->
+    <!-- CONTACT -->
     <section class="section contact" id="contact">
-      <header class="section__head"><span class="rule"></span><span class="label">(06)</span><span class="label">Contact</span></header>
-      <h2 class="contact__title" data-reveal-words>Let's build something <em>that scales.</em></h2>
-      <p class="contact__sub" data-reveal>Have a system to design, scale or untangle? I'd like to hear about it.</p>
-
-      <a class="contact__email" href="mailto:sainjalpoly123@gmail.com" data-reveal data-cursor="Write">
-        <span class="contact__email-text">sainjalpoly123@gmail.com</span><span class="contact__arrow" aria-hidden="true">↗</span>
-      </a>
-
-      <div class="contact__grid">
-        <div data-reveal><span class="label">Phone</span><a class="link" href="tel:+918281506352">+91 82815 06352</a></div>
-        <div data-reveal><span class="label">Location</span><p>Ernakulam, Kerala, India</p></div>
-        <div data-reveal><span class="label">Elsewhere</span><p><a class="link" href="https://www.linkedin.com/in/sainjal-poly-a44bb1b6/" target="_blank" rel="noopener">LinkedIn</a>, <a class="link" href="https://github.com/sainjalpolys" target="_blank" rel="noopener">GitHub</a></p></div>
-        <div data-reveal><span class="label">Résumé</span><a class="link" href="attachments/Sainjal_Poly_Resume.pdf" download>Download PDF</a></div>
+      <p class="eyebrow" data-reveal><span>07</span>Contact</p>
+      <h2 class="contact__title" data-words>Got cargo? <em>Let's ship it.</em></h2>
+      <p class="lede" data-reveal>Have a system to design, scale or untangle? Load a message and I'll sail it home.</p>
+      <div class="dock" data-reveal>
+        <div class="dock__sea" aria-hidden="true">
+          <svg class="dock__ship" data-dock-ship viewBox="0 0 120 60"><path class="hull" d="M4 34h112l-14 20H18z"/><rect class="bridge" x="88" y="12" width="14" height="22" rx="2"/><rect class="slot" x="22" y="20" width="18" height="14" rx="2"/><rect class="slot" x="44" y="20" width="18" height="14" rx="2"/><rect class="slot slot--msg" x="66" y="20" width="18" height="14" rx="2" data-msg-slot/></svg>
+          <i class="dock__wave"></i>
+        </div>
+        <button class="btn btn--primary btn--big" type="button" data-ship-msg data-magnetic data-cursor="Ship it"><span class="cargo" aria-hidden="true" data-cargo></span>Ship a message <span aria-hidden="true">→</span></button>
       </div>
+      <ul class="contact__links">
+        <li><a href="mailto:sainjalpoly123@gmail.com" data-cursor="Write">Email</a></li>
+        <li><a href="https://www.linkedin.com/in/sainjal-poly/" target="_blank" rel="noopener" data-cursor="Open">LinkedIn</a></li>
+        <li><a href="https://github.com/sainjalpolys" target="_blank" rel="noopener" data-cursor="Open">GitHub</a></li>
+        <li><a href="attachments/Sainjal_Poly_Resume.pdf" download data-cursor="Download">Résumé</a></li>
+      </ul>
     </section>
   </main>
 
   <footer class="footer">
-    <div class="footer__bar">
-      <span>© <span data-year>2026</span> Sainjal Poly</span>
-      <nav class="footer__social" aria-label="Social">
-        <a class="roll" href="https://www.linkedin.com/in/sainjal-poly-a44bb1b6/" target="_blank" rel="noopener"><span data-text="LinkedIn">LinkedIn</span></a>
-        <a class="roll" href="https://github.com/sainjalpolys" target="_blank" rel="noopener"><span data-text="GitHub">GitHub</span></a>
-        <a class="roll" href="https://twitter.com/Sainjalpoly" target="_blank" rel="noopener"><span data-text="X / Twitter">X / Twitter</span></a>
-        <a class="roll" href="https://www.instagram.com/_sainjal_poly_/" target="_blank" rel="noopener"><span data-text="Instagram">Instagram</span></a>
-        <a class="roll" href="https://www.facebook.com/sainjal.poly/" target="_blank" rel="noopener"><span data-text="Facebook">Facebook</span></a>
-      </nav>
-      <a class="roll" href="#top"><span data-text="Back to top ↑">Back to top ↑</span></a>
-    </div>
-    <p class="footer__note"><span data-scramble>Built with curiosity, coffee and a great many 0s and 1s.</span></p>
-    <p class="footer__credits">Photography via <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a> — Alexandre Debiève, CHUTTERSNAP, Taylor Vick, Bernd Dittrich, Mike Hindle, Dohyuk You.</p>
-    <p class="wordmark" aria-hidden="true"><span>Sainjal Poly</span></p>
+    <span>© <span data-year>2026</span> Sainjal Poly · Kerala, India</span>
+    <span class="footer__egg">Psst — type <kbd>docker</kbd> anywhere.</span>
+    <a href="#top" data-cursor="Top">Back to the port ↑</a>
   </footer>
 
+  <dialog class="sheet" data-sheet aria-labelledby="sheet-title">
+    <div class="sheet__inner">
+      <button class="sheet__close" type="button" data-sheet-close aria-label="Close">✕</button>
+      <p class="sheet__k">Message docked 🚢</p>
+      <h2 class="sheet__title" id="sheet-title" tabindex="-1" autofocus>Say hello.</h2>
+      <p class="sheet__text">I usually reply within a day.</p>
+      <ul class="sheet__list">
+        <li><span>Email</span><a href="mailto:sainjalpoly123@gmail.com">sainjalpoly123@gmail.com</a><button class="chip" type="button" data-copy="sainjalpoly123@gmail.com">Copy</button></li>
+        <li><span>Phone</span><a href="tel:+918281506352">+91 82815 06352</a></li>
+        <li><span>LinkedIn</span><a href="https://www.linkedin.com/in/sainjal-poly/" target="_blank" rel="noopener">in/sainjal-poly</a></li>
+        <li><span>GitHub</span><a href="https://github.com/sainjalpolys" target="_blank" rel="noopener">github.com/sainjalpolys</a></li>
+        <li><span>Résumé</span><a href="attachments/Sainjal_Poly_Resume.pdf" download>Download PDF</a></li>
+      </ul>
+    </div>
+  </dialog>
+
+  <div class="rain" data-rain aria-hidden="true"></div>
+
+  <script type="module">
+    // Three.js loads as a module from the CDN and hands itself to the classic scripts.
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js';
+    window.THREE = THREE;
+    window.dispatchEvent(new Event('three-ready'));
+  </script>
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js"></script>
+  <script defer src="assets/js/icons.js"></script>
   <script defer src="assets/js/main.js"></script>
 </body>
 </html>

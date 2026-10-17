@@ -151,168 +151,123 @@
   const pointer = { x: -999, y: -999 };
   window.addEventListener('pointermove', (e) => { pointer.x = e.clientX; pointer.y = e.clientY; }, { passive: true });
   if (finePointer && !reduceMotion) {
+    // A real pointer that changes with what it is over: an arrow, a pointing hand on things you can
+    // click, a text bar over words, the caret in fields — plus a small badge saying what a click does.
     const cursor = $('.cursor');
-    const dot = $('.cursor__dot');
-    const frameEl = $('.cursor__frame');
-    const corners = $$('.cursor__frame i');
-    const label = $('.cursor__label');
-    const pill = $('.cursor__pill');
-    const trail = $('.cursor__trail');
-    const tctx = trail.getContext('2d');
-    root.classList.add('has-cursor');
-    const d = { x: -99, y: -99, px: -99, py: -99 };
-    const f = { x: -99, y: -99, w: 30, h: 30, vx: 0, vy: 0, vw: 0, vh: 0, rot: 0 };
-    const wake = [];
-    const sparks = [];
-    let over = null;
-    let snap = null;
-    let shown = '';
-    let pressed = false;
-    let drawn = false;
-    let brandRgb = '214, 95, 66';
-    const readBrand = () => { brandRgb = getComputedStyle(root).getPropertyValue('--brand-rgb').trim() || brandRgb; };
-    readBrand();
-    themeListeners.push(() => requestAnimationFrame(readBrand));
-    const sizeTrail = () => {
-      const s = Math.min(2, window.devicePixelRatio || 1);
-      trail.width = Math.round(innerWidth * s);
-      trail.height = Math.round(innerHeight * s);
-      tctx.setTransform(s, 0, 0, s, 0, 0);
+    const pos = $('.cursor__pos');
+    const badge = $('.cursor__badge');
+    const badgePath = $('.cursor__badge path');
+    const beam = $('.cursor__beam');
+    const ripple = $('.cursor__ripple');
+    const ICONS = {
+      go: 'M5 12h14M13 6l6 6-6 6',
+      prev: 'M19 12H5M11 6l-6 6 6 6',
+      out: 'M7 17 17 7M9 7h8v8',
+      down: 'M12 5v14M6 13l6 6 6-6',
+      up: 'M12 19V5M6 11l6-6 6 6',
+      save: 'M12 4v11M7 10l5 5 5-5M5 20h14',
+      mail: 'M3 6h18v12H3zM3 7l9 6 9-6',
+      play: 'M8 5v14l11-7z',
+      spin: 'M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5',
+      grab: 'M12 3v18M3 12h18M12 3 9 6M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3',
+      box: 'M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5zM3.5 7.5 12 12l8.5-4.5M12 12v9',
+      horn: 'M4 10v4h3l5 4V6l-5 4zM16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10',
+      zap: 'M13 3 5 14h6l-1 7 8-11h-6z',
+      flip: 'M4 9h13l-3-3M20 15H7l3 3',
+      drop: 'M7 5l5 5 5-5M7 12l5 5 5-5',
+      send: 'M21 3 10 14M21 3l-7 18-4-7-7-4z',
+      slide: 'M8 7l-5 5 5 5M16 7l5 5-5 5M3 12h18',
+      sun: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',
+      moon: 'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z',
+      filter: 'M4 5h16l-6 7v6l-4 2v-8z',
+      close: 'M6 6l12 12M18 6 6 18',
     };
-    sizeTrail();
-    window.addEventListener('resize', sizeTrail);
-    window.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse' || cursor.classList.contains('is-visible')) return;
-      d.x = d.px = f.x = e.clientX;
-      d.y = d.py = f.y = e.clientY;
-      cursor.classList.add('is-visible');
-    }, { passive: true });
-    document.addEventListener('mouseleave', () => cursor.classList.remove('is-visible'));
-    document.addEventListener('pointerover', (e) => {
-      const typing = Boolean(e.target.closest('input, textarea, select, [contenteditable="true"]'));
-      over = typing ? null : e.target.closest('[data-cursor], a, button, [role="button"], label');
-      const b = over?.getBoundingClientRect();
-      snap = b && b.width < 420 && b.height < 110 ? over : null;
-      cursor.classList.toggle('is-typing', typing);
-      cursor.classList.toggle('is-snap', Boolean(snap));
-      cursor.classList.toggle('is-big', Boolean(over) && !snap);
-    });
-    const burst = (x, y) => {
-      sparks.push({ ring: true, x, y, life: 1 });
-      for (let i = 0; i < 8; i++) {
-        const a = (i / 8) * Math.PI * 2 + Math.random() * 0.5;
-        const s = 2.4 + Math.random() * 2.6;
-        sparks.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 1.6, rot: Math.random() * 3, vr: (Math.random() - 0.5) * 0.5, life: 1, c: COLORS[i % COLORS.length] });
+    const CAPTION_ICON = { Top: 'up', Download: 'save', Play: 'play', Open: 'out', Flip: 'flip', Spin: 'spin', Drop: 'drop', 'Ship it': 'send', Write: 'mail' };
+    // Areas you drag rather than click keep the arrow; everything clickable gets the hand.
+    const DRAGGED = new Set(['spin', 'slide', 'grab']);
+    const ownText = (el) => Array.from(el.childNodes).some((n) => n.nodeType === 3 && n.textContent.trim());
+    const offerOf = (el) => {
+      if (el.closest('.is-dragging') || el.querySelector('.is-dragging')) return { shape: 'arrow', icon: 'grab', logo: null };
+      const href = el.getAttribute('href') || '';
+      let icon = el.dataset.cursorIcon || CAPTION_ICON[el.dataset.cursor || ''] || null;
+      let logo = null;
+      if (el.matches('[data-theme-toggle]')) icon = isNight() ? 'sun' : 'moon';
+      else if (/linkedin\.com/.test(href)) logo = 'linkedin';
+      else if (/github\.com/.test(href)) logo = 'github';
+      if (!icon && !logo) {
+        if (href.startsWith('mailto:')) icon = 'mail';
+        else if (el.hasAttribute('download')) icon = 'save';
+        else if (href === '#top') icon = 'up';
+        else if (href.startsWith('#')) icon = 'down';
+        else if (/^https?:/.test(href)) icon = 'out';
+        else if (el.matches('[data-deck-prev]')) icon = 'prev';
+        else if (el.matches('[data-deck-next]')) icon = 'go';
+        else if (el.matches('[data-sheet-close]')) icon = 'close';
+        else if (el.matches('[data-filter]')) icon = 'filter';
       }
+      return { shape: DRAGGED.has(icon) ? 'arrow' : 'hand', icon: logo ? null : icon, logo };
     };
+    const contextOf = (target) => {
+      if (!(target instanceof Element)) return { kind: 'pointer', shape: 'arrow' };
+      if (target.closest('input, textarea, select, [contenteditable="true"]')) return { kind: 'typing' };
+      const el = target.closest('[data-cursor], a, button, [role="button"], summary');
+      if (el) return { kind: 'pointer', el, ...offerOf(el) };
+      if (ownText(target)) return { kind: 'text', size: clamp(parseFloat(getComputedStyle(target).fontSize) * 1.15, 14, 72) };
+      return { kind: 'pointer', shape: 'arrow' };
+    };
+    let ctx = {};
+    let lastTarget = null;
+    const apply = (next) => {
+      const prevBadge = ctx.kind === 'pointer' ? ctx.logo || ctx.icon : null;
+      ctx = next;
+      const pointing = next.kind === 'pointer';
+      cursor.classList.toggle('is-arrow', pointing && next.shape === 'arrow');
+      cursor.classList.toggle('is-hand', pointing && next.shape === 'hand');
+      cursor.classList.toggle('is-text', next.kind === 'text');
+      cursor.classList.toggle('is-typing', next.kind === 'typing');
+      const mark = pointing ? next.logo || next.icon : null;
+      cursor.classList.toggle('has-badge', Boolean(mark));
+      if (mark && mark !== prevBadge) {
+        const logo = next.logo && window.SI?.[next.logo];
+        badgePath.setAttribute('d', logo ? logo.d : ICONS[next.icon]);
+        badge.classList.toggle('is-logo', Boolean(logo));
+        if (prevBadge) { badge.classList.remove('is-pop'); void badge.offsetWidth; badge.classList.add('is-pop'); }
+      }
+      if (next.kind === 'text') beam.style.setProperty('--bh', `${next.size.toFixed(1)}px`);
+    };
+    apply({ kind: 'pointer', shape: 'arrow' });
+    root.classList.add('has-cursor');
+    window.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') cursor.classList.add('is-visible'); }, { passive: true });
+    document.addEventListener('mouseleave', () => cursor.classList.remove('is-visible'));
+    document.addEventListener('pointerover', (e) => { lastTarget = e.target; apply(contextOf(e.target)); });
+    themeListeners.push(() => { if (lastTarget) apply(contextOf(lastTarget)); });
     window.addEventListener('pointerdown', (e) => {
       if (e.pointerType !== 'mouse') return;
-      pressed = true;
-      burst(e.clientX, e.clientY);
+      cursor.classList.add('is-down');
+      ripple.style.translate = `${e.clientX}px ${e.clientY}px`;
+      ripple.classList.remove('is-on');
+      void ripple.offsetWidth;
+      ripple.classList.add('is-on');
     });
-    window.addEventListener('pointerup', () => { pressed = false; });
+    window.addEventListener('pointerup', () => cursor.classList.remove('is-down'));
     // A modal dialog sits in the top layer, above the custom cursor, so the system cursor returns while it is open.
     const sheetEl = $('[data-sheet]');
     if (sheetEl) new MutationObserver(() => root.classList.toggle('has-cursor', !sheetEl.open)).observe(sheetEl, { attributes: true, attributeFilter: ['open'] });
-    const spring = (p, v, to) => { f[v] = (f[v] + (to - f[p]) * 0.22) * 0.62; f[p] += f[v]; };
+    let px = 0;
+    let tilt = 0;
     loops.push({ on: true, fn: (t, dt) => {
-      const k = Math.min(2.5, dt * 60);
-      d.x = lerp(d.x, pointer.x, Math.min(1, 0.55 * k));
-      d.y = lerp(d.y, pointer.y, Math.min(1, 0.55 * k));
-      const vx = d.x - d.px;
-      const vy = d.y - d.py;
-      d.px = d.x;
-      d.py = d.y;
-      // The dot stretches along its motion and swells on press
-      const stretch = Math.min(Math.hypot(vx, vy) / 26, 1.2);
-      const press = pressed ? 1.7 : 1;
-      dot.style.transform = `translate3d(${d.x}px, ${d.y}px, 0) rotate(${Math.atan2(vy, vx)}rad) scale(${(1 + stretch) * press}, ${(1 - stretch * 0.4) * press})`;
-
-      // The frame springs after the pointer, tilting as it goes, or wraps the small control under it
-      let tx = pointer.x;
-      let ty = pointer.y;
-      let tw = 30;
-      let th = 30;
-      let rot = clamp(f.vx * 1.4, -24, 24);
-      if (snap?.isConnected) {
-        const b = snap.getBoundingClientRect();
-        tx = b.left + b.width / 2 + (pointer.x - b.left - b.width / 2) * 0.06;
-        ty = b.top + b.height / 2 + (pointer.y - b.top - b.height / 2) * 0.06;
-        tw = b.width + 14;
-        th = b.height + 14;
-        rot = 0;
-      } else if (over) { tw = 44; th = 44; rot = 45; }
-      if (pressed) { tw *= 0.84; th *= 0.84; }
-      spring('x', 'vx', tx);
-      spring('y', 'vy', ty);
-      spring('w', 'vw', tw);
-      spring('h', 'vh', th);
-      f.rot = lerp(f.rot, rot, 0.2);
-      const hw = f.w / 2;
-      const hh = f.h / 2;
-      frameEl.style.transform = `translate3d(${f.x}px, ${f.y}px, 0) rotate(${f.rot}deg)`;
-      corners[0].style.transform = `translate3d(${-hw}px, ${-hh}px, 0)`;
-      corners[1].style.transform = `translate3d(${hw - 10}px, ${-hh}px, 0)`;
-      corners[2].style.transform = `translate3d(${hw - 10}px, ${hh - 10}px, 0)`;
-      corners[3].style.transform = `translate3d(${-hw}px, ${hh - 10}px, 0)`;
-
-      // A label that rides along — some areas change theirs as you move (the 3D port does)
-      const text = over?.dataset.cursor || '';
-      if (text !== shown) {
-        shown = text;
-        if (text) pill.textContent = text;
-        cursor.classList.toggle('is-label', Boolean(text));
+      // Live areas (the 3D port, the card deck) change what they offer as you move or drag
+      if (ctx.el) {
+        const offer = offerOf(ctx.el);
+        if (offer.shape !== ctx.shape || offer.icon !== ctx.icon || offer.logo !== ctx.logo) apply({ ...ctx, ...offer });
       }
-      label.style.transform = `translate3d(${d.x + 18}px, ${d.y + 20}px, 0)`;
-
-      // The wake and the confetti
-      wake.unshift(d.x, d.y);
-      if (wake.length > 36) wake.length = 36;
-      const n = wake.length / 2;
-      const spread = Math.abs(wake[0] - wake[n * 2 - 2]) + Math.abs(wake[1] - wake[n * 2 - 1]);
-      if (spread > 0.6 || sparks.length) {
-        drawn = true;
-        tctx.clearRect(0, 0, innerWidth, innerHeight);
-        tctx.lineCap = 'round';
-        for (let i = 1; i < n; i++) {
-          const a = 1 - i / n;
-          tctx.strokeStyle = `rgba(${brandRgb}, ${(a * 0.5).toFixed(3)})`;
-          tctx.lineWidth = 1 + a * 5;
-          tctx.beginPath();
-          tctx.moveTo(wake[i * 2 - 2], wake[i * 2 - 1]);
-          tctx.lineTo(wake[i * 2], wake[i * 2 + 1]);
-          tctx.stroke();
-        }
-        for (let i = sparks.length - 1; i >= 0; i--) {
-          const s = sparks[i];
-          s.life -= dt * (s.ring ? 2.6 : 1.5);
-          if (s.life <= 0) { sparks.splice(i, 1); continue; }
-          if (s.ring) {
-            tctx.strokeStyle = `rgba(${brandRgb}, ${s.life.toFixed(3)})`;
-            tctx.lineWidth = 0.5 + s.life * 2;
-            tctx.beginPath();
-            tctx.arc(s.x, s.y, 6 + (1 - s.life) * 34, 0, Math.PI * 2);
-            tctx.stroke();
-          } else {
-            s.vy += 0.22 * k;
-            s.x += s.vx * k;
-            s.y += s.vy * k;
-            s.rot += s.vr * k;
-            tctx.save();
-            tctx.translate(s.x, s.y);
-            tctx.rotate(s.rot);
-            tctx.globalAlpha = Math.min(1, s.life * 1.5);
-            tctx.fillStyle = s.c;
-            tctx.fillRect(-5, -3, 10, 6);
-            tctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            tctx.fillRect(-5, 1.5, 10, 1.5);
-            tctx.restore();
-          }
-        }
-      } else if (drawn) {
-        drawn = false;
-        tctx.clearRect(0, 0, innerWidth, innerHeight);
-      }
+      // The pointer sits exactly on the mouse and leans slightly into fast moves
+      const vx = pointer.x - px;
+      px = pointer.x;
+      tilt = lerp(tilt, clamp(vx * 0.5, -9, 9), Math.min(1, 12 * dt));
+      pos.style.translate = `${pointer.x}px ${pointer.y}px`;
+      pos.style.rotate = `${tilt.toFixed(2)}deg`;
+      if (ctx.kind === 'text') beam.style.translate = `${pointer.x}px ${pointer.y}px`;
     } });
     if (animate) {
       $$('[data-magnetic]').forEach((el) => {
@@ -611,6 +566,12 @@
     vessel: ['Deep sea', 'Vessel at the berth'],
     crane: ['Port', 'Quay crane · load & discharge'],
     depot: ['Depot', 'Empties, storage & repairs'],
+  };
+
+  // What the cursor offers on each vehicle in the port
+  const NUDGES = {
+    train: ['Toot!', 'horn'], shunter: ['Toot!', 'horn'], truck: ['Honk!', 'horn'], barge: ['Hoot!', 'horn'],
+    vessel: ['Sound the horn', 'horn'], crane: ['Nudge the crane', 'zap'], depot: ['Shake it', 'zap'],
   };
 
   const buildPort = (THREE) => {
@@ -1269,7 +1230,7 @@
       if (same(h, hover)) return;
       if (hover?.kind === 'box') boxes.setColorAt(topId(hover.si), inst[topId(hover.si)].color);
       hover = h;
-      canvas.dataset.cursor = !h ? 'Drag' : h.kind === 'box' ? 'Unbox' : ['crane', 'depot'].includes(h.obj.userData.tip) ? 'Nudge' : 'Honk';
+      [canvas.dataset.cursor, canvas.dataset.cursorIcon] = !h ? ['Drag to spin', 'spin'] : h.kind === 'box' ? [`Unbox ${stacks[h.si].tech[0]}`, 'box'] : NUDGES[h.obj.userData.tip];
       if (!h) { tip.classList.remove('is-on'); }
       else {
         if (h.kind === 'box') {

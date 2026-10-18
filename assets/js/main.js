@@ -53,7 +53,7 @@
   };
   requestAnimationFrame(frame);
   // CSS animations pause in sections that are off screen too (.is-offscreen in main.css).
-  $$('.ticker, #about, #chain, #galaxy, #voyage, #work, #think, #contact, .footer').forEach((el) => watch(el));
+  $$('.belt, #about, #chain, #galaxy, #voyage, #work, #think, #contact, .footer').forEach((el) => watch(el));
 
   /* ---------- Day / night ---------- */
 
@@ -184,6 +184,7 @@
       filter: 'M4 5h16l-6 7v6l-4 2v-8z',
       close: 'M6 6l12 12M18 6 6 18',
       info: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 11v5M12 7.5h.01',
+      stamp: 'M5 21h14M6 17h12v-3a2 2 0 0 0-2-2h-2V8a2 2 0 1 0-4 0v4H8a2 2 0 0 0-2 2z',
     };
     const CAPTION_ICON = { Top: 'up', Download: 'save', Play: 'play', Open: 'out', Flip: 'flip', Spin: 'spin', Drop: 'drop', 'Ship it': 'send', Write: 'mail' };
     // Areas you drag rather than click keep the arrow; everything clickable gets the hand.
@@ -287,6 +288,60 @@
         el.addEventListener('pointerleave', () => { xTo(0); yTo(0); });
       });
     }
+  }
+
+  /* ---------- The belt: containers on a conveyor ---------- */
+
+  const belt = $('[data-belt]');
+  if (belt) {
+    // Each lap must be a whole number of belt segments (40px), or the rubber would jump at the seam.
+    const groups = $$('.belt__group', belt);
+    const fit = () => {
+      groups.forEach((g) => { g.style.paddingRight = ''; });
+      const w = groups[0].offsetWidth;
+      const extra = (40 - (w % 40)) % 40;
+      groups.forEach((g) => { g.style.paddingRight = `${11 + extra}px`; });
+    };
+    fit();
+    document.fonts?.ready.then(fit);
+    window.addEventListener('resize', fit);
+
+    // Pointing at the belt slows it right down, so the boxes can be read and picked
+    const moving = () => belt.getAnimations({ subtree: true }).filter((a) => a.animationName === 'belt' || a.animationName === 'belt-back');
+    let rate = 1;
+    let goal = 1;
+    let raf = 0;
+    const glide = () => {
+      rate += (goal - rate) * 0.12;
+      const done = Math.abs(goal - rate) < 0.01;
+      if (done) rate = goal;
+      moving().forEach((a) => { a.playbackRate = rate; });
+      raf = done ? 0 : requestAnimationFrame(glide);
+    };
+    const setRate = (r) => { goal = r; if (!raf) raf = requestAnimationFrame(glide); };
+    if (!reduceMotion) {
+      belt.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') setRate(0.15); });
+      belt.addEventListener('pointerleave', () => setRate(1));
+    }
+
+    // Click (or tap) a box and it gets lifted and stamped
+    const STAMPS = ['SHIPPED ✓', 'DEPLOYED', 'LGTM', 'MERGED', 'IN PROD', 'APPROVED', 'ON TIME'];
+    let last = -1;
+    belt.addEventListener('click', (e) => {
+      const box = e.target.closest('.box');
+      if (!box) return;
+      let stamp = $('.box__stamp', box);
+      if (!stamp) { stamp = document.createElement('span'); stamp.className = 'box__stamp'; box.append(stamp); }
+      let i = Math.floor(Math.random() * STAMPS.length);
+      if (i === last) i = (i + 1) % STAMPS.length;
+      last = i;
+      stamp.textContent = STAMPS[i];
+      box.classList.remove('is-stamped');
+      void box.offsetWidth;
+      box.classList.add('is-stamped', 'is-lift');
+      clearTimeout(box.stampTimer);
+      box.stampTimer = setTimeout(() => box.classList.remove('is-stamped', 'is-lift'), 1900);
+    });
   }
 
   /* ---------- Small helpers ---------- */

@@ -370,13 +370,62 @@ html.lenis, html.lenis body { height: auto; }
 
 /* ---------- Ticker ---------- */
 
-.ticker { overflow: hidden; padding: 18px 0; background: var(--ink); color: var(--bg); transform: rotate(-1.5deg) scale(1.04); }
-.ticker__track { display: flex; width: max-content; animation: ticker 36s linear infinite; }
-.ticker__group { display: flex; align-items: center; flex-shrink: 0; }
-.ticker span { padding: 0 22px; font-family: var(--display); font-size: clamp(1.4rem, 2.6vw, 2.2rem); font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; }
-.ticker i { width: 26px; height: 14px; border-radius: 3px; flex-shrink: 0; background: var(--c1); }
-.ticker__group i:nth-of-type(2n) { background: var(--c2); } .ticker__group i:nth-of-type(3n) { background: var(--c5); }
-@keyframes ticker { to { transform: translateX(-50%); } }
+/* The belt: containers of things I believe in, riding a conveyor; a shipping-label tape runs the other way. */
+.belt { position: relative; overflow: hidden; padding: 42px 0 14px; background: var(--ink); transform: rotate(-1.5deg) scale(1.04); }
+.belt__tape { position: absolute; left: 0; right: 0; top: 10px; height: 22px; overflow: hidden; background: #d8b98c; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.14), inset 0 2px 0 rgba(255, 255, 255, 0.2); }
+.belt__tape-track { display: flex; width: max-content; height: 100%; animation: belt-back 70s linear infinite; }
+.belt__tape-group { display: flex; align-items: center; flex-shrink: 0; }
+.belt__tape span { display: inline-flex; align-items: center; gap: 16px; padding: 0 16px 0 0; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap; color: #3a2a17; }
+.belt__tape span::after { content: "✦"; color: #b5452e; }
+.belt__track {
+  display: flex; width: max-content; padding-bottom: 12px; animation: belt 46s linear infinite;
+  /* The rubber belt rides along with the boxes */
+  background: repeating-linear-gradient(90deg, #2d2925 0 28px, #46403a 28px 30px, #2d2925 30px 40px) left bottom / 100% 12px no-repeat;
+}
+.belt__group { display: flex; align-items: flex-end; flex-shrink: 0; gap: 22px; padding: 0 11px; }
+.belt__rollers { height: 16px; background: radial-gradient(circle, #9b9085 0 2.5px, #4d4741 3px 6.5px, transparent 7px) 0 50% / 44px 16px repeat-x; }
+@keyframes belt { to { transform: translateX(-50%); } }
+@keyframes belt-back { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+.box {
+  position: relative; display: inline-flex; flex-shrink: 0; align-items: center; gap: 11px; height: 68px; padding: 10px 34px 0 18px; border-radius: 3px; color: var(--t, #fff); cursor: pointer;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.32)) left top / 8px 8px no-repeat,
+    linear-gradient(rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.32)) right top / 8px 8px no-repeat,
+    linear-gradient(rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.32)) left bottom / 8px 8px no-repeat,
+    linear-gradient(rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.32)) right bottom / 8px 8px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 8px, rgba(0, 0, 0, 0.12) 8px 10px, rgba(255, 255, 255, 0.1) 10px 11px),
+    var(--c);
+  box-shadow: inset 0 5px 0 rgba(0, 0, 0, 0.2), inset 0 -4px 0 rgba(0, 0, 0, 0.24), 0 12px 14px -10px rgba(0, 0, 0, 0.6);
+  transition: translate 0.45s var(--spring), rotate 0.45s var(--spring);
+}
+.box b { font-family: var(--display); font-size: clamp(1.05rem, 1.6vw, 1.4rem); font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; }
+.box__id { position: absolute; left: 18px; top: 9px; font-family: var(--mono); font-size: 8.5px; font-weight: 700; letter-spacing: 0.14em; opacity: 0.72; }
+.box__ic { flex: none; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.box__glyph { flex: none; font-family: var(--mono); font-size: 13px; font-weight: 800; letter-spacing: -0.04em; }
+/* Locking bars on the doors */
+.box__doors { position: absolute; right: 9px; top: 12px; bottom: 10px; width: 11px; border-left: 2px solid rgba(0, 0, 0, 0.26); border-right: 2px solid rgba(0, 0, 0, 0.26); }
+/* A crane hook comes down for whichever box you point at */
+.box::after { content: ""; position: absolute; left: 50%; bottom: calc(100% + 8px); width: 2px; height: 0; margin-left: -1px; background: #f2ebe0; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45); opacity: 0; transition: height 0.35s var(--ease), opacity 0.15s; }
+.box__hook { position: absolute; left: 50%; top: -12px; width: 14px; height: 10px; margin-left: -7px; border: 2.5px solid #f2ebe0; border-top: 0; border-radius: 0 0 7px 7px; filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6)); opacity: 0; transition: opacity 0.2s; }
+.box:hover, .box.is-lift { translate: 0 -10px; rotate: -1.4deg; }
+.box:hover::after, .box.is-lift::after { height: 70px; opacity: 1; }
+.box:hover .box__hook, .box.is-lift .box__hook { opacity: 1; transition-delay: 0.15s; }
+/* Click a box and it gets stamped */
+.box__stamp {
+  position: absolute; left: 50%; top: 50%; z-index: 2; padding: 3px 10px; border: 3px solid currentColor; border-radius: 7px; pointer-events: none; white-space: nowrap;
+  font-family: var(--mono); font-size: 15px; font-weight: 800; letter-spacing: 0.12em; color: #c0392b; background: rgba(255, 250, 242, 0.9);
+  translate: -50% -50%; rotate: -10deg; opacity: 0;
+}
+.box.is-stamped .box__stamp { animation: stamp 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) forwards; }
+@keyframes stamp { 0% { scale: 2.6; opacity: 0; } 55% { scale: 0.9; opacity: 1; } 100% { scale: 1; opacity: 1; } }
+@media (max-width: 700px) {
+  .belt { padding-top: 38px; }
+  .belt__tape { top: 8px; height: 20px; }
+  .box { height: 56px; gap: 9px; padding: 9px 28px 0 14px; }
+  .box__id { left: 14px; top: 7px; font-size: 7.5px; }
+  .box__ic { width: 17px; height: 17px; }
+  .box__doors { right: 7px; width: 9px; }
+}
 
 /* ---------- About ---------- */
 

@@ -415,13 +415,13 @@ html.lenis, html.lenis body { height: auto; }
 .brain__me { position: absolute; bottom: calc(100% + 8px); left: 50%; translate: -50% 0; padding: 2px 8px; border-radius: 6px; font-family: var(--mono); font-size: 11px; background: var(--ink); color: var(--bg); }
 .brain__note { min-height: 1.6em; font-size: 14px; color: var(--ink-2); }
 
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: clamp(56px, 9vh, 100px); }
+.stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin-top: clamp(56px, 9vh, 100px); }
 .stat {
   display: grid; gap: 6px; padding: 26px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
   transform-style: preserve-3d; transition: transform 0.25s;
 }
 .stat b { font-family: var(--display); font-size: clamp(3rem, 5vw, 4.6rem); font-weight: 800; line-height: 1; letter-spacing: -0.05em; }
-.stat:nth-child(1) b { color: var(--c1); } .stat:nth-child(2) b { color: var(--c2); } .stat:nth-child(3) b { color: var(--c4); } .stat:nth-child(4) b { color: var(--c6); }
+.stat:nth-child(1) b { color: var(--c1); } .stat:nth-child(2) b { color: var(--c2); } .stat:nth-child(3) b { color: var(--c4); } .stat:nth-child(4) b { color: #c98a2b; } .stat:nth-child(5) b { color: var(--c6); }
 .stat > span { color: var(--ink-2); font-size: 15px; }
 
 /* ---------- The whole chain ---------- */
@@ -730,6 +730,7 @@ html.lenis, html.lenis body { height: auto; }
   .play { grid-template-columns: 1fr; }
   .holo-grid { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .unlocks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 700px) {

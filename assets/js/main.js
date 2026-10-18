@@ -52,6 +52,8 @@
     requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
+  // CSS animations pause in sections that are off screen too (.is-offscreen in main.css).
+  $$('.ticker, #about, #chain, #galaxy, #voyage, #work, #think, #contact, .footer').forEach((el) => watch(el));
 
   /* ---------- Day / night ---------- */
 
@@ -254,6 +256,7 @@
     const sheetEl = $('[data-sheet]');
     if (sheetEl) new MutationObserver(() => root.classList.toggle('has-cursor', !sheetEl.open)).observe(sheetEl, { attributes: true, attributeFilter: ['open'] });
     let px = 0;
+    let py = 0;
     let tilt = 0;
     loops.push({ on: true, fn: (t, dt) => {
       // Live areas (the 3D port, the card deck) change what they offer as you move or drag
@@ -261,9 +264,11 @@
         const offer = offerOf(ctx.el);
         if (offer.shape !== ctx.shape || offer.icon !== ctx.icon || offer.logo !== ctx.logo) apply({ ...ctx, ...offer });
       }
-      // The pointer sits exactly on the mouse and leans slightly into fast moves
+      // The pointer sits exactly on the mouse and leans slightly into fast moves; at rest it does nothing
       const vx = pointer.x - px;
+      if (!vx && pointer.y === py && Math.abs(tilt) < 0.01) return;
       px = pointer.x;
+      py = pointer.y;
       tilt = lerp(tilt, clamp(vx * 0.5, -9, 9), Math.min(1, 12 * dt));
       pos.style.translate = `${pointer.x}px ${pointer.y}px`;
       pos.style.rotate = `${tilt.toFixed(2)}deg`;
@@ -424,9 +429,11 @@
     return c;
   };
 
+  // Each 3D scene is built in a task of its own, so the page can paint in between.
   const whenThree = (fn) => {
-    if (window.THREE) { fn(window.THREE); return; }
-    window.addEventListener('three-ready', () => fn(window.THREE), { once: true });
+    const run = () => setTimeout(() => fn(window.THREE), 0);
+    if (window.THREE) run();
+    else window.addEventListener('three-ready', run, { once: true });
   };
   setTimeout(() => { if (!window.THREE) root.classList.add('no-webgl'); }, 9000);
 
@@ -506,8 +513,11 @@
     skyTheta = theta;
     ranges.forEach((rg) => {
       if (!rg.tile) return;
-      const x = -((((theta * (rg.far ? 130 : 300)) % rg.tile) + rg.tile) % rg.tile);
-      rg.el.style.transform = `translate3d(${x.toFixed(1)}px, 0, 0)`;
+      // Whole pixels only: the land drifts a few pixels a second, so most frames need no update at all.
+      const x = Math.round(-((((theta * (rg.far ? 130 : 300)) % rg.tile) + rg.tile) % rg.tile));
+      if (x === rg.x) return;
+      rg.x = x;
+      rg.el.style.transform = `translate3d(${x}px, 0, 0)`;
     });
   };
   const skyHorizon = (y) => {
@@ -585,6 +595,7 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 1.5 : 2));
     renderer.shadowMap.enabled = !coarse;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.autoUpdate = false;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
 
@@ -629,27 +640,26 @@
     scene.add(sun);
 
     // A teal, low-poly sea
-    const seg = coarse ? 28 : 48;
-    const waterGeo = new THREE.PlaneGeometry(160, 160, seg, seg).toNonIndexed();
+    // The waves run on the GPU: a vertex shader lifts the sea, and flat shading takes its facets
+    // from screen-space derivatives, so the CPU never touches a vertex.
+    const seg = coarse ? 32 : 48;
+    const waterGeo = new THREE.PlaneGeometry(160, 160, seg, seg);
     waterGeo.rotateX(-Math.PI / 2);
     const waterMat = std(0x3aa597, { flatShading: true, roughness: 0.32, metalness: 0.08 });
+    const waveTime = { value: 0 };
+    waterMat.onBeforeCompile = (shader) => {
+      shader.uniforms.uWaveTime = waveTime;
+      shader.vertexShader = `uniform float uWaveTime;\n${shader.vertexShader}`.replace('#include <begin_vertex>', [
+        '#include <begin_vertex>',
+        'transformed.y += sin(position.x * 0.3 + uWaveTime * 0.9) * 0.2 + cos(position.z * 0.27 + uWaveTime * 0.7) * 0.17 + sin((position.x + position.z) * 0.55 + uWaveTime * 1.5) * 0.05;',
+      ].join('\n'));
+    };
     const water = new THREE.Mesh(waterGeo, waterMat);
     water.position.y = -0.7;
     water.receiveShadow = !coarse;
+    water.frustumCulled = false;
     world.add(water);
-    const wPos = waterGeo.attributes.position;
-    const wBase = Float32Array.from(wPos.array);
-    const waves = (t) => {
-      const a = wPos.array;
-      for (let i = 0; i < wPos.count; i++) {
-        const x = wBase[i * 3];
-        const z = wBase[i * 3 + 2];
-        a[i * 3 + 1] = Math.sin(x * 0.3 + t * 0.9) * 0.2 + Math.cos(z * 0.27 + t * 0.7) * 0.17 + Math.sin((x + z) * 0.55 + t * 1.5) * 0.05;
-      }
-      wPos.needsUpdate = true;
-      waterGeo.computeVertexNormals();
-    };
-    waves(0);
+    const waves = (t) => { waveTime.value = t; };
 
     // The terminal: apron, quay edge, safety lines, lane markings
     const islandMat = std(0xefe6da, { roughness: 0.88 });
@@ -718,8 +728,9 @@
       atlas.needsUpdate = true;
       dirty = true;
     };
-    drawAtlas();
-    document.fonts?.ready.then(drawAtlas);
+    // Drawn once the display font is in; the labels stay hidden until the boxes land anyway.
+    if (!document.fonts || document.fonts.status === 'loaded') drawAtlas();
+    else document.fonts.ready.then(drawAtlas);
     const labelLight = new THREE.MeshStandardMaterial({ map: atlas, transparent: true, alphaTest: 0.25, roughness: 0.6 });
     const labelDark = new THREE.MeshStandardMaterial({ map: atlas, color: 0x2a2520, transparent: true, alphaTest: 0.25, roughness: 0.6 });
     const labelGeo = (cell) => {
@@ -950,7 +961,6 @@
         g.add(w);
         wheels.push(w);
       }));
-      g.userData.wheels = wheels;
       world.add(tag(g, 'truck'));
       return g;
     };
@@ -1047,6 +1057,7 @@
     const cable = part(0.05, 1, 0.05, 0, 5, 3.6, darkMat);
     const spreader = part(2.1, 0.12, 0.9, 0, 5.8, 3.6, darkMat);
     const carried = cast(new THREE.Mesh(boxGeo, boxMat(COLORS[0])));
+    [trolley, cable, spreader, carried, beacon].forEach((m) => { m.userData.keep = true; });
     carried.visible = false;
     crane.add(carried);
     world.add(tag(crane, 'crane'));
@@ -1055,6 +1066,7 @@
       const m = cast(new THREE.Mesh(boxGeo, boxMat(COLORS[(i * 2 + 1) % 6])));
       m.position.set(x, 0.43, 3.6);
       m.visible = false;
+      m.userData.keep = true;
       world.add(m);
       return m;
     });
@@ -1126,6 +1138,49 @@
     const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xfff6e8, size: 0.45, transparent: true, opacity: 0, depthWrite: false, fog: false }));
     scene.add(stars);
 
+    // Fewer draw calls: parts that never move on their own are baked into one mesh per material,
+    // inside whatever does move (a train, a truck, a label), so each object costs a handful of draws.
+    [islandMat, windowMat, bulbMat, bridgeMat, lampMat, cloudMat].forEach((m) => { m.userData.live = true; });
+    const matKey = (m) => (m.userData.live ? m.uuid : [m.type, m.color?.getHex(), m.roughness, m.metalness, m.map?.uuid, m.flatShading, m.transparent, m.opacity, m.alphaTest, m.emissive?.getHex(), m.emissiveIntensity, m.side].join('|'));
+    const ATTRS = ['position', 'normal', 'uv'];
+    const mergeGeometries = (geos) => {
+      const out = new THREE.BufferGeometry();
+      ATTRS.forEach((name) => {
+        const size = geos[0].attributes[name].itemSize;
+        const arr = new Float32Array(geos.reduce((n, g) => n + g.attributes[name].count * size, 0));
+        let off = 0;
+        geos.forEach((g) => { arr.set(g.attributes[name].array, off); off += g.attributes[name].count * size; });
+        out.setAttribute(name, new THREE.BufferAttribute(arr, size));
+      });
+      return out;
+    };
+    const bake = (root, parts) => {
+      root.updateMatrixWorld(true);
+      const inv = new THREE.Matrix4().copy(root.matrixWorld).invert();
+      const buckets = new Map();
+      parts.forEach((m) => {
+        if (!m.isMesh || m.isInstancedMesh || m.userData.keep || !ATTRS.every((a) => m.geometry.attributes[a])) return;
+        const key = matKey(m.material);
+        if (!buckets.has(key)) buckets.set(key, []);
+        buckets.get(key).push(m);
+      });
+      buckets.forEach((meshes) => {
+        if (meshes.length < 2) return;
+        const geos = meshes.map((m) => (m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone()).applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld)));
+        const merged = new THREE.Mesh(mergeGeometries(geos), meshes[0].material);
+        merged.castShadow = meshes.some((m) => m.castShadow);
+        merged.receiveShadow = meshes.some((m) => m.receiveShadow);
+        meshes.forEach((m) => m.removeFromParent());
+        root.add(merged);
+      });
+      root.children.filter((o) => o.isGroup && !o.children.length).forEach((o) => o.removeFromParent());
+    };
+    const partsOf = (root) => { const list = []; root.traverse((o) => { if (o !== root) list.push(o); }); return list; };
+    bake(world, world.children.filter((o) => o.isMesh && o !== water));
+    [train, shunter, ...trucks, depot, vessel, barge, crane].forEach((g) => bake(g, partsOf(g)));
+    clouds.children.forEach((c) => bake(c, c.children));
+    stacks.forEach((st) => bake(st.label, st.label.children));
+
     // Confetti boxes for clicks
     const burst = new THREE.InstancedMesh(new THREE.BoxGeometry(0.16, 0.16, 0.16), new THREE.MeshBasicMaterial({ color: 0xffffff }), 40);
     const bits = Array.from({ length: 40 }, () => ({ life: 0, p: new THREE.Vector3(), v: new THREE.Vector3() }));
@@ -1171,9 +1226,12 @@
 
     // Camera: slow orbit, drag to spin, scroll to rise away
     const view = { theta: 0.62, phi: 1.1, radius: 41, vTheta: 0, vPhi: 0, scroll: 0 };
+    const size = { width: 1, height: 1 };
     const layout = () => {
       const w = canvas.clientWidth;
       const h = canvas.clientHeight;
+      size.width = w;
+      size.height = h;
       renderer.setSize(w, h, false);
       // The port sits right of the words on wide screens and above them on narrow ones. The camera's
       // aspect has to match the whole offset view, or the scene comes out stretched.
@@ -1271,6 +1329,7 @@
     );
     beam.visible = false;
     beam.renderOrder = 5;
+    beam.userData = { si: 0, t0: -99 };
     world.add(beam);
     const svgNS = 'http://www.w3.org/2000/svg';
     const closeUnbox = () => {
@@ -1327,7 +1386,7 @@
     const placeUnbox = () => {
       if (!opened) return;
       world.localToWorld(boxTop(opened.si, tipAt, 0.7)).project(camera);
-      const r = canvas.getBoundingClientRect();
+      const r = size;
       const half = opened.w / 2 + 10;
       ub.style.left = `${clamp(((tipAt.x + 1) / 2) * r.width, half, r.width - half).toFixed(1)}px`;
       ub.style.top = `${Math.max(opened.h + 96, ((1 - tipAt.y) / 2) * r.height).toFixed(1)}px`;
@@ -1344,7 +1403,7 @@
         tipAt.y += hover.obj.userData.tip === 'crane' ? 8.4 : hover.obj.userData.tip === 'vessel' ? 4 : 2;
       }
       tipAt.project(camera);
-      const r = canvas.getBoundingClientRect();
+      const r = size;
       tip.style.left = `${(((tipAt.x + 1) / 2) * r.width).toFixed(1)}px`;
       tip.style.top = `${(((1 - tipAt.y) / 2) * r.height).toFixed(1)}px`;
     };
@@ -1416,7 +1475,7 @@
       upv.set(0, 1, 0).applyQuaternion(camera.quaternion);
       const s = (water.position.y + world.position.y - camera.position.y - fwd.y * depth) / upv.y;
       hz.copy(camera.position).addScaledVector(fwd, depth).addScaledVector(upv, s).project(camera);
-      skyHorizon(((1 - hz.y) / 2) * canvas.clientHeight);
+      skyHorizon(((1 - hz.y) / 2) * size.height);
     };
     const render = (t, dt) => {
       if (!reduceMotion) {
@@ -1434,9 +1493,7 @@
         train.userData.x = (train.userData.x ?? -40) + trainStep;
         if (train.userData.x > 64) train.userData.x = -64;
         train.position.x = train.userData.x;
-        trainWheels.forEach((w) => { w.rotation.z -= trainStep / 0.13; });
         const sx = 0.6 + Math.sin(t * 0.32) * 3.2;
-        shunterWheels.forEach((w) => { w.rotation.z -= (sx - shunter.position.x) / 0.13; });
         shunter.position.x = sx;
         shunter.position.y = -0.05 + Math.sin(shunter.userData.kick * Math.PI) * 0.5;
         trucks.forEach((tr) => {
@@ -1446,7 +1503,6 @@
           const tan = truckRoute.getTangentAt(tr.userData.u);
           tr.position.set(p.x, Math.sin(tr.userData.kick * Math.PI) * 0.7, p.z);
           tr.rotation.y = Math.atan2(-tan.z, tan.x);
-          tr.userData.wheels.forEach((w) => { w.rotation.z -= step / 0.17; });
         });
         barge.position.x = ((t * 1.5 + 30) % 120) - 60;
         barge.position.y = Math.sin(t * 1.2) * 0.07;
@@ -1531,7 +1587,20 @@
         dirty = true;
       }
 
-      if (!dirty) return;
+      if (!dirty || !ready) return;
+      // Hold the frame rate: if this device keeps missing frames, render fewer pixels.
+      if (now > tuneFrom) {
+        tune.sum += dt;
+        if (++tune.frames === 90) {
+          if (tune.sum / tune.frames > 0.024 && tune.ratio > 1) {
+            tune.ratio = Math.max(1, tune.ratio - 0.25);
+            renderer.setPixelRatio(tune.ratio);
+            layout();
+          }
+          tune.sum = 0;
+          tune.frames = 0;
+        }
+      }
       const radius = view.radius + view.scroll * 18;
       const phi = view.phi - view.scroll * 0.3;
       camera.position.set(
@@ -1543,6 +1612,7 @@
       world.position.y = -view.scroll * 3;
       scene.fog.near = radius + 10;
       scene.fog.far = radius + 38;
+      if (renderer.shadowMap.enabled) renderer.shadowMap.needsUpdate = reduceMotion || (frameNo++ & 1) === 0;
       renderer.render(scene, camera);
       placeTip();
       placeUnbox();
@@ -1550,6 +1620,20 @@
       skyDrift(view.theta);
       dirty = false;
     };
+    // Compile every shader in the background before the first frame, so the page never freezes while the port appears.
+    let ready = typeof renderer.compileAsync !== 'function';
+    let frameNo = 0;
+    let tuneFrom = Infinity;
+    const tune = { frames: 0, sum: 0, ratio: renderer.getPixelRatio() };
+    if (!ready) {
+      beam.visible = true;
+      renderer.compileAsync(scene, camera).catch(() => {}).then(() => {
+        beam.visible = false;
+        ready = true;
+        dirty = true;
+        tuneFrom = performance.now() / 1000 + 3;
+      });
+    } else tuneFrom = performance.now() / 1000 + 3;
     addLoop(hero, render, '0px');
     render(0, 0.016);
   };
@@ -2084,7 +2168,22 @@
     new ResizeObserver(resize).observe(board);
     resize();
   };
-  whenThree((THREE) => { try { buildGame(THREE); } catch (e) { console.warn('Game unavailable:', e); } });
+  // The game is built when the browser is idle after the intro, or as its section comes near —
+  // whichever happens first — so it costs nothing while the page loads.
+  const playSection = $('#play');
+  if (playSection) {
+    let built = false;
+    const kick = () => {
+      if (built) return;
+      built = true;
+      near.disconnect();
+      whenThree((THREE) => { try { buildGame(THREE); } catch (e) { console.warn('Game unavailable:', e); } });
+    };
+    const near = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) kick(); }, { rootMargin: '1000px 0px' });
+    near.observe(playSection);
+    const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1));
+    setTimeout(() => idle(kick, { timeout: 4000 }), 5000);
+  }
 
   /* ---------- How I think: a swipeable deck ---------- */
 

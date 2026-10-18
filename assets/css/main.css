@@ -272,7 +272,8 @@ html.lenis, html.lenis body { height: auto; }
     radial-gradient(1.7px 1.7px at 80px 20px, rgba(255, 236, 200, 0.9) 60%, transparent 64%) 0 0 / 310px 210px,
     radial-gradient(1px 1px at 10px 120px, rgba(255, 255, 255, 0.7) 60%, transparent 64%) 0 0 / 140px 180px;
 }
-.hero__stars::after { content: ""; inset: 0; background-size: 270px 190px, 160px 230px, 350px 260px, 200px 120px; background-position: 60px 30px; animation: twinkle 3.2s ease-in-out infinite alternate; }
+.hero__stars::after { content: ""; inset: 0; background-size: 270px 190px, 160px 230px, 350px 260px, 200px 120px; background-position: 60px 30px; }
+:root[data-theme="dark"] .hero__stars::after { animation: twinkle 3.2s ease-in-out infinite alternate; }
 @keyframes twinkle { from { opacity: 0.15; } to { opacity: 0.9; } }
 :root[data-theme="dark"] .hero__stars { opacity: 1; }
 .hero__cloud { position: absolute; left: 0; width: 280px; height: 66px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0)); animation: drift 140s linear infinite; transition: opacity 0.8s; }

@@ -399,6 +399,9 @@ html.lenis, html.lenis body { height: auto; }
 .flip__face li { padding: 9px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.16); font-weight: 500; }
 .flip__hint { font-family: var(--mono); font-size: 12px; opacity: 0.8; }
 .about__lead { font-size: clamp(18px, 1.6vw, 23px); line-height: 1.55; color: var(--ink-2); }
+.about__aside { margin-top: 14px; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+.about__aside span { margin-right: 4px; color: var(--brand); }
+.about__aside b { color: var(--ink); font-weight: 650; }
 .about__lead b { color: var(--ink); }
 
 .brain { --pos: 50; margin-top: 30px; padding: 22px 24px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); touch-action: none; user-select: none; cursor: ew-resize; }

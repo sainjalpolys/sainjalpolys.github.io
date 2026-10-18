@@ -183,6 +183,7 @@
       moon: 'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z',
       filter: 'M4 5h16l-6 7v6l-4 2v-8z',
       close: 'M6 6l12 12M18 6 6 18',
+      info: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 11v5M12 7.5h.01',
     };
     const CAPTION_ICON = { Top: 'up', Download: 'save', Play: 'play', Open: 'out', Flip: 'flip', Spin: 'spin', Drop: 'drop', 'Ship it': 'send', Write: 'mail' };
     // Areas you drag rather than click keep the arrow; everything clickable gets the hand.
@@ -1739,101 +1740,87 @@
     } else setP(1);
   }
 
-  /* ---------- Tech galaxy: a 3D sphere of logos ---------- */
+  /* ---------- Tech galaxy: six constellations of tools, every one labelled ---------- */
 
-  const GALAXY = [
-    ['Java', 'backend', 'openjdk'], ['Spring Boot', 'backend', 'springboot'], ['Spring Security', 'backend', 'springsecurity'], ['Hibernate / JPA', 'backend', 'hibernate'],
-    ['Maven', 'backend', 'apachemaven'], ['OpenFeign', 'backend', null, 'OF'], ['REST APIs', 'architecture', 'openapiinitiative'], ['Microservices', 'architecture', null, 'μS'],
-    ['Event-driven', 'architecture', null, 'EV'], ['Distributed systems', 'architecture', null, 'DS'], ['Domain-driven design', 'architecture', null, 'DDD'], ['RBAC / ACL', 'architecture', null, 'AC'],
-    ['Design patterns', 'architecture', null, 'DP'], ['JWT', 'architecture', 'jsonwebtokens'], ['Google Cloud', 'cloud', 'googlecloud'], ['Cloud Run', 'cloud', null, 'CR'],
-    ['Pub/Sub', 'cloud', 'googlepubsub'], ['BigQuery', 'cloud', 'googlebigquery'], ['Cloud Storage', 'cloud', 'googlecloudstorage'], ['Docker', 'cloud', 'docker'],
-    ['Kubernetes', 'cloud', 'kubernetes'], ['PostgreSQL', 'data', 'postgresql'], ['Elasticsearch', 'data', 'elasticsearch'], ['Apache Solr', 'data', 'apachesolr'],
-    ['MSSQL', 'data', null, 'SQL'], ['Redis / Memcache', 'data', 'redis'], ['NoSQL', 'data', null, 'NoS'], ['Jenkins', 'devops', 'jenkins'],
-    ['GitHub Actions', 'devops', 'githubactions'], ['GitLab CI', 'devops', 'gitlab'], ['Git', 'devops', 'git'], ['Swagger / OpenAPI', 'devops', 'swagger'],
-    ['IntelliJ IDEA', 'ai', 'intellijidea'], ['Eclipse', 'ai', 'eclipseide'], ['Selenium', 'ai', 'selenium'], ['Python', 'ai', 'python'],
-    ['JavaScript', 'ai', 'javascript'], ['OpenCV', 'ai', 'opencv'], ['GenAI & LLMs', 'ai', null, 'AI'], ['Data structures & algorithms', 'backend', null, 'DSA'],
-  ];
-  const CAT_NAME = { backend: 'Backend', architecture: 'Architecture', cloud: 'Cloud & containers', data: 'Data & search', devops: 'DevOps & delivery', ai: 'AI, ML & tools' };
-  const galaxyStage = $('[data-galaxy]');
-  if (galaxyStage) {
-    const readCat = $('[data-galaxy-cat]');
-    const readName = $('[data-galaxy-name]');
-    readName.textContent = `${GALAXY.length} technologies`;
-    const N = GALAXY.length;
-    const tiles = GALAXY.map(([name, cat, slug, abbr], i) => {
-      const el = document.createElement('div');
-      el.className = 'gtile';
-      el.dataset.cat = cat;
-      el.setAttribute('role', 'img');
-      el.setAttribute('aria-label', `${name} — ${CAT_NAME[cat]}`);
-      const svg = slug && iconSvg(slug);
-      if (svg) el.append(svg);
-      else {
-        const t = document.createElement('span');
-        t.className = 'gtile__txt';
-        t.textContent = abbr;
-        el.append(t);
-        el.style.background = `color-mix(in srgb, ${COLORS[i % 6]} 20%, var(--surface))`;
-      }
-      el.addEventListener('pointerenter', () => { readCat.textContent = CAT_NAME[cat]; readName.textContent = name; el.classList.add('is-hot'); });
-      el.addEventListener('pointerleave', () => el.classList.remove('is-hot'));
-      galaxyStage.append(el);
-      const y = 1 - (i / (N - 1)) * 2;
-      const rad = Math.sqrt(1 - y * y);
-      const th = i * Math.PI * (3 - Math.sqrt(5));
-      return { el, cat, v: [Math.cos(th) * rad, y, Math.sin(th) * rad], lit: true };
+  const skills = $('[data-skills]');
+  if (skills) {
+    const section = $('#galaxy');
+    const cards = $$('.skill', skills);
+    const tipEl = $('[data-skill-tip]');
+    const [tipName, tipCat, tipNote] = ['b', 'span', 'p'].map((s) => $(s, tipEl));
+    // Brand marks from the Simple Icons set replace their placeholders
+    $$('[data-si]', skills).forEach((ph) => {
+      const svg = iconSvg(ph.dataset.si);
+      if (svg) ph.replaceWith(svg);
     });
     tintIcons();
 
-    const spin = { rx: -0.25, ry: 0, vx: 0, vy: 0.004 };
-    $$('[data-filter]').forEach((b) => b.addEventListener('click', () => {
-      const filter = b.dataset.filter;
-      $$('[data-filter]').forEach((x) => x.classList.toggle('is-on', x === b));
-      tiles.forEach((t) => { t.lit = filter === 'all' || t.cat === filter; });
-      readCat.textContent = filter === 'all' ? 'Everything' : CAT_NAME[filter];
-      readName.textContent = `${tiles.filter((t) => t.lit).length} technologies`;
-      spin.vy += 0.05;
-      if (reduceMotion) drawGalaxy();
-    }));
+    // Cards rise into view and their tools pop in; the counts tick up
+    if (animate) {
+      skills.classList.add('is-armed');
+      onEnter(cards, (batch) => batch.forEach((c) => c.classList.add('is-in')), '-8%');
+    }
+    onEnter($$('[data-count]', section), (batch) => batch.forEach((el) => countUp(el, Number(el.dataset.count))), '-8%');
 
-    let gDrag = null;
-    galaxyStage.addEventListener('pointerdown', (e) => { gDrag = { x: e.clientX, y: e.clientY, id: e.pointerId }; if (e.pointerType === 'mouse') galaxyStage.setPointerCapture(e.pointerId); });
-    galaxyStage.addEventListener('pointermove', (e) => {
-      if (!gDrag || gDrag.id !== e.pointerId) return;
-      spin.vy = (e.clientX - gDrag.x) * 0.006;
-      spin.vx = e.pointerType === 'mouse' ? (e.clientY - gDrag.y) * 0.004 : 0;
-      gDrag.x = e.clientX; gDrag.y = e.clientY;
-      if (reduceMotion) { spin.ry += spin.vy; spin.rx = clamp(spin.rx + spin.vx, -1.1, 1.1); drawGalaxy(); }
+    // What each tool is for: hover, focus or tap
+    let tipFor = null;
+    let tipTimer = 0;
+    const showTip = (tool) => {
+      tipName.textContent = tool.textContent.trim();
+      tipCat.textContent = $('h3', tool.closest('.skill')).textContent;
+      tipNote.textContent = tool.dataset.note || '';
+      const r = tool.getBoundingClientRect();
+      const s = section.getBoundingClientRect();
+      const centre = r.left + r.width / 2 - s.left;
+      const half = tipEl.offsetWidth / 2 + 8;
+      const left = clamp(centre, half, s.width - half);
+      tipEl.style.left = `${left.toFixed(1)}px`;
+      tipEl.style.top = `${(r.top - s.top).toFixed(1)}px`;
+      tipEl.style.setProperty('--ax', `${(centre - left).toFixed(1)}px`);
+      tipFor?.classList.remove('is-tip');
+      tipFor = tool;
+      tool.classList.add('is-tip');
+      tipEl.classList.add('is-on');
+    };
+    const hideTip = () => {
+      clearTimeout(tipTimer);
+      tipFor?.classList.remove('is-tip');
+      tipFor = null;
+      tipEl.classList.remove('is-on');
+    };
+    skills.addEventListener('pointerover', (e) => { const t = e.target.closest('.tool'); if (t && e.pointerType === 'mouse') showTip(t); });
+    skills.addEventListener('pointerout', (e) => { const t = e.target.closest('.tool'); if (t && e.pointerType === 'mouse' && !t.contains(e.relatedTarget)) hideTip(); });
+    skills.addEventListener('click', (e) => {
+      const t = e.target.closest('.tool');
+      if (!t) return;
+      showTip(t);
+      clearTimeout(tipTimer);
+      tipTimer = setTimeout(hideTip, 3000);
     });
-    const gEnd = () => { gDrag = null; };
-    galaxyStage.addEventListener('pointerup', gEnd);
-    galaxyStage.addEventListener('pointercancel', gEnd);
+    skills.addEventListener('focusin', (e) => { const t = e.target.closest('.tool'); if (t) showTip(t); });
+    skills.addEventListener('focusout', hideTip);
+    window.addEventListener('scroll', () => { if (tipFor && !finePointer) hideTip(); }, { passive: true });
 
-    function drawGalaxy() {
-      const R = Math.min(galaxyStage.clientWidth, galaxyStage.clientHeight) * 0.4;
-      const cy = Math.cos(spin.ry); const sy = Math.sin(spin.ry);
-      const cx = Math.cos(spin.rx); const sx = Math.sin(spin.rx);
-      tiles.forEach((t) => {
-        const [x0, y0, z0] = t.v;
-        const x1 = x0 * cy + z0 * sy;
-        const z1 = -x0 * sy + z0 * cy;
-        const y2 = y0 * cx - z1 * sx;
-        const z2 = y0 * sx + z1 * cx;
-        const depth = (z2 + 1) / 2;
-        t.el.style.transform = `translate3d(${(x1 * R).toFixed(1)}px, ${(y2 * R).toFixed(1)}px, 0) scale(${(0.55 + depth * 0.6).toFixed(3)})`;
-        t.el.style.opacity = ((t.lit ? 0.25 : 0.06) + depth * (t.lit ? 0.75 : 0.12)).toFixed(3);
-        t.el.style.zIndex = Math.round(depth * 100);
-      });
+    // A soft spotlight follows the pointer across each card
+    if (finePointer) {
+      cards.forEach((c) => c.addEventListener('pointermove', (e) => {
+        const r = c.getBoundingClientRect();
+        c.style.setProperty('--mx', `${(e.clientX - r.left).toFixed(0)}px`);
+        c.style.setProperty('--my', `${(e.clientY - r.top).toFixed(0)}px`);
+      }));
     }
-    drawGalaxy();
-    if (!reduceMotion) {
-      addLoop(galaxyStage, () => {
-        if (!gDrag) { spin.vy = lerp(spin.vy, 0.0045, 0.02); spin.vx = lerp(spin.vx, 0, 0.05); }
-        spin.ry += spin.vy;
-        spin.rx = clamp(spin.rx + spin.vx, -1.1, 1.1);
-        drawGalaxy();
-      });
-    }
+
+    // Picking an area lights its card and dims the rest
+    const filters = $$('[data-filter]', section);
+    filters.forEach((b) => b.addEventListener('click', () => {
+      const f = b.dataset.filter;
+      hideTip();
+      filters.forEach((x) => { x.classList.toggle('is-on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+      skills.classList.toggle('is-filtered', f !== 'all');
+      cards.forEach((c) => c.classList.toggle('is-focus', c.dataset.cat === f));
+      const focus = cards.find((c) => c.dataset.cat === f);
+      if (focus && window.innerWidth <= 1000) focus.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    }));
   }
 
   /* ---------- The voyage: a ship sails through the career ports ---------- */
@@ -2334,7 +2321,7 @@
     const fades = $$('[data-reveal]');
     gsap.set(fades, { opacity: 0, y: 30 });
     onEnter(fades, (b) => gsap.to(b, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.08 }), '-6%');
-    const pops = $$('.holo, .flip, .deck, .play__board, .dock__sea, .galaxy__stage');
+    const pops = $$('.holo, .flip, .deck, .play__board, .dock__sea');
     gsap.set(pops, { opacity: 0, scale: 0.92, y: 40 });
     onEnter(pops, (b) => gsap.to(b, { opacity: 1, scale: 1, y: 0, duration: 1.1, ease: 'back.out(1.4)', stagger: 0.1, clearProps: 'transform' }), '-8%');
     if (document.fonts && document.fonts.status !== 'loaded') document.fonts.ready.then(() => ScrollTrigger.refresh());

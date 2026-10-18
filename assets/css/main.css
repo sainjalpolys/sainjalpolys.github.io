@@ -469,22 +469,90 @@ html.lenis, html.lenis body { height: auto; }
 .flow__detail b { display: block; font-family: var(--display); font-size: 20px; letter-spacing: -0.02em; }
 .flow__detail p { color: var(--ink-2); }
 
-/* ---------- Tech galaxy ---------- */
+/* ---------- Tech galaxy: six constellations ---------- */
 
-.galaxy { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 30px; align-items: center; overflow: clip; }
-.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
-.galaxy__readout { display: grid; gap: 2px; margin-top: 26px; padding: 16px 20px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); max-width: 340px; }
-.galaxy__cat { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brand); }
-.galaxy__readout b { font-family: var(--display); font-size: 26px; letter-spacing: -0.02em; }
-.galaxy__stage { position: relative; height: min(70vh, 640px); touch-action: pan-y; user-select: none; }
-.galaxy__core { position: absolute; left: 50%; top: 50%; width: 38%; aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; background: radial-gradient(circle, rgba(var(--brand-rgb), 0.2), transparent 65%); pointer-events: none; }
-.gtile {
-  position: absolute; left: 50%; top: 50%; display: grid; place-items: center; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 18px;
-  background: var(--surface); border: 1px solid var(--line); box-shadow: 0 6px 18px rgba(95, 62, 30, 0.1); will-change: transform, opacity; transition: box-shadow 0.3s, border-color 0.3s;
+.galaxy { position: relative; isolation: isolate; }
+/* A faint starfield behind the cards */
+.galaxy::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0.7;
+  background:
+    radial-gradient(1.4px 1.4px at 30px 40px, rgba(var(--ink-rgb), 0.35) 60%, transparent 64%) 0 0 / 230px 170px,
+    radial-gradient(1px 1px at 120px 90px, rgba(var(--ink-rgb), 0.25) 60%, transparent 64%) 0 0 / 190px 150px,
+    radial-gradient(1.8px 1.8px at 80px 20px, rgba(var(--brand-rgb), 0.5) 60%, transparent 64%) 0 0 / 310px 210px;
+  -webkit-mask: radial-gradient(ellipse 70% 60% at 50% 62%, #000 20%, transparent 75%); mask: radial-gradient(ellipse 70% 60% at 50% 62%, #000 20%, transparent 75%);
 }
-.gtile svg { width: 30px; height: 30px; }
-.gtile__txt { font-family: var(--display); font-size: 15px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
-.gtile.is-hot { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(var(--brand-rgb), 0.22), 0 10px 26px rgba(95, 62, 30, 0.18); }
+.galaxy__head { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 24px 56px; align-items: end; }
+.galaxy__side .lede { margin: 0; }
+.galaxy__side .lede b { color: var(--ink); font-weight: 650; background: linear-gradient(transparent 60%, rgba(var(--brand-rgb), 0.22) 0); }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.filters .chip[style] { --dot: var(--k); }
+.filters .chip[style]::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 7px; border-radius: 2px; background: var(--dot); vertical-align: 0; }
+.galaxy__stats { display: flex; gap: 30px; margin: 24px 0 0; }
+.galaxy__stats div { display: flex; flex-direction: column-reverse; gap: 4px; }
+.galaxy__stats dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.galaxy__stats dd { margin: 0; font-family: var(--display); font-size: 36px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+
+.skills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 48px; }
+.skill {
+  --mx: 50%; --my: 0%;
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; padding: 24px 22px 24px; border-radius: 24px; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(95, 62, 30, 0.07);
+  transition: opacity 0.45s, scale 0.5s var(--spring), translate 0.9s var(--spring), border-color 0.3s, box-shadow 0.3s, filter 0.45s;
+}
+/* A soft spotlight follows the pointer */
+.skill::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(420px circle at var(--mx) var(--my), color-mix(in srgb, var(--k) 14%, transparent), transparent 60%); opacity: 0; transition: opacity 0.35s; }
+.skill:hover::before, .skill.is-focus::before { opacity: 1; }
+.skill::after { content: ""; position: absolute; left: 24px; right: 24px; top: 0; height: 3px; border-radius: 0 0 3px 3px; background: var(--k); }
+.skill > * { position: relative; }
+.skill__head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; width: 100%; }
+/* Each area's icon, with its own orbiting planet */
+.skill__orbit { position: relative; display: grid; place-items: center; width: 50px; height: 50px; margin: 7px; border-radius: 50%; color: var(--k); background: color-mix(in srgb, var(--k) 15%, var(--surface)); }
+.skill__orbit::before { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 1.5px dashed color-mix(in srgb, var(--k) 45%, transparent); animation: spin 20s linear infinite; }
+.skill__orbit::after { content: ""; position: absolute; left: 50%; top: -11px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: var(--k); box-shadow: 0 0 0 3px var(--surface); transform-origin: 4px 36px; animation: spin 7s linear infinite; }
+.skill__ic { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.skill h3 { font-family: var(--display); font-size: 21px; font-weight: 800; line-height: 1.12; letter-spacing: -0.02em; }
+.skill__head p { margin-top: 4px; font-size: 13.5px; line-height: 1.4; color: var(--ink-2); }
+.skill__meta { margin-top: 16px; padding: 4px 10px; border-radius: 999px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--k); background: color-mix(in srgb, var(--k) 11%, transparent); }
+.skill__tools { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; list-style: none; }
+.tool {
+  display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px 7px 8px; border-radius: 12px; outline: none;
+  font-size: 13.5px; font-weight: 500; line-height: 1.2; color: var(--ink); background: var(--surface-2); border: 1px solid transparent;
+  transition: opacity 0.45s var(--ease), translate 0.6s var(--spring), transform 0.3s var(--spring), border-color 0.25s, background-color 0.25s;
+}
+.tool.is-core { font-weight: 650; background: color-mix(in srgb, var(--k) 14%, var(--surface)); border-color: color-mix(in srgb, var(--k) 32%, transparent); }
+.tool:hover, .tool:focus-visible, .tool.is-tip { transform: translateY(-3px); border-color: var(--k); background-color: var(--surface); }
+.tool svg { flex: none; width: 18px; height: 18px; max-width: none; }
+.tool__line { fill: none; stroke: var(--k); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tool__ic { flex: none; width: 18px; height: 18px; border-radius: 5px; background: color-mix(in srgb, var(--k) 25%, transparent); }
+/* Arrival: cards rise, then their tools pop in one by one */
+.skills.is-armed .skill:not(.is-in) { opacity: 0; translate: 0 36px; }
+.skills.is-armed .skill:not(.is-in) .tool { opacity: 0; translate: 0 12px; }
+.skills.is-armed .skill.is-in .tool { transition-delay: calc(0.15s + var(--i, 0) * 40ms), calc(0.15s + var(--i, 0) * 40ms), 0s, 0s, 0s; }
+/* Picking an area lights it and dims the rest */
+.skills.is-filtered .skill:not(.is-focus) { opacity: 0.32; scale: 0.97; filter: saturate(0.35); }
+.skill.is-focus { border-color: color-mix(in srgb, var(--k) 60%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--k) 16%, transparent), 0 18px 40px rgba(95, 62, 30, 0.12); }
+/* What a tool is for */
+.skill-tip {
+  position: absolute; z-index: 20; left: 0; top: 0; width: max-content; max-width: 250px; padding: 11px 14px 12px; border-radius: 14px; pointer-events: none;
+  color: var(--bg); background: var(--ink); box-shadow: var(--shadow); translate: -50% calc(-100% - 12px); transform-origin: 50% 100%;
+  opacity: 0; scale: 0.9; transition: opacity 0.18s, scale 0.3s var(--spring);
+}
+.skill-tip.is-on { opacity: 1; scale: 1; }
+.skill-tip::after { content: ""; position: absolute; left: calc(50% + var(--ax, 0px)); bottom: -5px; width: 10px; height: 10px; margin-left: -5px; border-radius: 2px; background: inherit; transform: rotate(45deg); }
+.skill-tip b { display: block; font-family: var(--display); font-size: 15.5px; letter-spacing: -0.01em; }
+.skill-tip span { display: block; margin-top: 2px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.65; }
+.skill-tip p { margin-top: 6px; font-size: 13px; line-height: 1.4; opacity: 0.92; }
+@media (max-width: 1000px) {
+  .galaxy__head { grid-template-columns: 1fr; }
+  .skills { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .skills { grid-template-columns: 1fr; gap: 14px; margin-top: 32px; }
+  .skill { padding: 20px 18px; }
+  .tool { padding: 6px 10px 6px 7px; font-size: 13px; }
+  .galaxy__stats { gap: 22px; }
+  .galaxy__stats dd { font-size: 30px; }
+}
 
 /* ---------- Voyage ---------- */
 
@@ -656,7 +724,7 @@ html.lenis, html.lenis body { height: auto; }
   .modes { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .nav { display: none; }
   .menu-btn { display: block; }
-  .galaxy, .play { grid-template-columns: 1fr; }
+  .play { grid-template-columns: 1fr; }
   .holo-grid { grid-template-columns: 1fr; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .unlocks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -669,9 +737,6 @@ html.lenis, html.lenis body { height: auto; }
   .hero__scroll { display: none; }
   .about__grid { grid-template-columns: 1fr; }
   .flip { max-width: 340px; }
-  .galaxy__stage { height: 420px; }
-  .gtile { width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 15px; }
-  .gtile svg { width: 25px; height: 25px; }
   .holo__inner { min-height: 600px; }
   .holo__metrics { grid-template-columns: 1fr 1fr 1fr; }
   .play__board { height: 480px; }

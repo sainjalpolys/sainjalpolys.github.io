@@ -234,24 +234,129 @@
       </div>
     </section>
 
-    <!-- TECH GALAXY -->
+    <!-- TECH GALAXY: six constellations of tools, every one labelled -->
     <section class="section galaxy" id="galaxy">
       <div class="galaxy__head">
-        <p class="eyebrow" data-reveal><span>03</span>Tech galaxy</p>
-        <h2 class="title" data-words>Everything in my <em>toolbox</em>, in orbit.</h2>
-        <p class="lede" data-reveal>Drag the sphere to spin it. Pick a category to light up its stars.</p>
-        <div class="filters" role="group" aria-label="Filter technologies" data-reveal>
-          <button type="button" class="chip is-on" data-filter="all">All</button>
-          <button type="button" class="chip" data-filter="backend">Backend</button>
-          <button type="button" class="chip" data-filter="architecture">Architecture</button>
-          <button type="button" class="chip" data-filter="cloud">Cloud</button>
-          <button type="button" class="chip" data-filter="data">Data</button>
-          <button type="button" class="chip" data-filter="devops">DevOps</button>
-          <button type="button" class="chip" data-filter="ai">AI &amp; tools</button>
+        <div>
+          <p class="eyebrow" data-reveal><span>03</span>Tech galaxy</p>
+          <h2 class="title" data-words>Everything in my <em>toolbox</em>, in orbit.</h2>
         </div>
-        <div class="galaxy__readout" aria-live="polite"><span class="galaxy__cat" data-galaxy-cat>Hover a star</span><b data-galaxy-name>40+ technologies</b></div>
+        <div class="galaxy__side" data-reveal>
+          <p class="lede">Six constellations of the tools I build with. <b>Highlighted</b> ones I use every day — hover or tap any tool to see where it fits.</p>
+          <div class="filters" role="group" aria-label="Show one area">
+            <button type="button" class="chip is-on" data-filter="all" aria-pressed="true">All</button>
+            <button type="button" class="chip" data-filter="backend" aria-pressed="false" style="--k:var(--c1)">Backend</button>
+            <button type="button" class="chip" data-filter="architecture" aria-pressed="false" style="--k:var(--c2)">Architecture</button>
+            <button type="button" class="chip" data-filter="cloud" aria-pressed="false" style="--k:var(--c3)">Cloud</button>
+            <button type="button" class="chip" data-filter="data" aria-pressed="false" style="--k:var(--c4)">Data</button>
+            <button type="button" class="chip" data-filter="devops" aria-pressed="false" style="--k:#c98a2b">DevOps</button>
+            <button type="button" class="chip" data-filter="ai" aria-pressed="false" style="--k:var(--c6)">AI &amp; ML</button>
+          </div>
+          <dl class="galaxy__stats">
+            <div><dt>Tools</dt><dd><span data-count="41">41</span></dd></div>
+            <div><dt>Areas</dt><dd><span data-count="6">6</span></dd></div>
+            <div><dt>Years shipping</dt><dd><span data-count="8">8</span>+</dd></div>
+          </dl>
+        </div>
       </div>
-      <div class="galaxy__stage" data-galaxy data-cursor="Spin"><div class="galaxy__core" aria-hidden="true"></div></div>
+      <div class="skills" data-skills>
+        <article class="skill" data-cat="backend" style="--k:var(--c1)">
+          <header class="skill__head">
+            <span class="skill__orbit" aria-hidden="true"><svg class="skill__ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01"/></svg></span>
+            <div><h3>Backend Engineering</h3><p>Java services that run the business.</p></div>
+          </header>
+          <span class="skill__meta">Daily since 2018</span>
+          <ul class="skill__tools">
+            <li class="tool is-core" tabindex="0" style="--i:0" data-note="My core language — daily since 2018." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="openjdk"></i>Java</li>
+            <li class="tool is-core" tabindex="0" style="--i:1" data-note="The base of nearly every service I build." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="springboot"></i>Spring Boot</li>
+            <li class="tool" tabindex="0" style="--i:2" data-note="Logins, tokens and permissions." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="springsecurity"></i>Spring Security</li>
+            <li class="tool" tabindex="0" style="--i:3" data-note="Data access tuned for big data sets." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="hibernate"></i>Hibernate / JPA</li>
+            <li class="tool" tabindex="0" style="--i:4" data-note="Clear contracts between systems and partners." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="openapiinitiative"></i>REST APIs</li>
+            <li class="tool" tabindex="0" style="--i:5" data-note="Clean service-to-service calls." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 0 1-12 0zM12 17v5"/></svg>OpenFeign</li>
+            <li class="tool" tabindex="0" style="--i:6" data-note="Builds, dependencies and multi-module projects." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="apachemaven"></i>Maven</li>
+            <li class="tool" tabindex="0" style="--i:7" data-note="The right structure makes the hard part easy." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4c-2 0-3 1-3 3v2c0 1.5-1 3-2 3 1 0 2 1.5 2 3v2c0 2 1 3 3 3M16 4c2 0 3 1 3 3v2c0 1.5 1 3 2 3-1 0-2 1.5-2 3v2c0 2-1 3-3 3"/></svg>Data structures &amp; algorithms</li>
+          </ul>
+        </article>
+        <article class="skill" data-cat="architecture" style="--k:var(--c2)">
+          <header class="skill__head">
+            <span class="skill__orbit" aria-hidden="true"><svg class="skill__ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3zM3 9h18M9 9v12"/></svg></span>
+            <div><h3>Architecture &amp; System Design</h3><p>How the pieces fit — and keep fitting.</p></div>
+          </header>
+          <span class="skill__meta">Leading designs since 2022</span>
+          <ul class="skill__tools">
+            <li class="tool is-core" tabindex="0" style="--i:0" data-note="Boxes and arrows that hold up in production." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3zM3 9h18M9 9v12"/></svg>System design</li>
+            <li class="tool is-core" tabindex="0" style="--i:1" data-note="Small services, clear boundaries, independent deploys." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>Microservices</li>
+            <li class="tool is-core" tabindex="0" style="--i:2" data-note="Many machines, behaving like one." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5a2 2 0 1 0 4 0 2 2 0 1 0 -4 0M3 18a2 2 0 1 0 4 0 2 2 0 1 0 -4 0M17 18a2 2 0 1 0 4 0 2 2 0 1 0 -4 0M11 6.8 6 16.3M13 6.8l5 9.5M7 18h10"/></svg>Distributed systems</li>
+            <li class="tool" tabindex="0" style="--i:3" data-note="Services that react to events, loosely coupled." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Event-driven architecture</li>
+            <li class="tool" tabindex="0" style="--i:4" data-note="Code that speaks the language of logistics." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5zM2 13l10 5 10-5M2 18l10 5 10-5"/></svg>Domain-driven design</li>
+            <li class="tool" tabindex="0" style="--i:5" data-note="Proven shapes for recurring problems." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3 11 11H2zM13.5 7a4 4 0 1 0 8 0 4 4 0 1 0 -8 0M3 14h7v7H3zM14 14h7v7h-7z"/></svg>Design patterns</li>
+            <li class="tool" tabindex="0" style="--i:6" data-note="Who may do what, down to the field." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5zM9 12l2 2 4-4"/></svg>RBAC / ACL</li>
+            <li class="tool" tabindex="0" style="--i:7" data-note="Stateless, signed identity between services." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="jsonwebtokens"></i>JWT</li>
+          </ul>
+        </article>
+        <article class="skill" data-cat="cloud" style="--k:var(--c3)">
+          <header class="skill__head">
+            <span class="skill__orbit" aria-hidden="true"><svg class="skill__ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6 9.5 4.25 4.25 0 0 0 7 18z"/></svg></span>
+            <div><h3>Cloud &amp; Containers</h3><p>Cloud-native platforms on Google Cloud.</p></div>
+          </header>
+          <span class="skill__meta">In production on GCP</span>
+          <ul class="skill__tools">
+            <li class="tool is-core" tabindex="0" style="--i:0" data-note="Where the cloud-native platforms run." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="googlecloud"></i>Google Cloud</li>
+            <li class="tool is-core" tabindex="0" style="--i:1" data-note="The other kind of container — I ship those too." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="docker"></i>Docker</li>
+            <li class="tool" tabindex="0" style="--i:2" data-note="Orchestrating containers at scale." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="kubernetes"></i>Kubernetes</li>
+            <li class="tool" tabindex="0" style="--i:3" data-note="Serverless containers that scale on demand." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 19h10a4 4 0 0 0 .5-7.97A6 6 0 0 0 6 10.5 4.25 4.25 0 0 0 7 19zM11 12.5v4l3.2-2z"/></svg>Cloud Run</li>
+            <li class="tool" tabindex="0" style="--i:4" data-note="Messaging between services, at any volume." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="googlepubsub"></i>Pub/Sub</li>
+            <li class="tool" tabindex="0" style="--i:5" data-note="Analytics across the whole operation." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="googlebigquery"></i>BigQuery</li>
+            <li class="tool" tabindex="0" style="--i:6" data-note="Durable files, documents and exports." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="googlecloudstorage"></i>Cloud Storage</li>
+          </ul>
+        </article>
+        <article class="skill" data-cat="data" style="--k:var(--c4)">
+          <header class="skill__head">
+            <span class="skill__orbit" aria-hidden="true"><svg class="skill__ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span>
+            <div><h3>Data &amp; Search</h3><p>Fast answers from large data sets.</p></div>
+          </header>
+          <span class="skill__meta">Search &amp; storage at scale</span>
+          <ul class="skill__tools">
+            <li class="tool is-core" tabindex="0" style="--i:0" data-note="Relational data, carefully indexed." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="postgresql"></i>PostgreSQL</li>
+            <li class="tool is-core" tabindex="0" style="--i:1" data-note="Fast search and filters over large data sets." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="elasticsearch"></i>Elasticsearch</li>
+            <li class="tool" tabindex="0" style="--i:2" data-note="Full-text search for the classic stack." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="apachesolr"></i>Apache Solr</li>
+            <li class="tool" tabindex="0" style="--i:3" data-note="Enterprise data, stored procedures and all." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>MSSQL</li>
+            <li class="tool" tabindex="0" style="--i:4" data-note="Hot data kept close, so screens fly." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="redis"></i>Redis / Memcache</li>
+            <li class="tool" tabindex="0" style="--i:5" data-note="Flexible documents when tables don’t fit." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>NoSQL</li>
+          </ul>
+        </article>
+        <article class="skill" data-cat="devops" style="--k:#c98a2b">
+          <header class="skill__head">
+            <span class="skill__orbit" aria-hidden="true"><svg class="skill__ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8c-2.2 0-4 1.8-4 4s1.8 4 4 4c3.5 0 6.5-8 10-8 2.2 0 4 1.8 4 4s-1.8 4-4 4c-3.5 0-6.5-8-10-8z"/></svg></span>
+            <div><h3>DevOps &amp; Tooling</h3><p>From commit to production, automatically.</p></div>
+          </header>
+          <span class="skill__meta">CI/CD on every change</span>
+          <ul class="skill__tools">
+            <li class="tool is-core" tabindex="0" style="--i:0" data-note="Every change reviewed and traceable." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="git"></i>Git</li>
+            <li class="tool is-core" tabindex="0" style="--i:1" data-note="Pipelines that build, test and deploy." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="jenkins"></i>Jenkins</li>
+            <li class="tool" tabindex="0" style="--i:2" data-note="CI/CD that lives right next to the code." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="githubactions"></i>GitHub Actions</li>
+            <li class="tool" tabindex="0" style="--i:3" data-note="From merge request to production." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="gitlab"></i>GitLab CI</li>
+            <li class="tool" tabindex="0" style="--i:4" data-note="APIs documented and testable." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="swagger"></i>Swagger / OpenAPI</li>
+            <li class="tool" tabindex="0" style="--i:5" data-note="Where most of my day happens." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="intellijidea"></i>IntelliJ IDEA</li>
+            <li class="tool" tabindex="0" style="--i:6" data-note="Where it all started." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="eclipseide"></i>Eclipse</li>
+          </ul>
+        </article>
+        <article class="skill" data-cat="ai" style="--k:var(--c6)">
+          <header class="skill__head">
+            <span class="skill__orbit" aria-hidden="true"><svg class="skill__ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 14l.8 2.2 2.2.8-2.2.8L19 20l-.8-2.2-2.2-.8 2.2-.8z"/></svg></span>
+            <div><h3>AI &amp; Machine Learning</h3><p>What’s next — and the tools to explore it.</p></div>
+          </header>
+          <span class="skill__meta">The next port</span>
+          <ul class="skill__tools">
+            <li class="tool is-core" tabindex="0" style="--i:0" data-note="Agents and automation inside dependable systems." data-cursor="" data-cursor-icon="info"><svg class="tool__line" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 14l.8 2.2 2.2.8-2.2.8L19 20l-.8-2.2-2.2-.8 2.2-.8z"/></svg>GenAI &amp; LLMs</li>
+            <li class="tool is-core" tabindex="0" style="--i:1" data-note="Scripts, data work and ML experiments." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="python"></i>Python</li>
+            <li class="tool" tabindex="0" style="--i:2" data-note="Computer-vision experiments." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="opencv"></i>OpenCV</li>
+            <li class="tool" tabindex="0" style="--i:3" data-note="Browser automation — my first internship project." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="selenium"></i>Selenium</li>
+            <li class="tool" tabindex="0" style="--i:4" data-note="The web side of things." data-cursor="" data-cursor-icon="info"><i class="tool__ic" data-si="javascript"></i>JavaScript</li>
+          </ul>
+        </article>
+      </div>
+      <div class="skill-tip" data-skill-tip role="status" aria-live="polite"><b></b><span></span><p></p></div>
     </section>
 
     <!-- VOYAGE -->

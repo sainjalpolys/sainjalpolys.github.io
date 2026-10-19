@@ -742,12 +742,45 @@ html.lenis, html.lenis body { height: auto; }
 @keyframes waves { to { background-position: 40px 0; } }
 .cargo { position: absolute; left: 22px; top: 50%; width: 26px; height: 14px; margin-top: -7px; border-radius: 3px; background: var(--c5); opacity: 0; pointer-events: none; }
 .contact__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 26px; margin-top: 36px; font-weight: 600; }
+.sheet__list li a + a { margin-left: 14px; }
 .contact__links a, .sheet__list a { background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 2px; padding-bottom: 2px; transition: background-size 0.5s var(--ease); }
 .contact__links a:hover, .sheet__list a:hover { background-size: 100% 2px; }
 
 .footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 24px; padding: 24px var(--gutter) calc(24px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
 .footer a { color: var(--ink); font-weight: 500; }
 
+/* Résumé viewer */
+.cv { width: 100%; max-width: none; height: 100%; max-height: none; padding: 0; border: 0; overflow: hidden; background: transparent; color: var(--ink); }
+.cv::backdrop { background: rgba(10, 8, 6, 0); transition: background-color 0.4s; }
+.cv.is-in::backdrop { background: rgba(10, 8, 6, 0.6); }
+.cv__panel {
+  position: absolute; left: 50%; top: 50%; display: flex; flex-direction: column; width: min(920px, calc(100vw - 32px)); height: min(94vh, 1200px); height: min(94dvh, 1200px);
+  overflow: hidden; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 40px 120px rgba(0, 0, 0, 0.35);
+  translate: -50% -46%; scale: 0.96; opacity: 0; transition: translate 0.5s var(--spring), scale 0.5s var(--spring), opacity 0.3s;
+}
+.cv.is-in .cv__panel { translate: -50% -50%; scale: 1; opacity: 1; }
+.cv__bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px 12px 20px; border-bottom: 1px solid var(--line); }
+.cv__title { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.cv__title b { font-family: var(--display); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+.cv__title small { overflow: hidden; font-size: 13px; color: var(--muted); white-space: nowrap; text-overflow: ellipsis; }
+.cv__dot { flex: none; align-self: center; width: 10px; height: 10px; border-radius: 2px; background: var(--c1); }
+.cv__actions { display: flex; flex: none; align-items: center; gap: 8px; }
+.cv__btn { padding: 8px 14px; border-radius: 999px; font-size: 13.5px; font-weight: 600; white-space: nowrap; background: var(--surface); border: 1px solid var(--line-2); transition: transform 0.3s var(--spring), background-color 0.2s; }
+.cv__btn:hover { transform: translateY(-2px); }
+.cv__btn--primary { color: #fff; background: var(--brand); border-color: var(--brand); }
+:root[data-theme="dark"] .cv__btn--primary { color: #1d140b; }
+.cv__close { flex: none; width: 38px; height: 38px; border-radius: 50%; font-size: 15px; background: var(--surface-2); }
+.cv__pages { display: grid; flex: 1; justify-items: center; align-content: start; gap: 18px; padding: 22px; overflow: auto; overscroll-behavior: contain; background: var(--surface-2); outline: none; }
+.cv__pages canvas { display: block; width: 100%; max-width: 820px; height: auto; border-radius: 6px; background: #fff; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18); }
+.cv__status { align-self: center; padding: 80px 0; font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.cv__fallback { width: 100%; height: 100%; min-height: 70vh; border: 0; border-radius: 6px; background: #fff; }
+@media (max-width: 600px) {
+  .cv__panel { width: 100vw; height: 100vh; height: 100dvh; border-radius: 0; border: 0; }
+  .cv__bar { padding: 10px 10px 10px 14px; }
+  .cv__title small { display: none; }
+  .cv__btn { padding: 7px 11px; font-size: 12.5px; }
+  .cv__pages { gap: 12px; padding: 12px; }
+}
 .sheet { width: 100%; max-width: none; height: 100%; max-height: none; padding: 0; border: 0; background: transparent; color: var(--ink); }
 .sheet::backdrop { background: rgba(var(--bg-rgb), 0); transition: background-color 0.5s; }
 .sheet.is-in::backdrop { background: rgba(var(--bg-rgb), 0.6); }

@@ -183,10 +183,11 @@
       moon: 'M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z',
       filter: 'M4 5h16l-6 7v6l-4 2v-8z',
       close: 'M6 6l12 12M18 6 6 18',
+      eye: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM9 12a3 3 0 1 0 6 0 3 3 0 1 0-6 0',
       info: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 11v5M12 7.5h.01',
       stamp: 'M5 21h14M6 17h12v-3a2 2 0 0 0-2-2h-2V8a2 2 0 1 0-4 0v4H8a2 2 0 0 0-2 2z',
     };
-    const CAPTION_ICON = { Top: 'up', Download: 'save', Play: 'play', Open: 'out', Flip: 'flip', Spin: 'spin', Drop: 'drop', 'Ship it': 'send', Write: 'mail' };
+    const CAPTION_ICON = { View: 'eye', Top: 'up', Download: 'save', Play: 'play', Open: 'out', Flip: 'flip', Spin: 'spin', Drop: 'drop', 'Ship it': 'send', Write: 'mail' };
     // Areas you drag rather than click keep the arrow; everything clickable gets the hand.
     const DRAGGED = new Set(['spin', 'slide', 'grab']);
     const ownText = (el) => Array.from(el.childNodes).some((n) => n.nodeType === 3 && n.textContent.trim());
@@ -254,9 +255,10 @@
       ripple.classList.add('is-on');
     });
     window.addEventListener('pointerup', () => cursor.classList.remove('is-down'));
-    // A modal dialog sits in the top layer, above the custom cursor, so the system cursor returns while it is open.
-    const sheetEl = $('[data-sheet]');
-    if (sheetEl) new MutationObserver(() => root.classList.toggle('has-cursor', !sheetEl.open)).observe(sheetEl, { attributes: true, attributeFilter: ['open'] });
+    // A modal dialog sits in the top layer, above the custom cursor, so the system cursor returns while one is open.
+    const dialogs = $$('dialog');
+    const syncCursor = () => root.classList.toggle('has-cursor', !dialogs.some((d) => d.open));
+    dialogs.forEach((d) => new MutationObserver(syncCursor).observe(d, { attributes: true, attributeFilter: ['open'] }));
     let px = 0;
     let py = 0;
     let tilt = 0;
@@ -2278,6 +2280,92 @@
     $('[data-deck-next]').addEventListener('click', () => next(1));
     $('[data-deck-prev]').addEventListener('click', () => next(-1));
     layout();
+  }
+
+  /* ---------- Résumé: read it right here; download or open it in a tab if you like ---------- */
+
+  const cv = $('[data-cv]');
+  if (cv) {
+    const pagesEl = $('[data-cv-pages]', cv);
+    const PDF_URL = 'attachments/Sainjal_Poly_Resume.pdf';
+    // PDF.js draws the pages the same way on every device; it only loads when someone opens the viewer.
+    const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+    let lib = null;
+    let doc = null;
+    let drawnAt = 0;
+    const loadScript = (src) => new Promise((ok, fail) => {
+      const el = document.createElement('script');
+      el.src = src;
+      el.onload = ok;
+      el.onerror = fail;
+      document.head.append(el);
+    });
+    const render = async () => {
+      const pad = parseFloat(getComputedStyle(pagesEl).paddingLeft) * 2;
+      const width = Math.min(820, pagesEl.clientWidth - pad);
+      if (Math.abs(width - drawnAt) < 40) return;
+      drawnAt = width;
+      try {
+        if (!lib) {
+          await loadScript(`${PDFJS}pdf.min.js`);
+          lib = window.pdfjsLib;
+          lib.GlobalWorkerOptions.workerSrc = `${PDFJS}pdf.worker.min.js`;
+        }
+        if (!doc) doc = await lib.getDocument(PDF_URL).promise;
+        const ratio = Math.min(2.5, window.devicePixelRatio || 1) * 1.25;
+        const pages = [];
+        for (let n = 1; n <= doc.numPages; n++) {
+          const page = await doc.getPage(n);
+          const viewport = page.getViewport({ scale: (width / page.getViewport({ scale: 1 }).width) * ratio });
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.floor(viewport.width);
+          canvas.height = Math.floor(viewport.height);
+          canvas.setAttribute('role', 'img');
+          canvas.setAttribute('aria-label', `Résumé, page ${n} of ${doc.numPages}`);
+          await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+          pages.push(canvas);
+        }
+        pagesEl.replaceChildren(...pages);
+      } catch (e) {
+        // No PDF.js (offline or blocked): let the browser show the file itself.
+        const frame = document.createElement('iframe');
+        frame.className = 'cv__fallback';
+        frame.src = PDF_URL;
+        frame.title = 'Résumé';
+        pagesEl.replaceChildren(frame);
+      }
+    };
+    const openCv = () => {
+      if (cv.open) return;
+      setMenu(false);
+      cv.showModal();
+      requestAnimationFrame(() => cv.classList.add('is-in'));
+      lenis?.stop();
+      render();
+    };
+    const closeCv = () => {
+      if (!cv.open) return;
+      cv.classList.remove('is-in');
+      setTimeout(() => {
+        cv.close();
+        if (!$$('dialog[open]').length) lenis?.start();
+      }, reduceMotion ? 0 : 320);
+    };
+    $$('[data-cv-open]').forEach((a) => a.addEventListener('click', (e) => {
+      // Ctrl/⌘/Shift-click still opens the PDF in a tab, as people expect.
+      if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+      e.preventDefault();
+      openCv();
+    }));
+    $('[data-cv-close]', cv).addEventListener('click', closeCv);
+    cv.addEventListener('cancel', (e) => { e.preventDefault(); closeCv(); });
+    cv.addEventListener('click', (e) => { if (e.target === cv) closeCv(); });
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+      if (!cv.open) return;
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(render, 250);
+    });
   }
 
   /* ---------- Contact: load a container, sail it home, open the sheet ---------- */

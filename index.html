@@ -82,7 +82,7 @@
       <button class="daynight" type="button" data-theme-toggle aria-label="Switch to night mode" data-cursor="Day / night">
         <span class="daynight__track"><span class="daynight__knob"><i class="daynight__crater"></i><i class="daynight__crater"></i></span><i class="daynight__star"></i><i class="daynight__star"></i><i class="daynight__star"></i></span>
       </button>
-      <a class="btn btn--small" href="attachments/Sainjal_Poly_Resume.pdf" download data-magnetic data-cursor="Download">Résumé <span aria-hidden="true">↓</span></a>
+      <a class="btn btn--small" href="attachments/Sainjal_Poly_Resume.pdf" target="_blank" rel="noopener" data-cv-open data-magnetic data-cursor="View">Résumé <span aria-hidden="true">↗</span></a>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open menu"><i></i><i></i></button>
     </div>
   </header>
@@ -96,6 +96,7 @@
       <a href="#work"><b>05</b>Work</a>
       <a href="#play"><b>06</b>Play</a>
       <a href="#contact"><b>07</b>Contact</a>
+      <a href="attachments/Sainjal_Poly_Resume.pdf" target="_blank" rel="noopener" data-cv-open><b>CV</b>Résumé</a>
     </nav>
   </div>
 
@@ -509,7 +510,7 @@
         <li><a href="mailto:sainjalpoly123@gmail.com" data-cursor="Write">Email</a></li>
         <li><a href="https://www.linkedin.com/in/sainjal-poly/" target="_blank" rel="noopener" data-cursor="Open">LinkedIn</a></li>
         <li><a href="https://github.com/sainjalpolys" target="_blank" rel="noopener" data-cursor="Open">GitHub</a></li>
-        <li><a href="attachments/Sainjal_Poly_Resume.pdf" download data-cursor="Download">Résumé</a></li>
+        <li><a href="attachments/Sainjal_Poly_Resume.pdf" target="_blank" rel="noopener" data-cv-open data-cursor="View">Résumé</a></li>
       </ul>
     </section>
   </main>
@@ -531,8 +532,25 @@
         <li><span>Phone</span><a href="tel:+918281506352">+91 82815 06352</a></li>
         <li><span>LinkedIn</span><a href="https://www.linkedin.com/in/sainjal-poly/" target="_blank" rel="noopener">in/sainjal-poly</a></li>
         <li><span>GitHub</span><a href="https://github.com/sainjalpolys" target="_blank" rel="noopener">github.com/sainjalpolys</a></li>
-        <li><span>Résumé</span><a href="attachments/Sainjal_Poly_Resume.pdf" download>Download PDF</a></li>
+        <li><span>Résumé</span><a href="attachments/Sainjal_Poly_Resume.pdf" target="_blank" rel="noopener" data-cv-open>View</a><a href="attachments/Sainjal_Poly_Resume.pdf" download>Download PDF</a></li>
       </ul>
+    </div>
+  </dialog>
+
+  <!-- Résumé viewer: the PDF, drawn on the page -->
+  <dialog class="cv" data-cv aria-label="Résumé">
+    <div class="cv__panel">
+      <header class="cv__bar">
+        <p class="cv__title"><span class="cv__dot" aria-hidden="true"></span><b>Résumé</b><small>Sainjal Poly · Solution Architect</small></p>
+        <div class="cv__actions">
+          <a class="cv__btn" href="attachments/Sainjal_Poly_Resume.pdf" target="_blank" rel="noopener" data-cursor="Open">Open <span aria-hidden="true">↗</span></a>
+          <a class="cv__btn cv__btn--primary" href="attachments/Sainjal_Poly_Resume.pdf" download data-cursor="Download">Download <span aria-hidden="true">↓</span></a>
+          <button class="cv__close" type="button" data-cv-close aria-label="Close résumé">✕</button>
+        </div>
+      </header>
+      <div class="cv__pages" data-cv-pages data-lenis-prevent tabindex="0" aria-label="Résumé pages">
+        <p class="cv__status" data-cv-status>Unpacking the résumé…</p>
+      </div>
     </div>
   </dialog>
 
